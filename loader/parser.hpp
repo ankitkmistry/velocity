@@ -1,0 +1,70 @@
+#ifndef SOURCE_LOADER_PARSER_HPP_
+#define SOURCE_LOADER_PARSER_HPP_
+
+#include "elfdef.hpp"
+#include "../utils/common.hpp"
+#include "../utils/exceptions.hpp"
+
+class Parser {
+private:
+    uint8 *data;
+    uint8 *dp;
+    string path;
+
+    MetaInfo parseMetaInfo();
+
+    ObjInfo parseObjInfo();
+
+    ClassInfo parseClassInfo();
+
+    FieldInfo parseFieldInfo();
+
+    MethodInfo parseMethodInfo();
+
+    MethodInfo::LineInfo parseLineInfo();
+
+    MethodInfo::ExceptionTableInfo parseExceptionInfo();
+
+    MethodInfo::LocalInfo parseLocalInfo();
+
+    MethodInfo::ArgInfo parseArgInfo();
+
+    GlobalInfo parseGlobalInfo();
+
+    CpInfo parseCpInfo();
+
+    __Lcon parseLcon();
+
+    __UTF8 parseUTF8();
+
+    constexpr uint8 readByte() {
+        return *dp++;
+    }
+
+    constexpr uint16 readShort() {
+        return readByte() << 8 | readByte();
+    }
+
+    constexpr uint32 readInt() {
+        return readByte() << 16 | readByte() << 8 | readByte();
+    }
+
+    constexpr uint64 readLong() {
+        return readShort() << 16 | readShort();
+    }
+
+    [[noreturn]]void corruptFileError() {
+        throw CorruptFileError(path);
+    }
+
+public:
+    Parser(uint8 *data, string path) {
+        this->data = data;
+        this->dp = data;
+        this->path = path;
+    }
+
+    ElpInfo parse();
+};
+
+#endif /* SOURCE_LOADER_PARSER_HPP_ */

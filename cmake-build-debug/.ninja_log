@@ -1,0 +1,5 @@
+# ninja log v5
+131	15017	6935973985177969	CMakeFiles/velocity.dir/main.cpp.obj	b060e3e4da135281
+15018	19724	6935974032180533	velocity.exe	5bd6f0aaaaf09c82
+631	12303	6935970563807587	CMakeFiles/velocity.dir/loader/verifier.cpp.obj	ec5d4e564c2e0758
+625	12351	6935970565047590	CMakeFiles/velocity.dir/loader/parser.cpp.obj	a156abf12570e361
