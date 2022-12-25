@@ -1,7 +1,3 @@
-//
-// Created by ajitkmistry on 24-12-2022.
-//
-
 #include "method.hpp"
 #include "../frame/frame.hpp"
 
@@ -12,7 +8,7 @@ static string kindNames[] = {
 };
 
 Obj *ObjMethod::copy() const {
-    return new ObjMethod(sign, type, meta, kind, new Frame(frame));
+    return new ObjMethod(sign, type, meta, kind, new Frame(*frame));
 }
 
 bool ObjMethod::truth() const {

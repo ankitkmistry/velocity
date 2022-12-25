@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <string>
+#include "constants.hpp"
 
 #define null (nullptr)
 
@@ -18,5 +19,6 @@ using int8 = int8_t;
 using int16 = int16_t;
 using int32 = int32_t;
 using int64 = int64_t;
+
 
 #endif /* SOURCE_UTILS_COMMON_HPP_ */

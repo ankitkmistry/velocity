@@ -133,7 +133,7 @@ struct ElpInfo {
     cpidx compiledFrom;
     ui1 type;
     cpidx entry;
-    cpidx aotLibs;
+    cpidx imports;
     ui2 constantPoolCount;
     CpInfo *constantPool;
     ui2 globalsCount;

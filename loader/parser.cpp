@@ -8,7 +8,7 @@ ElpInfo Parser::parse() {
     elp.compiledFrom = readShort();
     elp.type = readByte();
     elp.entry = readShort();
-    elp.aotLibs = readShort();
+    elp.imports = readShort();
     elp.constantPoolCount = readShort();
     elp.constantPool = new CpInfo[elp.constantPoolCount];
     for (int i = 0; i < elp.constantPoolCount; ++i) {

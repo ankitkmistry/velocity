@@ -10,18 +10,18 @@ class Object final : public Obj {
 private:
     Table<Obj *> members;
 public:
-    Object(Sign sign, const Type *type, Table<string> meta, Table<Obj *> members)
+    Object(Sign sign, Type *type, Table<string> meta, Table<Obj *> members)
             : Obj(sign, type, meta), members(members) {}
 
     Table<Obj *> getMembers() { return members; }
 
     Obj *getMember(string name) const;
 
-    [[nodiscard]] Obj *copy() const;
+    Obj *copy() const;
 
-    [[nodiscard]] bool truth() const;
+    bool truth() const;
 
-    [[nodiscard]] string toString() const;
+    string toString() const;
 
 };
 

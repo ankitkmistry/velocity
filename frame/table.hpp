@@ -31,8 +31,8 @@ public:
         return value;
     }
 
-    void setValue(Obj *value) {
-        Arg::value = value;
+    void setValue(Obj *val) {
+        value = val;
     }
 
     const Table<string> &getMeta() const {
@@ -69,8 +69,8 @@ public:
         return value;
     }
 
-    void setValue(Obj *value) {
-        Local::value = value;
+    void setValue(Obj *val) {
+        Local::value = val;
     }
 
     const Table<string> &getMeta() const {
@@ -82,35 +82,39 @@ public:
 
 class Exception {
 private:
-    int from, to, target;
-    const Type *exception;
+    uint32 from, to, target;
+    const Type *type;
     const Table<string> meta;
 public:
-    Exception(int from, int to, int target, const Type *exception, const Table<string> &meta)
+    Exception(uint32 from, uint32 to, uint32 target, const Type *type, const Table<string> &meta)
             : from(from), to(to),
               target(target),
-              exception(exception),
+              type(type),
               meta(meta) {}
 
-    int getFrom() const {
+    uint32 getFrom() const {
         return from;
     }
 
-    int getTo() const {
+    uint32 getTo() const {
         return to;
     }
 
-    int getTarget() const {
+    uint32 getTarget() const {
         return target;
     }
 
-    const Type *getException() const {
-        return exception;
+    const Type *getType() const {
+        return type;
     }
 
     const Table<string> &getMeta() const {
         return meta;
     }
+
+    static Exception NO_EXCEPTION() { return Exception(0, 0, 0, null, {}); }
+
+    static bool IS_NO_EXCEPTION(const Exception &exception) { return exception.type == null; }
 };
 
 class LineNumberTable {
@@ -121,6 +125,8 @@ public:
     explicit LineNumberTable(size_t count) : bytecode(count), sourcecode(count) {}
 
     LineNumberTable(const LineNumberTable &table) = default;
+
+    LineNumberTable &operator=(const LineNumberTable &lines) = default;
 
     void addLine(int byteLine, long sourceLine);
 
@@ -145,7 +151,9 @@ private:
 public:
     ArgsTable() : args() {}
 
-    ArgsTable(const ArgsTable &table) : args(table.args) {}
+    ArgsTable(const ArgsTable &table) = default;
+
+    ArgsTable &operator=(const ArgsTable &argsTable) = default;
 
     void set(uint8 i, Obj *val) { args[i].setValue(val); }
 
@@ -162,12 +170,14 @@ public:
 
 class LocalsTable {
 private:
-    const int closureStart;
+    int closureStart;
     vector<Local> locals;
 public:
     explicit LocalsTable(int closureStart) : closureStart(closureStart), locals() {}
 
-    LocalsTable(const LocalsTable &table) : closureStart(table.closureStart), locals(table.locals) {}
+    LocalsTable(const LocalsTable &table) = default;
+
+    LocalsTable &operator=(const LocalsTable &localsTable) = default;
 
     int getClosureStart() const {
         return closureStart;
@@ -192,7 +202,17 @@ private:
 public:
     ExceptionTable() : exceptions() {}
 
-    ExceptionTable(const ExceptionTable &table) : exceptions(table.exceptions) {}
+    ExceptionTable(const ExceptionTable &table) = default;
+
+    ExceptionTable &operator=(const ExceptionTable &table) = default;
+
+    void addException(Exception &exception) { exceptions.push_back(exception); }
+
+    Exception &get(int i) { return exceptions[i]; }
+
+    uint8 count() { return exceptions.size(); }
+
+    Exception getTarget(int pc, Type *exception);
 };
 
 #endif //VELOCITY_TABLE_HPP

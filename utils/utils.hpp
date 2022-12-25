@@ -5,6 +5,8 @@
 #include <vector>
 #include <iterator>
 #include <algorithm>
+#include <cstdio>
+#include <functional>
 #include "common.hpp"
 #include "exceptions.hpp"
 
@@ -21,13 +23,6 @@ template<class T, class V>
 bool is(V obj) {
     return dynamic_cast<T *>(obj) != null;
 }
-
-/*
-template<class T>
-concept ToStringAble=requires(T t){
-    t.toString();
-};
-*/
 
 template<class T>
 string listToString(vector <T> data) {
@@ -84,5 +79,22 @@ template<class T>
 class Table final : public map<string, T> {
 
 };
+
+template<class T, class V>
+struct MatchCase {
+    T __case;
+    function <V> __action;
+};
+
+template<class ResultType, class CompareType>
+ResultType match(CompareType value,
+                 map <CompareType, function<ResultType>> matchCases,
+                 function <ResultType> defaultCase = [] { throw Unreachable(); }) {
+    try {
+        return matchCases.at(value)();
+    } catch (std::out_of_range) {
+        return defaultCase();
+    }
+}
 
 #endif /* UTILS_UTILS_HPP_ */

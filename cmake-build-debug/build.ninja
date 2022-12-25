@@ -97,6 +97,48 @@ build CMakeFiles/velocity.dir/oop/objects.cpp.obj: CXX_COMPILER__velocity_Debug 
   OBJECT_DIR = CMakeFiles\velocity.dir
   OBJECT_FILE_DIR = CMakeFiles\velocity.dir\oop
 
+build CMakeFiles/velocity.dir/frame/frame.cpp.obj: CXX_COMPILER__velocity_Debug H$:/Programming$ (Ankit)/Projects/Spade/1.0/velocity/frame/frame.cpp || cmake_object_order_depends_target_velocity
+  DEP_FILE = CMakeFiles\velocity.dir\frame\frame.cpp.obj.d
+  FLAGS = -g -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles\velocity.dir
+  OBJECT_FILE_DIR = CMakeFiles\velocity.dir\frame
+
+build CMakeFiles/velocity.dir/ee/opcode.cpp.obj: CXX_COMPILER__velocity_Debug H$:/Programming$ (Ankit)/Projects/Spade/1.0/velocity/ee/opcode.cpp || cmake_object_order_depends_target_velocity
+  DEP_FILE = CMakeFiles\velocity.dir\ee\opcode.cpp.obj.d
+  FLAGS = -g -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles\velocity.dir
+  OBJECT_FILE_DIR = CMakeFiles\velocity.dir\ee
+
+build CMakeFiles/velocity.dir/ee/vm.cpp.obj: CXX_COMPILER__velocity_Debug H$:/Programming$ (Ankit)/Projects/Spade/1.0/velocity/ee/vm.cpp || cmake_object_order_depends_target_velocity
+  DEP_FILE = CMakeFiles\velocity.dir\ee\vm.cpp.obj.d
+  FLAGS = -g -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles\velocity.dir
+  OBJECT_FILE_DIR = CMakeFiles\velocity.dir\ee
+
+build CMakeFiles/velocity.dir/ee/thread.cpp.obj: CXX_COMPILER__velocity_Debug H$:/Programming$ (Ankit)/Projects/Spade/1.0/velocity/ee/thread.cpp || cmake_object_order_depends_target_velocity
+  DEP_FILE = CMakeFiles\velocity.dir\ee\thread.cpp.obj.d
+  FLAGS = -g -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles\velocity.dir
+  OBJECT_FILE_DIR = CMakeFiles\velocity.dir\ee
+
+build CMakeFiles/velocity.dir/ee/state.cpp.obj: CXX_COMPILER__velocity_Debug H$:/Programming$ (Ankit)/Projects/Spade/1.0/velocity/ee/state.cpp || cmake_object_order_depends_target_velocity
+  DEP_FILE = CMakeFiles\velocity.dir\ee\state.cpp.obj.d
+  FLAGS = -g -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles\velocity.dir
+  OBJECT_FILE_DIR = CMakeFiles\velocity.dir\ee
+
+build CMakeFiles/velocity.dir/frame/writer.cpp.obj: CXX_COMPILER__velocity_Debug H$:/Programming$ (Ankit)/Projects/Spade/1.0/velocity/frame/writer.cpp || cmake_object_order_depends_target_velocity
+  DEP_FILE = CMakeFiles\velocity.dir\frame\writer.cpp.obj.d
+  FLAGS = -g -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles\velocity.dir
+  OBJECT_FILE_DIR = CMakeFiles\velocity.dir\frame
+
+build CMakeFiles/velocity.dir/loader/loader.cpp.obj: CXX_COMPILER__velocity_Debug H$:/Programming$ (Ankit)/Projects/Spade/1.0/velocity/loader/loader.cpp || cmake_object_order_depends_target_velocity
+  DEP_FILE = CMakeFiles\velocity.dir\loader\loader.cpp.obj.d
+  FLAGS = -g -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles\velocity.dir
+  OBJECT_FILE_DIR = CMakeFiles\velocity.dir\loader
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target velocity
@@ -105,7 +147,7 @@ build CMakeFiles/velocity.dir/oop/objects.cpp.obj: CXX_COMPILER__velocity_Debug 
 #############################################
 # Link the executable velocity.exe
 
-build velocity.exe: CXX_EXECUTABLE_LINKER__velocity_Debug CMakeFiles/velocity.dir/main.cpp.obj CMakeFiles/velocity.dir/loader/parser.cpp.obj CMakeFiles/velocity.dir/loader/verifier.cpp.obj CMakeFiles/velocity.dir/oop/oop.cpp.obj CMakeFiles/velocity.dir/oop/type.cpp.obj CMakeFiles/velocity.dir/oop/method.cpp.obj CMakeFiles/velocity.dir/frame/table.cpp.obj CMakeFiles/velocity.dir/oop/objects.cpp.obj
+build velocity.exe: CXX_EXECUTABLE_LINKER__velocity_Debug CMakeFiles/velocity.dir/main.cpp.obj CMakeFiles/velocity.dir/loader/parser.cpp.obj CMakeFiles/velocity.dir/loader/verifier.cpp.obj CMakeFiles/velocity.dir/oop/oop.cpp.obj CMakeFiles/velocity.dir/oop/type.cpp.obj CMakeFiles/velocity.dir/oop/method.cpp.obj CMakeFiles/velocity.dir/frame/table.cpp.obj CMakeFiles/velocity.dir/oop/objects.cpp.obj CMakeFiles/velocity.dir/frame/frame.cpp.obj CMakeFiles/velocity.dir/ee/opcode.cpp.obj CMakeFiles/velocity.dir/ee/vm.cpp.obj CMakeFiles/velocity.dir/ee/thread.cpp.obj CMakeFiles/velocity.dir/ee/state.cpp.obj CMakeFiles/velocity.dir/frame/writer.cpp.obj CMakeFiles/velocity.dir/loader/loader.cpp.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\velocity.dir

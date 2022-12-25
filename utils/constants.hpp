@@ -1,0 +1,10 @@
+#ifndef VELOCITY_CONSTANTS_HPP
+#define VELOCITY_CONSTANTS_HPP
+
+#define FRAMES_MAX 65536
+#define VERSION "1.0"
+#define LANG_NAME "spade"
+#define VM_NAME "velocity"
+#define INFO_STRING LANG_NAME VM_NAME VERSION
+
+#endif //VELOCITY_CONSTANTS_HPP

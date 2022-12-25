@@ -7,8 +7,7 @@
 
 class Parser {
 private:
-    uint8 *data;
-    uint8 *dp;
+    FILE *file;
     string path;
 
     MetaInfo parseMetaInfo();
@@ -38,7 +37,7 @@ private:
     __UTF8 parseUTF8();
 
     constexpr uint8 readByte() {
-        return *dp++;
+        return fgetc(file);
     }
 
     constexpr uint16 readShort() {
@@ -58,10 +57,8 @@ private:
     }
 
 public:
-    Parser(uint8 *data, string path) {
-        this->data = data;
-        this->dp = data;
-        this->path = path;
+    Parser(FILE *file, string path) : file(file), path(path) {
+        if (file == null) throw FileNotFoundError(path);
     }
 
     ElpInfo parse();

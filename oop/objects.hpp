@@ -13,15 +13,15 @@ private:
 public:
     ObjBool(bool value);
 
-    [[nodiscard]] bool truth() const override {
+    bool truth() const override {
         return value;
     }
 
-    [[nodiscard]] string toString() const override {
+    string toString() const override {
         return value ? "true" : "false";
     }
 
-    [[nodiscard]] Obj *copy() const override {
+    Obj *copy() const override {
         return new ObjBool(value);
     }
 
@@ -37,15 +37,15 @@ private:
 public:
     ObjChar(const char c);
 
-    [[nodiscard]] bool truth() const override {
+    bool truth() const override {
         return c != '\0';
     }
 
-    [[nodiscard]] string toString() const override {
+    string toString() const override {
         return string({c});
     }
 
-    [[nodiscard]] Obj *copy() const override {
+    Obj *copy() const override {
         return new ObjChar(c);
     }
 };
@@ -54,15 +54,15 @@ class ObjNull : public Obj {
 public:
     ObjNull();
 
-    [[nodiscard]] bool truth() const override {
+    bool truth() const override {
         return false;
     }
 
-    [[nodiscard]] string toString() const override {
+    string toString() const override {
         return "null";
     }
 
-    [[nodiscard]] Obj *copy() const override {
+    Obj *copy() const override {
         return new ObjNull();
     }
 };
@@ -73,15 +73,15 @@ private:
 public:
     ObjString(string str);
 
-    [[nodiscard]] bool truth() const override {
+    bool truth() const override {
         return !str.empty();
     }
 
-    [[nodiscard]] string toString() const override {
-        return str;
+    string toString() const override {
+        return "'" + str + "'";
     }
 
-    [[nodiscard]] Obj *copy() const override {
+    Obj *copy() const override {
         return new ObjString(str);
     }
 };
@@ -112,18 +112,18 @@ public:
 
     uint16 count() { return length; }
 
-    [[nodiscard]] bool truth() const override {
+    bool truth() const override {
         return length != 0;
     }
 
-    [[nodiscard]] string toString() const override;
+    string toString() const override;
 
-    [[nodiscard]] Obj *copy() const override;
+    Obj *copy() const override;
 };
 
 class ObjFloat;
 
-template<class T>
+template<class T, class V>
 class ObjNumber : public Obj {
 protected:
     explicit ObjNumber(Sign sign) :
@@ -133,35 +133,35 @@ protected:
 public:
     virtual ObjNumber *operator-() const = 0;
 
-    virtual ObjFloat *power(ObjNumber<T> n) const = 0;
+    virtual ObjFloat *power(T n) const = 0;
 
-    virtual ObjNumber *operator+(ObjNumber<T> n) const = 0;
+    virtual ObjNumber *operator+(T n) const = 0;
 
-    virtual ObjNumber *operator-(ObjNumber<T> n) const = 0;
+    virtual ObjNumber *operator-(T n) const = 0;
 
-    virtual ObjNumber *operator*(ObjNumber<T> n) const = 0;
+    virtual ObjNumber *operator*(T n) const = 0;
 
-    virtual ObjNumber *operator/(ObjNumber<T> n) const = 0;
+    virtual ObjNumber *operator/(T n) const = 0;
 
-    virtual ObjBool *operator<(ObjNumber<T> n) const = 0;
+    virtual ObjBool *operator<(T n) const = 0;
 
-    virtual ObjBool *operator<=(ObjNumber<T> n) const = 0;
+    virtual ObjBool *operator<=(T n) const = 0;
 
-    virtual ObjBool *operator==(ObjNumber<T> n) const = 0;
+    virtual ObjBool *operator==(T n) const = 0;
 
-    virtual ObjBool *operator!=(ObjNumber<T> n) const = 0;
+    virtual ObjBool *operator!=(T n) const = 0;
 
-    virtual ObjBool *operator>=(ObjNumber<T> n) const = 0;
+    virtual ObjBool *operator>=(T n) const = 0;
 
-    virtual ObjBool *operator>(ObjNumber<T> n) const = 0;
+    virtual ObjBool *operator>(T n) const = 0;
 
     virtual operator const ObjFloat *() const = 0;
 
-    [[nodiscard]] virtual T value() const = 0;
+    virtual V value() const = 0;
 };
 
 
-class ObjInt final : public ObjNumber<long> {
+class ObjInt final : public ObjNumber<ObjInt, long> {
 private:
     long val;
 public:
@@ -171,44 +171,44 @@ public:
 
     ~ObjInt() override = default;
 
-    [[nodiscard]] Obj *copy() const override;
+    Obj *copy() const override;
 
-    [[nodiscard]] bool truth() const override;
+    bool truth() const override;
 
-    [[nodiscard]] string toString() const override;
+    string toString() const override;
 
-    ObjNumber<long> *operator-() const override;
+    ObjInt *operator-() const override;
 
-    ObjFloat *power(ObjNumber<long> n) const override;
+    ObjFloat *power(ObjInt n) const override;
 
-    ObjNumber<long> *operator+(ObjNumber<long> n) const override;
+    ObjInt *operator+(ObjInt n) const override;
 
-    ObjNumber<long> *operator-(ObjNumber<long> n) const override;
+    ObjInt *operator-(ObjInt n) const override;
 
-    ObjNumber<long> *operator*(ObjNumber<long> n) const override;
+    ObjInt *operator*(ObjInt n) const override;
 
-    ObjNumber<long> *operator/(ObjNumber<long> n) const override;
+    ObjInt *operator/(ObjInt n) const override;
 
-    ObjBool *operator<(ObjNumber<long> n) const override;
+    ObjBool *operator<(ObjInt n) const override;
 
-    ObjBool *operator<=(ObjNumber<long> n) const override;
+    ObjBool *operator<=(ObjInt n) const override;
 
-    ObjBool *operator==(ObjNumber<long> n) const override;
+    ObjBool *operator==(ObjInt n) const override;
 
-    ObjBool *operator!=(ObjNumber<long> n) const override;
+    ObjBool *operator!=(ObjInt n) const override;
 
-    ObjBool *operator>=(ObjNumber<long> n) const override;
+    ObjBool *operator>=(ObjInt n) const override;
 
-    ObjBool *operator>(ObjNumber<long> n) const override;
+    ObjBool *operator>(ObjInt n) const override;
 
     operator const ObjFloat *() const override;
 
-    [[nodiscard]] long value() const override {
+    long value() const override {
         return val;
     }
 };
 
-class ObjFloat final : public ObjNumber<double> {
+class ObjFloat final : public ObjNumber<ObjFloat, double> {
 private:
     double val;
 public:
@@ -218,41 +218,41 @@ public:
 
     ~ObjFloat() override = default;
 
-    [[nodiscard]] Obj *copy() const override;
+    Obj *copy() const override;
 
-    [[nodiscard]] bool truth() const override;
+    bool truth() const override;
 
-    [[nodiscard]] string toString() const override;
+    string toString() const override;
 
-    ObjNumber<double> *operator-() const override;
+    ObjFloat *operator-() const override;
 
-    ObjFloat *power(ObjNumber<double> n) const override;
+    ObjFloat *power(ObjFloat n) const override;
 
-    ObjNumber<double> *operator+(ObjNumber<double> n) const override;
+    ObjFloat *operator+(ObjFloat n) const override;
 
-    ObjNumber<double> *operator-(ObjNumber<double> n) const override;
+    ObjFloat *operator-(ObjFloat n) const override;
 
-    ObjNumber<double> *operator*(ObjNumber<double> n) const override;
+    ObjFloat *operator*(ObjFloat n) const override;
 
-    ObjNumber<double> *operator/(ObjNumber<double> n) const override;
+    ObjFloat *operator/(ObjFloat n) const override;
 
-    ObjBool *operator<(ObjNumber<double> n) const override;
+    ObjBool *operator<(ObjFloat n) const override;
 
-    ObjBool *operator<=(ObjNumber<double> n) const override;
+    ObjBool *operator<=(ObjFloat n) const override;
 
-    ObjBool *operator==(ObjNumber<double> n) const override;
+    ObjBool *operator==(ObjFloat n) const override;
 
-    ObjBool *operator!=(ObjNumber<double> n) const override;
+    ObjBool *operator!=(ObjFloat n) const override;
 
-    ObjBool *operator>=(ObjNumber<double> n) const override;
+    ObjBool *operator>=(ObjFloat n) const override;
 
-    ObjBool *operator>(ObjNumber<double> n) const override;
+    ObjBool *operator>(ObjFloat n) const override;
 
     operator const ObjFloat *() const override {
         return this;
     }
 
-    [[nodiscard]] double value() const override {
+    double value() const override {
         return val;
     }
 };

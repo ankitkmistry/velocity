@@ -13,7 +13,7 @@ public:
     }
 };
 
-class CorruptFileError : FatalError {
+class CorruptFileError : public FatalError {
 private:
     string path;
 
@@ -27,21 +27,39 @@ public:
     }
 };
 
-class CastError : FatalError {
+class CastError : public FatalError {
 private:
     const string from, to;
 
 public:
-    CastError(const string& from, const string& to)
+    CastError(const string &from, const string &to)
             : FatalError(format("cannot cast type '%s' to type '%s'", from.c_str(), to.c_str())),
               from(from), to(to) {
     }
 };
 
-class IndexError : FatalError {
+class IndexError : public FatalError {
 public:
     explicit IndexError(size_t index)
-            : FatalError(format("Index out of bounds: %d", index)) {}
+            : FatalError(format("index out of bounds: %d", index)) {}
+};
+
+class FileNotFoundError : public FatalError {
+    string path;
+public:
+    FileNotFoundError(const string &path) : FatalError(format("file not found: '%s'", path.c_str())), path(path) {}
+
+    const string &getPath() const { return path; }
+};
+
+class ReferenceNotFoundError : public FatalError {
+public:
+    explicit ReferenceNotFoundError(const string &sign) : FatalError(format("reference not found: '%s'", sign.c_str())) {}
+};
+
+class Unreachable:public FatalError{
+public:
+    explicit Unreachable() : FatalError("unreachable code reached") {}
 };
 
 #endif /* SOURCE_UTILS_EXCEPTIONS_HPP_ */

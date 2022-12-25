@@ -35,3 +35,13 @@ long LineNumberTable::getSourceLine(int byteLine) {
     }
     return i;
 }
+
+Exception ExceptionTable::getTarget(int pc, Type *type) {
+    for (auto &exception: exceptions) {
+        if (exception.getFrom() <= pc && pc < exception.getTo()
+            && exception.getType() == type) {
+            return exception;
+        }
+    }
+    return Exception::NO_EXCEPTION();
+}
