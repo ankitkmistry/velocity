@@ -153,3 +153,13 @@ string ObjArray::toString() const {
         str += array[i]->toString() + (i < length - 1 ? ", " : "");
     return "[" + str + "]";
 }
+
+Obj *ObjArray::get(int64 i) {
+    if (i >= length) throw IndexError(i);
+    return array[i >= 0 ? i : length + i];
+}
+
+void ObjArray::set(int64 i, Obj *value) {
+    if (i >= length) throw IndexError(i);
+    array[i >= 0 ? i : length + i] = value;
+}

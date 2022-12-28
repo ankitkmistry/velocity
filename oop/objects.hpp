@@ -91,7 +91,7 @@ private:
     Obj **array;
     uint16 length;
 public:
-    ObjArray(int length) : Obj(Sign("array"), null), array(new Obj *[length]), length(length) {
+    explicit ObjArray(uint16 length) : Obj(Sign("array"), null), array(new Obj *[length]), length(length) {
         for (int i = 0; i < length; ++i)
             array[i] = new ObjNull();
     }
@@ -100,15 +100,9 @@ public:
 
     Obj **end() const { return &array[length - 1]; }
 
-    Obj *get(size_t i) {
-        if (i >= length) throw new IndexError(i);
-        return array[i];
-    }
+    Obj *get(int64 i);
 
-    void set(size_t i, Obj *value) {
-        if (i >= length) throw new IndexError(i);
-        array[i] = value;
-    }
+    void set(int64 i, Obj *value);
 
     uint16 count() { return length; }
 
@@ -161,11 +155,11 @@ public:
 };
 
 
-class ObjInt final : public ObjNumber<ObjInt, long> {
+class ObjInt final : public ObjNumber<ObjInt, int64> {
 private:
-    long val;
+    int64 val;
 public:
-    explicit ObjInt(long val) :
+    ObjInt(int64 val) :
             ObjNumber(Sign("int")), val(val) {
     }
 
@@ -203,7 +197,7 @@ public:
 
     operator const ObjFloat *() const override;
 
-    long value() const override {
+    int64 value() const override {
         return val;
     }
 };
@@ -212,7 +206,7 @@ class ObjFloat final : public ObjNumber<ObjFloat, double> {
 private:
     double val;
 public:
-    explicit ObjFloat(double val) :
+    ObjFloat(double val) :
             ObjNumber(Sign("int")), val(val) {
     }
 

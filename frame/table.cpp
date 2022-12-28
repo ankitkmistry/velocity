@@ -19,12 +19,12 @@ string Local::toString() const {
     return format("%s %s", localKindNames[kind].c_str(), name.c_str());
 }
 
-void LineNumberTable::addLine(int byteLine, long sourceLine) {
+void LineNumberTable::addLine(uint32 byteLine, uint64 sourceLine) {
     bytecode.push_back(byteLine);
     sourcecode.push_back(sourceLine);
 }
 
-long LineNumberTable::getSourceLine(int byteLine) {
+uint64 LineNumberTable::getSourceLine(uint32 byteLine) {
     int i, j;
     i = j = 0;
     for (int line: bytecode) {
@@ -36,7 +36,7 @@ long LineNumberTable::getSourceLine(int byteLine) {
     return i;
 }
 
-Exception ExceptionTable::getTarget(int pc, Type *type) {
+Exception ExceptionTable::getTarget(uint32 pc, Type *type) {
     for (auto &exception: exceptions) {
         if (exception.getFrom() <= pc && pc < exception.getTo()
             && exception.getType() == type) {

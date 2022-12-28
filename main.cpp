@@ -1,11 +1,24 @@
 #include <iostream>
-#include "oop/objects.hpp"
+#include <mutex>
+#include <thread>
+
+std::mutex mtx;
+
+void printBlock(int n, char c) {
+    mtx.lock();
+    for (int i = 0; i < n; ++i) {
+        std::cout << c;
+    }
+    std::cout << '\n';
+    mtx.unlock();
+}
 
 int main() {
     std::ios::sync_with_stdio(false);
-    auto array = new ObjArray(4);
-    array->set(0, new ObjString("hello, "));
-    array->set(1, new ObjString("world"));
-    cout << array->toString();
-	return 0;
+    std::thread t1{printBlock,50,'*'};
+    std::thread t2{printBlock, 50, '$'};
+
+    t1.join();
+    t2.join();
+    return 0;
 }

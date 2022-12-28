@@ -12,7 +12,8 @@ private:
     vector<Obj *> constPool;
     uint8 *code;
     uint8 *ip;
-    Obj **stack, **sp;
+    Obj **stack;
+    Obj **sp;
     ArgsTable args;
     LocalsTable locals;
     ExceptionTable exceptions;
@@ -21,14 +22,17 @@ private:
 public:
     Frame(vector<Obj *> &constPool,
           uint8 *code,
-          Obj **stack,
+          uint32 maxStack,
           ArgsTable &args,
           LocalsTable &locals,
           ExceptionTable &exceptions,
           LineNumberTable &lines,
           ObjMethod *method)
-            : constPool(constPool), code(code), ip(ip), stack(stack), sp(stack), args(args),
-              locals(locals), exceptions(exceptions), lines(lines), method(method) {}
+            : constPool(constPool), code(code), ip(null), stack(new Obj *[maxStack]), sp(null), args(args),
+              locals(locals), exceptions(exceptions), lines(lines), method(method) {
+        ip = code;
+        sp = stack;
+    }
 
     Frame(const Frame &frame) = default;
 
@@ -50,19 +54,21 @@ public:
 
     Obj **getSp() const { return sp; }
 
-    const ArgsTable &getArgs() const { return args; }
+    ArgsTable getArgs() const { return args; }
 
-    const LocalsTable &getLocals() const { return locals; }
+    LocalsTable getLocals() const { return locals; }
 
-    const ExceptionTable &getExceptions() const { return exceptions; }
+    ExceptionTable getExceptions() const { return exceptions; }
 
-    const LineNumberTable &getLines() const { return lines; }
+    LineNumberTable getLines() const { return lines; }
 
-    const ObjMethod *getMethod() const { return method; }
+    ObjMethod *getMethod() const { return method; }
 
     void setIp(uint8 *__ip) { ip = __ip; }
 
     void setSp(Obj **__sp) { sp = __sp; }
+
+    void setMethod(ObjMethod *met) { method = met; }
 };
 
 

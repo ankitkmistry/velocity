@@ -11,3 +11,4 @@ Obj *Frame::pop() {
 Obj *Frame::peek() {
     return sp[-1];
 }
+

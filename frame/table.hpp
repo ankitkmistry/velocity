@@ -1,6 +1,8 @@
 #ifndef VELOCITY_TABLE_HPP
 #define VELOCITY_TABLE_HPP
 
+#include <utility>
+
 #include "../utils/utils.hpp"
 #include "../oop/obj.hpp"
 
@@ -14,16 +16,18 @@ private:
     Kind kind;
     string name;
     Obj *value;
-    const Table<string> meta;
+    Table<string> meta;
 public:
-    Arg(Kind kind, const string &name, Obj *value, const Table<string> &meta)
+    Arg(Kind kind, string name, Obj *value, Table<string> &meta)
             : kind(kind), name(name), value(value), meta(meta) {}
+
+    Arg &operator=(const Arg &arg) = default;
 
     Kind getKind() const {
         return kind;
     }
 
-    const string &getName() const {
+    string getName() const {
         return name;
     }
 
@@ -35,7 +39,7 @@ public:
         value = val;
     }
 
-    const Table<string> &getMeta() const {
+    Table<string> getMeta() const {
         return meta;
     }
 
@@ -52,16 +56,18 @@ private:
     Kind kind;
     string name;
     Obj *value;
-    const Table<string> meta;
+    Table<string> meta;
 public:
-    Local(Kind kind, const string &name, Obj *value, const Table<string> &meta)
+    Local(Kind kind, string name, Obj *value, Table<string> &meta)
             : kind(kind), name(name), value(value), meta(meta) {}
+
+    Local &operator=(const Local &local) = default;
 
     Kind getKind() const {
         return kind;
     }
 
-    const string &getName() const {
+    string getName() const {
         return name;
     }
 
@@ -73,7 +79,7 @@ public:
         Local::value = val;
     }
 
-    const Table<string> &getMeta() const {
+    Table<string> getMeta() const {
         return meta;
     }
 
@@ -83,14 +89,16 @@ public:
 class Exception {
 private:
     uint32 from, to, target;
-    const Type *type;
-    const Table<string> meta;
+    Type *type;
+    Table<string> meta;
 public:
-    Exception(uint32 from, uint32 to, uint32 target, const Type *type, const Table<string> &meta)
+    Exception(uint32 from, uint32 to, uint32 target, Type *type, Table<string> meta)
             : from(from), to(to),
               target(target),
               type(type),
-              meta(meta) {}
+              meta(std::move(meta)) {}
+
+    Exception &operator=(const Exception &exception) = default;
 
     uint32 getFrom() const {
         return from;
@@ -104,11 +112,11 @@ public:
         return target;
     }
 
-    const Type *getType() const {
+    Type *getType() const {
         return type;
     }
 
-    const Table<string> &getMeta() const {
+    Table<string> getMeta() const {
         return meta;
     }
 
@@ -119,8 +127,8 @@ public:
 
 class LineNumberTable {
 private:
-    vector<int> bytecode;
-    vector<long> sourcecode;
+    vector<uint32> bytecode;
+    vector<uint64> sourcecode;
 public:
     explicit LineNumberTable(size_t count) : bytecode(count), sourcecode(count) {}
 
@@ -128,21 +136,15 @@ public:
 
     LineNumberTable &operator=(const LineNumberTable &lines) = default;
 
-    void addLine(int byteLine, long sourceLine);
+    void addLine(uint32 byteLine, uint64 sourceLine);
 
-    long getSourceLine(int byteLine);
+    uint64 getSourceLine(uint32 byteLine);
 
-    const vector<int> &getBytecode() const {
-        return bytecode;
-    }
+    const vector<uint32> &getBytecode() const { return bytecode; }
 
-    const vector<long> &getSourcecode() const {
-        return sourcecode;
-    }
+    const vector<uint64> &getSourcecode() const { return sourcecode; }
 
-    size_t count() {
-        return bytecode.capacity();
-    }
+    size_t count() { return bytecode.capacity(); }
 };
 
 class ArgsTable {
@@ -170,26 +172,24 @@ public:
 
 class LocalsTable {
 private:
-    int closureStart;
+    uint16 closureStart;
     vector<Local> locals;
 public:
-    explicit LocalsTable(int closureStart) : closureStart(closureStart), locals() {}
+    explicit LocalsTable(uint16 closureStart) : closureStart(closureStart), locals() {}
 
     LocalsTable(const LocalsTable &table) = default;
 
     LocalsTable &operator=(const LocalsTable &localsTable) = default;
 
-    int getClosureStart() const {
-        return closureStart;
-    }
+    uint16 getClosureStart() const { return closureStart; }
 
     void set(uint8 i, Obj *val) { locals[i].setValue(val); }
 
     Obj *get(uint8 i) { return locals[i].getValue(); }
 
-    void addArg(Local arg) { locals.push_back(arg); }
+    void addLocal(Local local) { locals.push_back(local); }
 
-    Local getArg(uint8 i) { return locals[i]; }
+    Local getLocal(uint8 i) { return locals[i]; }
 
     uint8 count() { return locals.size(); }
 
@@ -206,13 +206,13 @@ public:
 
     ExceptionTable &operator=(const ExceptionTable &table) = default;
 
-    void addException(Exception &exception) { exceptions.push_back(exception); }
+    void addException(Exception exception) { exceptions.push_back(exception); }
 
     Exception &get(int i) { return exceptions[i]; }
 
     uint8 count() { return exceptions.size(); }
 
-    Exception getTarget(int pc, Type *exception);
+    Exception getTarget(uint32 pc, Type *type);
 };
 
 #endif //VELOCITY_TABLE_HPP

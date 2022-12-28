@@ -7,12 +7,13 @@
 #include <algorithm>
 #include <cstdio>
 #include <functional>
+#include <any>
 #include "common.hpp"
 #include "exceptions.hpp"
 
 template<class To, class From>
-To *cast(From *val) {
-    auto castVal = dynamic_cast<To *>(val);
+To cast(From val) {
+    auto castVal = dynamic_cast<To>(val);
     if (castVal == null) {
         throw CastError(typeid(From).name(), typeid(To).name());
     }
@@ -21,7 +22,7 @@ To *cast(From *val) {
 
 template<class T, class V>
 bool is(V obj) {
-    return dynamic_cast<T *>(obj) != null;
+    return dynamic_cast<T>(obj) != null;
 }
 
 template<class T>
@@ -88,11 +89,21 @@ struct MatchCase {
 
 template<class ResultType, class CompareType>
 ResultType match(CompareType value,
-                 map <CompareType, function<ResultType>> matchCases,
-                 function <ResultType> defaultCase = [] { throw Unreachable(); }) {
+                 map <CompareType, function<ResultType()>> matchCases) {
     try {
-        return matchCases.at(value)();
-    } catch (std::out_of_range) {
+        return static_cast<ResultType>(matchCases.at(value)());
+    } catch (std::out_of_range &) {
+        throw Unreachable();
+    }
+}
+
+template<class ResultType, class CompareType>
+ResultType match(CompareType value,
+                 map <CompareType, function<ResultType()>> matchCases,
+                 function<ResultType()> defaultCase) {
+    try {
+        return dynamic_cast<ResultType>(matchCases.at(value)());
+    } catch (std::out_of_range &) {
         return defaultCase();
     }
 }

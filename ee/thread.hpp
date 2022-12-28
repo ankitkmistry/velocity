@@ -1,7 +1,7 @@
 #ifndef VELOCITY_THREAD_HPP
 #define VELOCITY_THREAD_HPP
 
-
+#include <functional>
 #include <thread>
 #include "../oop/oop.hpp"
 #include "state.hpp"
@@ -13,27 +13,18 @@ private:
     Object *value = null; // Program representation
     const VMState state;
 public:
-    explicit Thread(const VMState &state, std::thread thread) : state(state), thread(thread) {}
+    Thread(const VMState &state, function<void(Thread *)> fun)
+            : state(state), thread(fun, this) {}
 
-    int getExitCode() const {
-        return exitCode;
-    }
+    int getExitCode() const { return exitCode; }
 
-    std::thread getThread() const {
-        return thread;
-    }
+    Object *getValue() const { return value; }
 
-    Object *getValue() const {
-        return value;
-    }
+    const VMState &getState() const { return state; }
 
-    const VMState &getState() const {
-        return state;
-    }
+    void setExitCode(int code) { exitCode = code; }
 
-    void setExitCode(int code) {
-        exitCode = code;
-    }
+    void join() { thread.join(); }
 };
 
 

@@ -34,25 +34,15 @@ public:
 
     Obj *getMember(string name) const;
 
-    Kind getKind() const {
-        return kind;
-    }
+    Kind getKind() const { return kind; }
 
-    const vector<Obj *> &getConpool() const {
-        return conpool;
-    }
+    vector<Obj *> getConpool() const { return conpool; }
 
-    const vector<Type *> &getTypeParams() const {
-        return typeParams;
-    }
+    vector<Type *> getTypeParams() const { return typeParams; }
 
-    const Table<Type *> &getSupers() const {
-        return supers;
-    }
+    Table<Type *> getSupers() const { return supers; }
 
-    const Table<Obj *> &getMembers() const {
-        return members;
-    }
+    Table<Obj *> getMembers() const { return members; }
 
     Obj *copy() const override;
 

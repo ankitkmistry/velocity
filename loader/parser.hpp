@@ -36,21 +36,13 @@ private:
 
     __UTF8 parseUTF8();
 
-    constexpr uint8 readByte() {
-        return fgetc(file);
-    }
+    uint8 readByte() { return fgetc(file); }
 
-    constexpr uint16 readShort() {
-        return readByte() << 8 | readByte();
-    }
+    uint16 readShort() { return readByte() << 8 | readByte(); }
 
-    constexpr uint32 readInt() {
-        return readByte() << 16 | readByte() << 8 | readByte();
-    }
+    uint32 readInt() { return readByte() << 16 | readByte() << 8 | readByte(); }
 
-    constexpr uint64 readLong() {
-        return readShort() << 16 | readShort();
-    }
+    uint64 readLong() { return readShort() << 16 | readShort(); }
 
     [[noreturn]]void corruptFileError() {
         throw CorruptFileError(path);
