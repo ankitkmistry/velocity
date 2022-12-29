@@ -39,11 +39,23 @@ string Type::toString() const {
 }
 
 Obj *Type::getMember(string name) const {
-    try { return members.at(name); }
-    catch (std::out_of_range &) {
-        // TODO: runtime error: can't find static member $name
-        return null;
+    // TODO: runtime error: can't find static member $name
+    Obj *member = getStaticMember(name);
+    if (member == null)
+        throw runtime_error(format("can't find static member %s::%s", sign.toString().c_str(), name.c_str()));
+    return member;
+}
+
+Obj *Type::getStaticMember(string &name) const {
+    Obj *obj = null;
+    try { obj = members.at(name); }
+    catch (out_of_range &) {
+        // Check for the members in the super classes
+        for (auto [_, super]: supers) {
+            if ((obj = super->getStaticMember(name)) != null)break;
+        }
     }
+    return obj;
 }
 
 Type *Type::TYPE_PARAM_(string name) {

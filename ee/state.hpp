@@ -53,7 +53,7 @@ public:
 
     uint16 readShort() { return (ip += 2, (ip[-2] << 8) | ip[-1]); }
 
-    void adjust(int offset) { ip += offset; }
+    void adjust(ptrdiff_t offset) { ip += offset; }
 
     // Getters
     const VM *getVm() const { return vm; }

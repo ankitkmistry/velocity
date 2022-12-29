@@ -53,6 +53,8 @@ public:
     static Type *TYPE_PARAM_(string name);
 
     static Type *SENTINEL_(string sign);
+
+    Obj * getStaticMember(string &name) const;
 };
 
 #endif //VELOCITY_TYPE_HPP

@@ -76,6 +76,10 @@ ObjBool *ObjFloat::operator>(ObjFloat n) const {
     return new ObjBool(val > n.value());
 }
 
+ObjFloat::operator ObjNumber() const {
+    return ObjNumber(this);
+}
+
 Obj *ObjInt::copy() const {
     return new ObjInt(val);
 }
@@ -136,8 +140,32 @@ ObjBool *ObjInt::operator>(ObjInt n) const {
     return new ObjBool(val > n.value());
 }
 
-ObjInt::operator const ObjFloat *() const {
-    return new ObjFloat(val);
+ObjInt::operator ObjNumber() const {
+    return ObjNumber(this);
+}
+
+ObjInt::operator ObjFloat() const {
+    return {static_cast<double>(val)};
+}
+
+ObjInt *ObjInt::operator~() const {
+    return new ObjInt(~val);
+}
+
+ObjInt *ObjInt::operator<<(ObjInt n) const {
+    return new ObjInt(val << n.value());
+}
+
+ObjInt *ObjInt::operator>>(ObjInt n) const {
+    return new ObjInt(val >> n.value());
+}
+
+ObjInt *ObjInt::unsignedRightShift(ObjInt n) const {
+    return new ObjInt(static_cast<uint64>(val & 0xffffffff >> n.value());
+}
+
+ObjInt *ObjInt::operator%(ObjInt n) const {
+    return new ObjInt(val % n.value());
 }
 
 Obj *ObjArray::copy() const {
@@ -162,4 +190,187 @@ Obj *ObjArray::get(int64 i) {
 void ObjArray::set(int64 i, Obj *value) {
     if (i >= length) throw IndexError(i);
     array[i >= 0 ? i : length + i] = value;
+}
+
+Obj *ObjNumber::operator-() const {
+    if (type == Type::INT) {
+        return -*numberUnion._int;
+    }
+    return -*numberUnion._float;
+}
+
+ObjFloat *ObjNumber::power(ObjNumber n) const {
+    if (type == Type::INT) {
+        if (n.type == Type::INT) {
+            return new ObjFloat(pow(numberUnion._int->value(), n.numberUnion._int->value()));
+        } else {
+            return new ObjFloat(pow(numberUnion._int->value(), n.numberUnion._float->value()));
+        }
+    } else {
+        if (n.type == Type::INT) {
+            return new ObjFloat(pow(numberUnion._float->value(), n.numberUnion._int->value()));
+        } else {
+            return new ObjFloat(pow(numberUnion._float->value(), n.numberUnion._float->value()));
+        }
+    }
+}
+
+Obj *ObjNumber::operator+(ObjNumber n) const {
+    if (type == Type::INT) {
+        if (n.type == Type::INT) {
+            return *numberUnion._int + *n.numberUnion._int;
+        } else {
+            return *n.numberUnion._float + *numberUnion._int;
+        }
+    } else {
+        if (n.type == Type::INT) {
+            return *numberUnion._float + *n.numberUnion._int;
+        } else {
+            return *n.numberUnion._float + *numberUnion._float;
+        }
+    }
+}
+
+Obj *ObjNumber::operator-(ObjNumber n) const {
+    if (type == Type::INT) {
+        if (n.type == Type::INT) {
+            return *numberUnion._int - *n.numberUnion._int;
+        } else {
+            return static_cast<ObjFloat>(*numberUnion._int) - *n.numberUnion._float;
+        }
+    } else {
+        if (n.type == Type::INT) {
+            return *numberUnion._float - *n.numberUnion._int;
+        } else {
+            return *n.numberUnion._float - *numberUnion._float;
+        }
+    }
+}
+
+Obj *ObjNumber::operator*(ObjNumber n) const {
+    if (type == Type::INT) {
+        if (n.type == Type::INT) {
+            return *numberUnion._int * *n.numberUnion._int;
+        } else {
+            return *n.numberUnion._float * *numberUnion._int;
+        }
+    } else {
+        if (n.type == Type::INT) {
+            return *numberUnion._float * *n.numberUnion._int;
+        } else {
+            return *n.numberUnion._float * *numberUnion._float;
+        }
+    }
+}
+
+Obj *ObjNumber::operator/(ObjNumber n) const {
+    if (type == Type::INT) {
+        if (n.type == Type::INT) {
+            return *numberUnion._int / *n.numberUnion._int;
+        } else {
+            return static_cast<ObjFloat>(*numberUnion._int) / *n.numberUnion._float;
+        }
+    } else {
+        if (n.type == Type::INT) {
+            return *numberUnion._float + *n.numberUnion._int;
+        } else {
+            return *n.numberUnion._float + *numberUnion._float;
+        }
+    }
+}
+
+ObjBool *ObjNumber::operator<(ObjNumber n) const {
+    if (type == Type::INT) {
+        if (n.type == Type::INT) {
+            return *numberUnion._int < *n.numberUnion._int;
+        } else {
+            return static_cast<ObjFloat>(*numberUnion._int) < *n.numberUnion._float;
+        }
+    } else {
+        if (n.type == Type::INT) {
+            return *numberUnion._float < *n.numberUnion._int;
+        } else {
+            return *n.numberUnion._float < *numberUnion._float;
+        }
+    }
+}
+
+ObjBool *ObjNumber::operator<=(ObjNumber n) const {
+    if (type == Type::INT) {
+        if (n.type == Type::INT) {
+            return *numberUnion._int <= *n.numberUnion._int;
+        } else {
+            return static_cast<ObjFloat>(*numberUnion._int) <= *n.numberUnion._float;
+        }
+    } else {
+        if (n.type == Type::INT) {
+            return *numberUnion._float <= *n.numberUnion._int;
+        } else {
+            return *n.numberUnion._float <= *numberUnion._float;
+        }
+    }
+}
+
+ObjBool *ObjNumber::operator==(ObjNumber n) const {
+    if (type == Type::INT) {
+        if (n.type == Type::INT) {
+            return *numberUnion._int == *n.numberUnion._int;
+        } else {
+            return static_cast<ObjFloat>(*numberUnion._int) == *n.numberUnion._float;
+        }
+    } else {
+        if (n.type == Type::INT) {
+            return *numberUnion._float == *n.numberUnion._int;
+        } else {
+            return *n.numberUnion._float == *numberUnion._float;
+        }
+    }
+}
+
+ObjBool *ObjNumber::operator!=(ObjNumber n) const {
+    if (type == Type::INT) {
+        if (n.type == Type::INT) {
+            return *numberUnion._int != *n.numberUnion._int;
+        } else {
+            return static_cast<ObjFloat>(*numberUnion._int) != *n.numberUnion._float;
+        }
+    } else {
+        if (n.type == Type::INT) {
+            return *numberUnion._float != *n.numberUnion._int;
+        } else {
+            return *n.numberUnion._float != *numberUnion._float;
+        }
+    }
+}
+
+ObjBool *ObjNumber::operator>=(ObjNumber n) const {
+    if (type == Type::INT) {
+        if (n.type == Type::INT) {
+            return *numberUnion._int >= *n.numberUnion._int;
+        } else {
+            return static_cast<ObjFloat>(*numberUnion._int) >= *n.numberUnion._float;
+        }
+    } else {
+        if (n.type == Type::INT) {
+            return *numberUnion._float >= *n.numberUnion._int;
+        } else {
+            return *n.numberUnion._float >= *numberUnion._float;
+        }
+    }
+}
+
+ObjBool *ObjNumber::operator>(ObjNumber n) const {
+    if (type == Type::INT) {
+        if (n.type == Type::INT) {
+            return *numberUnion._int > *n.numberUnion._int;
+        } else {
+            return static_cast<ObjFloat>(*numberUnion._int) > *n.numberUnion._float;
+        }
+    } else {
+        if (n.type == Type::INT) {
+            return *numberUnion._float > *n.numberUnion._int;
+        } else {
+            return *n.numberUnion._float > *numberUnion._float;
+        }
+    }
 }

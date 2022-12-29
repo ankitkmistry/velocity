@@ -33,7 +33,7 @@ private:
 
     void run(Thread *thread);
 
-    bool checkCast(Type *type1, Type *type2);
+    static bool checkCast(const Type *type1, const Type *type2);
 
     void call(Thread *thread, ObjMethod *method, Obj **args);
 

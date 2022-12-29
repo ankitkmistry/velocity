@@ -183,15 +183,15 @@ public:
 
     uint16 getClosureStart() const { return closureStart; }
 
-    void set(uint8 i, Obj *val) { locals[i].setValue(val); }
+    void set(uint16 i, Obj *val) { locals[i].setValue(val); }
 
-    Obj *get(uint8 i) { return locals[i].getValue(); }
+    Obj *get(uint16 i) { return locals[i].getValue(); }
 
     void addLocal(Local local) { locals.push_back(local); }
 
-    Local getLocal(uint8 i) { return locals[i]; }
+    Local getLocal(uint16 i) { return locals[i]; }
 
-    uint8 count() { return locals.size(); }
+    uint16 count() { return locals.size(); }
 
     string toString() const { return "(" + listToString(locals) + ")"; }
 };

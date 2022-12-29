@@ -117,100 +117,118 @@ public:
 
 class ObjFloat;
 
-template<class T, class V>
-class ObjNumber : public Obj {
-protected:
-    explicit ObjNumber(Sign sign) :
-            Obj(sign, null) {
+class ObjInt;
+
+class ObjNumber {
+private:
+    enum class Type {
+        INT, FLOAT
+    } type;
+    union Number {
+        const ObjInt *_int;
+        const ObjFloat *_float;
+    } numberUnion;
+public:
+    ObjNumber(const ObjInt *_int) {
+        type = Type::INT;
+        numberUnion = {._int=_int};
     }
 
-public:
-    virtual ObjNumber *operator-() const = 0;
+    ObjNumber(const ObjFloat *_float) {
+        type = Type::FLOAT;
+        numberUnion = {._float=_float};
+    }
 
-    virtual ObjFloat *power(T n) const = 0;
+    Obj *operator-() const;
 
-    virtual ObjNumber *operator+(T n) const = 0;
+    ObjFloat *power(ObjNumber n) const;
 
-    virtual ObjNumber *operator-(T n) const = 0;
+    Obj *operator+(ObjNumber n) const;
 
-    virtual ObjNumber *operator*(T n) const = 0;
+    Obj *operator-(ObjNumber n) const;
 
-    virtual ObjNumber *operator/(T n) const = 0;
+    Obj *operator*(ObjNumber n) const;
 
-    virtual ObjBool *operator<(T n) const = 0;
+    Obj *operator/(ObjNumber n) const;
 
-    virtual ObjBool *operator<=(T n) const = 0;
+    ObjBool *operator<(ObjNumber n) const;
 
-    virtual ObjBool *operator==(T n) const = 0;
+    ObjBool *operator<=(ObjNumber n) const;
 
-    virtual ObjBool *operator!=(T n) const = 0;
+    ObjBool *operator==(ObjNumber n) const;
 
-    virtual ObjBool *operator>=(T n) const = 0;
+    ObjBool *operator!=(ObjNumber n) const;
 
-    virtual ObjBool *operator>(T n) const = 0;
+    ObjBool *operator>=(ObjNumber n) const;
 
-    virtual operator const ObjFloat *() const = 0;
-
-    virtual V value() const = 0;
+    ObjBool *operator>(ObjNumber n) const;
 };
 
+class ObjNumberConvertible : public Obj {
+public:
+    ObjNumberConvertible(string sign) : Obj(Sign(sign), null) {}
 
-class ObjInt final : public ObjNumber<ObjInt, int64> {
+    virtual operator ObjNumber() const = 0;
+};
+
+class ObjInt final : public ObjNumberConvertible {
 private:
     int64 val;
 public:
-    ObjInt(int64 val) :
-            ObjNumber(Sign("int")), val(val) {
-    }
+    ObjInt(int64 val) : ObjNumberConvertible("int"), val(val) {}
 
-    ~ObjInt() override = default;
+    Obj *copy() const;
 
-    Obj *copy() const override;
+    bool truth() const;
 
-    bool truth() const override;
+    string toString() const;
 
-    string toString() const override;
+    ObjInt *operator-() const;
 
-    ObjInt *operator-() const override;
+    ObjFloat *power(ObjInt n) const;
 
-    ObjFloat *power(ObjInt n) const override;
+    ObjInt *operator+(ObjInt n) const;
 
-    ObjInt *operator+(ObjInt n) const override;
+    ObjInt *operator-(ObjInt n) const;
 
-    ObjInt *operator-(ObjInt n) const override;
+    ObjInt *operator*(ObjInt n) const;
 
-    ObjInt *operator*(ObjInt n) const override;
+    ObjInt *operator/(ObjInt n) const;
 
-    ObjInt *operator/(ObjInt n) const override;
+    ObjBool *operator<(ObjInt n) const;
 
-    ObjBool *operator<(ObjInt n) const override;
+    ObjBool *operator<=(ObjInt n) const;
 
-    ObjBool *operator<=(ObjInt n) const override;
+    ObjBool *operator==(ObjInt n) const;
 
-    ObjBool *operator==(ObjInt n) const override;
+    ObjBool *operator!=(ObjInt n) const;
 
-    ObjBool *operator!=(ObjInt n) const override;
+    ObjBool *operator>=(ObjInt n) const;
 
-    ObjBool *operator>=(ObjInt n) const override;
+    ObjBool *operator>(ObjInt n) const;
 
-    ObjBool *operator>(ObjInt n) const override;
+    ObjInt *operator~() const;
 
-    operator const ObjFloat *() const override;
+    ObjInt *operator%(ObjInt n) const;
 
-    int64 value() const override {
-        return val;
-    }
+    ObjInt *operator<<(ObjInt n) const;
+
+    ObjInt *operator>>(ObjInt n) const;
+
+    ObjInt *unsignedRightShift(ObjInt n) const;
+
+    operator ObjNumber() const override;
+
+    operator ObjFloat() const;
+
+    int64 value() const { return val; }
 };
 
-class ObjFloat final : public ObjNumber<ObjFloat, double> {
+class ObjFloat final : public ObjNumberConvertible {
 private:
     double val;
 public:
-    ObjFloat(double val) :
-            ObjNumber(Sign("int")), val(val) {
-    }
-
-    ~ObjFloat() override = default;
+    ObjFloat(double val) : ObjNumberConvertible("int"), val(val) {}
 
     Obj *copy() const override;
 
@@ -218,37 +236,33 @@ public:
 
     string toString() const override;
 
-    ObjFloat *operator-() const override;
+    ObjFloat *operator-() const;
 
-    ObjFloat *power(ObjFloat n) const override;
+    ObjFloat *power(ObjFloat n) const;
 
-    ObjFloat *operator+(ObjFloat n) const override;
+    ObjFloat *operator+(ObjFloat n) const;
 
-    ObjFloat *operator-(ObjFloat n) const override;
+    ObjFloat *operator-(ObjFloat n) const;
 
-    ObjFloat *operator*(ObjFloat n) const override;
+    ObjFloat *operator*(ObjFloat n) const;
 
-    ObjFloat *operator/(ObjFloat n) const override;
+    ObjFloat *operator/(ObjFloat n) const;
 
-    ObjBool *operator<(ObjFloat n) const override;
+    ObjBool *operator<(ObjFloat n) const;
 
-    ObjBool *operator<=(ObjFloat n) const override;
+    ObjBool *operator<=(ObjFloat n) const;
 
-    ObjBool *operator==(ObjFloat n) const override;
+    ObjBool *operator==(ObjFloat n) const;
 
-    ObjBool *operator!=(ObjFloat n) const override;
+    ObjBool *operator!=(ObjFloat n) const;
 
-    ObjBool *operator>=(ObjFloat n) const override;
+    ObjBool *operator>=(ObjFloat n) const;
 
-    ObjBool *operator>(ObjFloat n) const override;
+    ObjBool *operator>(ObjFloat n) const;
 
-    operator const ObjFloat *() const override {
-        return this;
-    }
+    operator ObjNumber() const override;
 
-    double value() const override {
-        return val;
-    }
+    double value() const { return val; }
 };
 
 #endif /* OOP_OBJECTS_HPP_ */

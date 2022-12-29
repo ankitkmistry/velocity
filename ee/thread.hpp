@@ -1,8 +1,8 @@
 #ifndef VELOCITY_THREAD_HPP
 #define VELOCITY_THREAD_HPP
 
-#include <functional>
 #include <thread>
+#include "../utils/common.hpp"
 #include "../oop/oop.hpp"
 #include "state.hpp"
 

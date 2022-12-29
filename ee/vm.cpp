@@ -303,76 +303,295 @@ void VM::run(Thread *thread) {
                 call(thread, method, frame->getSp());
                 break;
             }
-            case Opcode::INVOKE_VIRTUAL:
+            case Opcode::INVOKE_VIRTUAL: {
+                // Get the sign
+                Sign sign{state.loadConst(state.readShort())->toString()};
+                // Get name of the method
+                auto name = sign.getName();
+                // Get the arg count
+                auto count = sign.getArgsCount();
+
+                // Pop the arguments
+                for (int i = 0; i < count; i++) state.pop();
+                // Get the object
+                auto object = cast<Object *>(state.pop());
+                // Get the method
+                auto method = cast<ObjMethod *>(object->getMember(name));
+                // Call it
+                call(thread, method, frame->getSp());
+                // Set 'this' (by convention slot 0 of locals)
+                state.getFp()->getLocals().set(0, object);
                 break;
-            case Opcode::INVOKE_STATIC:
+            }
+            case Opcode::INVOKE_STATIC: {
+                // Get the sign
+                Sign sign{state.loadConst(state.readShort())->toString()};
+                // Get name of the method
+                auto name = sign.getName();
+                // Get the arg count
+                auto count = sign.getArgsCount();
+
+                // Pop the arguments
+                for (int i = 0; i < count; i++) state.pop();
+                // Get the type
+                auto type = cast<Type *>(state.pop());
+                // Get the method
+                auto method = cast<ObjMethod *>(type->getMember(name));
+                // Call it
+                call(thread, method, frame->getSp());
                 break;
-            case Opcode::INVOKE_LOCAL:
+            }
+            case Opcode::INVOKE_LOCAL: {
+                // Get the method
+                auto method = cast<ObjMethod *>(frame->getLocals().get(state.readShort()));
+                // Get the arg count
+                auto count = method->getFrame()->getArgs().count();
+                // Pop the arguments
+                for (int i = 0; i < count; i++) state.pop();
+                // Call it
+                call(thread, method, frame->getSp());
                 break;
-            case Opcode::INVOKE_GLOBAL:
+            }
+            case Opcode::INVOKE_GLOBAL: {
+                // Get the method
+                auto method = cast<ObjMethod *>(getGlobal(state.loadConst(state.readShort())->toString()));
+                // Get the arg count
+                auto count = method->getFrame()->getArgs().count();
+                // Pop the arguments
+                for (int i = 0; i < count; i++) state.pop();
+                // Call it
+                call(thread, method, frame->getSp());
                 break;
-            case Opcode::INVOKE_VIRTUAL_FAST:
+            }
+            case Opcode::INVOKE_VIRTUAL_FAST: {
+                // Get the sign
+                Sign sign{state.loadConst(state.readByte())->toString()};
+                // Get name of the method
+                auto name = sign.getName();
+                // Get the arg count
+                auto count = sign.getArgsCount();
+
+                // Pop the arguments
+                for (int i = 0; i < count; i++) state.pop();
+                // Get the object
+                auto object = cast<Object *>(state.pop());
+                // Get the method
+                auto method = cast<ObjMethod *>(object->getMember(name));
+                // Call it
+                call(thread, method, frame->getSp());
+                // Set 'this' (by convention slot 0 of locals)
+                state.getFp()->getLocals().set(0, object);
                 break;
-            case Opcode::INVOKE_STATIC_FAST:
+            }
+            case Opcode::INVOKE_STATIC_FAST: {
+                // Get the sign
+                Sign sign{state.loadConst(state.readByte())->toString()};
+                // Get name of the method
+                auto name = sign.getName();
+                // Get the arg count
+                auto count = sign.getArgsCount();
+
+                // Pop the arguments
+                for (int i = 0; i < count; i++) state.pop();
+                // Get the type
+                auto type = cast<Type *>(state.pop());
+                // Get the method
+                auto method = cast<ObjMethod *>(type->getMember(name));
+                // Call it
+                call(thread, method, frame->getSp());
                 break;
-            case Opcode::INVOKE_LOCAL_FAST:
+            }
+            case Opcode::INVOKE_LOCAL_FAST: {
+                // Get the method
+                auto method = cast<ObjMethod *>(frame->getLocals().get(state.readByte()));
+                // Get the arg count
+                auto count = method->getFrame()->getArgs().count();
+                // Pop the arguments
+                for (int i = 0; i < count; i++) state.pop();
+                // Call it
+                call(thread, method, frame->getSp());
                 break;
-            case Opcode::INVOKE_GLOBAL_FAST:
+            }
+            case Opcode::INVOKE_GLOBAL_FAST: {
+                // Get the method
+                auto method = cast<ObjMethod *>(getGlobal(state.loadConst(state.readByte())->toString()));
+                // Get the arg count
+                auto count = method->getFrame()->getArgs().count();
+                // Pop the arguments
+                for (int i = 0; i < count; i++) state.pop();
+                // Call it
+                call(thread, method, frame->getSp());
                 break;
-            case Opcode::INVOKE_ARG:
+            }
+            case Opcode::INVOKE_ARG: {
+                // Get the method
+                auto method = cast<ObjMethod *>(frame->getArgs().get(state.readByte()));
+                // Get the arg count
+                auto count = method->getFrame()->getArgs().count();
+                // Pop the arguments
+                for (int i = 0; i < count; i++) state.pop();
+                // Call it
+                call(thread, method, frame->getSp());
                 break;
-            case Opcode::SUB_CALL:
+            }
+            case Opcode::SUB_CALL: {
+                auto address = new ObjInt(frame->getIp() - frame->getCode());
+                state.push(address);
+                auto offset = state.readShort();
+                state.adjust(offset);
                 break;
-            case Opcode::SUB_RETURN:
+            }
+            case Opcode::SUB_RETURN: {
+                auto address = cast<ObjInt *>(state.pop());
+                frame->setIp(frame->getCode() + address->value());
                 break;
-            case Opcode::JUMP_FORWARD:
+            }
+            case Opcode::JUMP_FORWARD: {
+                auto offset = state.readShort();
+                state.adjust(offset);
                 break;
-            case Opcode::JUMP_BACKWARD:
+            }
+            case Opcode::JUMP_BACKWARD: {
+                auto offset = state.readShort();
+                state.adjust(-offset);
                 break;
-            case Opcode::JUMP_IF_TRUE:
+            }
+            case Opcode::JUMP_IF_TRUE: {
+                auto obj = state.peek();
+                auto offset = state.readShort();
+                if (obj->truth())state.adjust(offset);
                 break;
-            case Opcode::JUMP_IF_FALSE:
+            }
+            case Opcode::JUMP_IF_FALSE: {
+                auto obj = state.peek();
+                auto offset = state.readShort();
+                if (!obj->truth())state.adjust(offset);
                 break;
-            case Opcode::POP_JUMP_IF_TRUE:
+            }
+            case Opcode::POP_JUMP_IF_TRUE: {
+                auto obj = state.pop();
+                auto offset = state.readShort();
+                if (obj->truth())state.adjust(offset);
                 break;
-            case Opcode::POP_JUMP_IF_FALSE:
+            }
+            case Opcode::POP_JUMP_IF_FALSE: {
+                auto obj = state.pop();
+                auto offset = state.readShort();
+                if (!obj->truth())state.adjust(offset);
                 break;
-            case Opcode::POP_JUMP_IF_LT:
+            }
+            case Opcode::POP_JUMP_IF_LT: {
+                auto b = cast<ObjNumber *>(state.pop());
+                auto a = cast<ObjNumber *>(state.pop());
+                auto offset = state.readShort();
+                if ((*a < *b)->truth())state.adjust(offset);
                 break;
-            case Opcode::POP_JUMP_IF_LE:
+            }
+            case Opcode::POP_JUMP_IF_LE: {
+                auto b = cast<ObjNumber *>(state.pop());
+                auto a = cast<ObjNumber *>(state.pop());
+                auto offset = state.readShort();
+                if ((*a <= *b)->truth())state.adjust(offset);
                 break;
-            case Opcode::POP_JUMP_IF_EQ:
+            }
+            case Opcode::POP_JUMP_IF_EQ: {
+                auto b = cast<ObjNumber *>(state.pop());
+                auto a = cast<ObjNumber *>(state.pop());
+                auto offset = state.readShort();
+                if ((*a == *b)->truth())state.adjust(offset);
                 break;
-            case Opcode::POP_JUMP_IF_NE:
+            }
+            case Opcode::POP_JUMP_IF_NE: {
+                auto b = cast<ObjNumber *>(state.pop());
+                auto a = cast<ObjNumber *>(state.pop());
+                auto offset = state.readShort();
+                if ((*a != *b)->truth())state.adjust(offset);
                 break;
-            case Opcode::POP_JUMP_IF_GE:
+            }
+            case Opcode::POP_JUMP_IF_GE: {
+                auto b = cast<ObjNumber *>(state.pop());
+                auto a = cast<ObjNumber *>(state.pop());
+                auto offset = state.readShort();
+                if ((*a >= *b)->truth())state.adjust(offset);
                 break;
-            case Opcode::POP_JUMP_IF_GT:
+            }
+            case Opcode::POP_JUMP_IF_GT: {
+                auto b = cast<ObjNumber *>(state.pop());
+                auto a = cast<ObjNumber *>(state.pop());
+                auto offset = state.readShort();
+                if ((*a > *b)->truth())state.adjust(offset);
                 break;
+            }
             case Opcode::NOT:
+                state.push(!*cast<ObjBool *>(state.pop()));
                 break;
             case Opcode::INVERT:
+                state.push(~*cast<ObjInt *>(state.pop()));
                 break;
             case Opcode::NEGATE:
+                state.push(-*cast<ObjInt *>(state.pop()));
                 break;
             case Opcode::GET_TYPE:
+                state.push((Obj *) state.pop()->getType());
                 break;
-            case Opcode::SAFE_CAST:
+            case Opcode::SAFE_CAST: {
+                auto type = cast<Type *>(state.pop());
+                auto obj = cast<Object *>(state.pop());
+                if (checkCast(obj->getType(), type)) {
+                    obj->setType(type);
+                    state.push(obj);
+                } else
+                    state.push(new ObjNull);
                 break;
-            case Opcode::CHECKED_CAST:
+            }
+            case Opcode::CHECKED_CAST: {
+                auto type = cast<Type *>(state.pop());
+                auto obj = cast<Object *>(state.pop());
+                if (checkCast(obj->getType(), type)) {
+                    obj->setType(type);
+                    state.push(obj);
+                } else
+                    runtimeError(format("object of type '%s' cannot be cast to object of type '%s'",
+                                        obj->getType()->getSign().toString().c_str(),
+                                        type->getSign().toString().c_str()));
                 break;
-            case Opcode::POWER:
+            }
+            case Opcode::POWER: {
+                auto b = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                auto a = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                state.push(a.power(b));
                 break;
-            case Opcode::MULTIPLY:
+            }
+            case Opcode::MULTIPLY: {
+                auto b = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                auto a = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                state.push(a * b);
                 break;
-            case Opcode::DIVIDE:
+            }
+            case Opcode::DIVIDE: {
+                auto b = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                auto a = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                state.push(a / b);
                 break;
-            case Opcode::REMAINDER:
+            }
+            case Opcode::REMAINDER: {
+                auto b = cast<ObjInt *>(state.pop());
+                auto a = cast<ObjInt *>(state.pop());
+                state.push(*a % *b);
                 break;
-            case Opcode::ADD:
+            }
+            case Opcode::ADD: {
+                auto b = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                auto a = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                state.push(a + b);
                 break;
-            case Opcode::SUBTRACT:
+            }
+            case Opcode::SUBTRACT: {
+                auto b = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                auto a = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                state.push(a - b);
                 break;
+            }
             case Opcode::LSHIFT:
                 break;
             case Opcode::RSHIFT:
@@ -429,7 +648,7 @@ void VM::run(Thread *thread) {
     }
 }
 
-bool VM::checkCast(Type *type1, Type *type2) {
+bool VM::checkCast(const Type *type1, const Type *type2) {
     return false;
 }
 

@@ -7,7 +7,6 @@
 #include <algorithm>
 #include <cstdio>
 #include <functional>
-#include <any>
 #include "common.hpp"
 #include "exceptions.hpp"
 
@@ -35,56 +34,8 @@ string listToString(vector <T> data) {
 }
 
 template<class T>
-class Iterator {
-private:
-    using iterator_category = std::forward_iterator_tag;
-    using difference_type = ptrdiff_t;
-    using value_type = T;
-    using pointer = T *;
-    using reference = T &;
-
-    pointer ptr;
-public:
-    Iterator() : ptr(null) {}
-
-    Iterator(T *t) : ptr(t) {}
-
-    ~Iterator() = default;
-
-    /*postfix*/
-    Iterator operator++(int)/*postfix*/{
-        auto tmp = *this;
-        ++(*this);
-        return tmp;
-    }
-
-    /*prefix*/
-    Iterator &operator++()/*prefix*/
-    {
-        ptr++;
-        return *this;
-    }
-
-    reference operator*() const { return *ptr; }
-
-    pointer operator->() const { return ptr; }
-
-    Iterator operator+(difference_type diff) const { return ptr + diff; }
-
-    bool operator==(const Iterator &rhs) const { return ptr == rhs.ptr; }
-
-    bool operator!=(const Iterator &rhs) const { return ptr != rhs.ptr; }
-};
-
-template<class T>
 class Table final : public map<string, T> {
 
-};
-
-template<class T, class V>
-struct MatchCase {
-    T __case;
-    function <V> __action;
 };
 
 template<class ResultType, class CompareType>
