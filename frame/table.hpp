@@ -76,7 +76,7 @@ public:
     }
 
     void setValue(Obj *val) {
-        Local::value = val;
+        value = val;
     }
 
     Table<string> getMeta() const {

@@ -4,11 +4,12 @@
 #include <set>
 #include <stack>
 #include "../utils/common.hpp"
-#include "../ee/vm.hpp"
 #include "../oop/obj.hpp"
 #include "../oop/method.hpp"
 #include "elfdef.hpp"
 #include "../frame/table.hpp"
+
+class VM;
 
 class Loader {
 private:
@@ -17,7 +18,7 @@ private:
     stack <string> pathStack = {};
     Table<Type *> refs = {};
 public:
-    Loader(VM *vm) : vm(vm) {}
+    explicit Loader(VM *vm) : vm(vm) {}
 
     ObjMethod *load(const string &path);
 

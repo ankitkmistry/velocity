@@ -1,24 +1,11 @@
 #include <iostream>
-#include <mutex>
-#include <thread>
-
-std::mutex mtx;
-
-void printBlock(int n, char c) {
-    mtx.lock();
-    for (int i = 0; i < n; ++i) {
-        std::cout << c;
-    }
-    std::cout << '\n';
-    mtx.unlock();
-}
+#include "ee/vm.hpp"
 
 int main() {
-    std::ios::sync_with_stdio(false);
-    std::thread t1{printBlock,50,'*'};
-    std::thread t2{printBlock, 50, '$'};
-
-    t1.join();
-    t2.join();
-    return 0;
+    try {
+        VM vm;
+        vm.start("H:\\Programming (Ankit)\\Projects\\spade\\1.0\\velocity\\fact.xp", {});
+    } catch (const FatalError &error) {
+        cout << "VM Error: " << error.what();
+    }
 }

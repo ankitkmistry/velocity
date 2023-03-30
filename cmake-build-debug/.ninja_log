@@ -1,17 +1,66 @@
 # ninja log v5
-7	1238	6939426269712270	CMakeFiles/velocity.dir/main.cpp.obj	b060e3e4da135281
-217	2971	6939397006219585	CMakeFiles/velocity.dir/frame/frame.cpp.obj	77d729ca7570bc28
-1239	4395	6939426301002266	velocity.exe	d10649720289ddf8
-2647	5613	6939390453429665	CMakeFiles/velocity.dir/oop/type.cpp.obj	ac5e213b0a2f4f24
-3418	9367	6939397070229572	CMakeFiles/velocity.dir/loader/loader.cpp.obj	3af0653da0a57824
-42	2472	6939390422049675	CMakeFiles/velocity.dir/loader/verifier.cpp.obj	ec5d4e564c2e0758
-7	2809	6939390425159692	CMakeFiles/velocity.dir/loader/parser.cpp.obj	a156abf12570e361
-397	3417	6939397010769556	CMakeFiles/velocity.dir/frame/table.cpp.obj	afdda422332dff60
-10	3594	6939397011839609	CMakeFiles/velocity.dir/oop/method.cpp.obj	acad350de7273045
-1310	6114	6939389904317328	CMakeFiles/velocity.dir/oop/oop.cpp.obj	5137a4a00f0447b
-2809	5601	6939390453319659	CMakeFiles/velocity.dir/oop/objects.cpp.obj	5294637cbafea435
-5613	6989	6939390466889685	CMakeFiles/velocity.dir/ee/vm.cpp.obj	4e17b66fa86f0456
-6990	7911	6939390476279688	CMakeFiles/velocity.dir/ee/opcode.cpp.obj	77a79df7161edf58
-2973	5009	6939397026749632	CMakeFiles/velocity.dir/ee/thread.cpp.obj	6c9152a76d60b739
-1607	1712	6939391458082340	CMakeFiles/velocity.dir/frame/writer.cpp.obj	4031936010a05190
-3594	6332	6939397039969581	CMakeFiles/velocity.dir/ee/state.cpp.obj	636a6ecf746a123e
+37052	37986	7018908529354579	H:/Programming (Ankit)/Projects/spade/1.0/velocity/cmake-build-debug/antlr4_runtime/src/antlr4_runtime-stamp/antlr4_runtime-done	66ca46a1f3eabebc
+98	4563	7018929600048983	CMakeFiles/spasm.dir/assembler/assembler_main.cpp.obj	dee92eb5aea2ab13
+29	5487	7018897612155938	CMakeFiles/velocity.dir/main.cpp.obj	5ac083c2222588a6
+11567	19873	7018897755675974	CMakeFiles/velocity.dir/frame/frame.cpp.obj	90f3f8f0201f4063
+34201	38154	7018897938745729	velocity.exe	8b220f7c5587060a
+126	7330	7018897630565894	CMakeFiles/velocity.dir/oop/type.cpp.obj	bee407368c436434
+24651	34201	7018897899222416	CMakeFiles/velocity.dir/loader/loader.cpp.obj	25b33fd16ebbf4e
+7331	11567	7018897672935961	CMakeFiles/velocity.dir/loader/verifier.cpp.obj	561cd4806b4098f3
+248	4347	7018897600745894	CMakeFiles/velocity.dir/loader/parser.cpp.obj	5bfe3affcf2b4585
+589	8475	7018908234244714	antlr4_runtime/src/antlr4_runtime-stamp/antlr4_runtime-download	48704a63ecb1a147
+9726	35603	7018908505523923	antlr4_runtime/src/antlr4_runtime-stamp/antlr4_runtime-configure	8760feee5c70422
+8958	14419	7018897701455919	CMakeFiles/velocity.dir/frame/table.cpp.obj	1f7596c91960e1b4
+5487	10783	7018897665095915	CMakeFiles/velocity.dir/oop/method.cpp.obj	ec91dcd8203a3842
+4563	11599	7018929670379021	CMakeFiles/spasm.dir/assembler/SpadeAssemblyLexer.cpp.obj	6bbcf4a9eb68fac3
+4347	8957	7018897646835912	CMakeFiles/velocity.dir/oop/oop.cpp.obj	44eb3ceae9466f01
+6	27602	7018927308965617	H:/Programming (Ankit)/Projects/spade/1.0/velocity/cmake-build-debug/antlr4_runtime/src/antlr4_runtime/runtime/Cpp/dist/libantlr4-runtime.dll	3a3fb5332438855a
+10784	18374	7018897739905940	CMakeFiles/velocity.dir/oop/objects.cpp.obj	a2fdee7d153c660f
+18374	24651	7018897803775903	CMakeFiles/velocity.dir/ee/vm.cpp.obj	c78bd312da5ea8f0
+19873	24373	7018897801025900	CMakeFiles/velocity.dir/ee/opcode.cpp.obj	7980f521b475b77a
+14419	21801	7018897775315909	CMakeFiles/velocity.dir/ee/thread.cpp.obj	9148eb0d4bfd2b64
+24373	27508	7018897832295921	CMakeFiles/velocity.dir/frame/writer.cpp.obj	97ad7dd2e75215a1
+21801	27685	7018897834055914	CMakeFiles/velocity.dir/ee/state.cpp.obj	2ea4673ebf53e982
+6	707	0	H:/Programming (Ankit)/Projects/spade/1.0/velocity/cmake-build-debug/antlr4_runtime/src/antlr4_runtime/runtime/Cpp/dist/libantlr4-runtime.a	a25f5400547c9777
+2	1391	7018930645402280	build.ninja	6e31b6dd4e7891e7
+6	27602	7018927308965617	antlr4_runtime/src/antlr4_runtime/runtime/Cpp/dist/libantlr4-runtime.dll	3a3fb5332438855a
+27508	31623	7018897873515909	CMakeFiles/velocity.dir/loader/writer.cpp.obj	7fbe2c1272baa8b7
+36335	37052	7018908520004208	antlr4_runtime/src/antlr4_runtime-stamp/antlr4_runtime-install	34ca793e21cc7c4a
+6	27602	7018927308965617	H:/Programming (Ankit)/Projects/spade/1.0/velocity/cmake-build-debug/antlr4_runtime/src/antlr4_runtime/runtime/Cpp/dist/libantlr4-runtime.dll.a	3a3fb5332438855a
+5	588	7018908155379299	antlr4_runtime/src/antlr4_runtime-stamp/antlr4_runtime-mkdir	ee8079d6030e6415
+589	8475	7018908234244714	H:/Programming (Ankit)/Projects/spade/1.0/velocity/cmake-build-debug/antlr4_runtime/src/antlr4_runtime-stamp/antlr4_runtime-download	48704a63ecb1a147
+6	707	0	antlr4_runtime/src/antlr4_runtime/runtime/Cpp/dist/libantlr4-runtime.a	a25f5400547c9777
+5	588	7018908155379299	H:/Programming (Ankit)/Projects/spade/1.0/velocity/cmake-build-debug/antlr4_runtime/src/antlr4_runtime-stamp/antlr4_runtime-mkdir	ee8079d6030e6415
+9125	9726	7018908246757472	H:/Programming (Ankit)/Projects/spade/1.0/velocity/cmake-build-debug/antlr4_runtime/src/antlr4_runtime-stamp/antlr4_runtime-patch	94ed24158449cfe7
+35603	36335	7018908512833922	antlr4_runtime/src/antlr4_runtime-stamp/antlr4_runtime-build	b0cd7c008fc81086
+8493	9125	7018908240744711	antlr4_runtime/src/antlr4_runtime-stamp/antlr4_runtime-update	d132bd9289707733
+8493	9125	7018908240744711	H:/Programming (Ankit)/Projects/spade/1.0/velocity/cmake-build-debug/antlr4_runtime/src/antlr4_runtime-stamp/antlr4_runtime-update	d132bd9289707733
+9125	9726	7018908246757472	antlr4_runtime/src/antlr4_runtime-stamp/antlr4_runtime-patch	94ed24158449cfe7
+9726	35603	7018908505523923	H:/Programming (Ankit)/Projects/spade/1.0/velocity/cmake-build-debug/antlr4_runtime/src/antlr4_runtime-stamp/antlr4_runtime-configure	8760feee5c70422
+7470	14626	7018929700618994	CMakeFiles/spasm.dir/assembler/SpadeAssemblyParser.cpp.obj	50547849776fa046
+35603	36335	7018908512833922	H:/Programming (Ankit)/Projects/spade/1.0/velocity/cmake-build-debug/antlr4_runtime/src/antlr4_runtime-stamp/antlr4_runtime-build	b0cd7c008fc81086
+36335	37052	7018908520004208	H:/Programming (Ankit)/Projects/spade/1.0/velocity/cmake-build-debug/antlr4_runtime/src/antlr4_runtime-stamp/antlr4_runtime-install	34ca793e21cc7c4a
+37052	37986	7018908529354579	H:/Programming (Ankit)/Projects/spade/1.0/velocity/cmake-build-debug/CMakeFiles/antlr4_runtime-complete	66ca46a1f3eabebc
+37052	37986	7018908529354579	CMakeFiles/antlr4_runtime-complete	66ca46a1f3eabebc
+37052	37986	7018908529354579	antlr4_runtime/src/antlr4_runtime-stamp/antlr4_runtime-done	66ca46a1f3eabebc
+6	707	0	antlr4_runtime/src/antlr4_runtime-stamp/antlr4_runtime-build_static	a25f5400547c9777
+6	707	0	H:/Programming (Ankit)/Projects/spade/1.0/velocity/cmake-build-debug/antlr4_runtime/src/antlr4_runtime-stamp/antlr4_runtime-build_static	a25f5400547c9777
+6	4029	7018929594689043	CMakeFiles/spasm.dir/assembler/SpadeAssemblyListener.cpp.obj	423b1eae62ffd6cf
+227	7470	7018929629119005	CMakeFiles/spasm.dir/assembler/SpadeAssemblyVisitor.cpp.obj	dce5a2381f68bdaf
+4030	9263	7018929647009052	CMakeFiles/spasm.dir/assembler/SpadeAssemblyBaseVisitor.cpp.obj	e4b78b530f42e58
+9263	14718	7018929701609013	CMakeFiles/spasm.dir/assembler/SpadeAssemblyBaseListener.cpp.obj	a307a1d1460a306f
+6	27602	7018927308965617	antlr4_runtime/src/antlr4_runtime-stamp/antlr4_runtime-build_shared	3a3fb5332438855a
+6	27602	7018927308965617	antlr4_runtime/src/antlr4_runtime/runtime/Cpp/dist/libantlr4-runtime.dll.a	3a3fb5332438855a
+6	27602	7018927308965617	H:/Programming (Ankit)/Projects/spade/1.0/velocity/cmake-build-debug/antlr4_runtime/src/antlr4_runtime-stamp/antlr4_runtime-build_shared	3a3fb5332438855a
+4	382	7018930423741860	spasm.exe	2b17036728577a56
+5	3544	7018930725010724	CMakeFiles/spasm.dir/assembler/SpadeAssemblyListener.cpp.obj	423b1eae62ffd6cf
+99	5297	7018930742570707	CMakeFiles/spasm.dir/assembler/SpadeAssemblyVisitor.cpp.obj	dce5a2381f68bdaf
+224	7902	7018930768580707	CMakeFiles/spasm.dir/assembler/SpadeAssemblyLexer.cpp.obj	6bbcf4a9eb68fac3
+3547	12736	7018930816360782	CMakeFiles/spasm.dir/assembler/SpadeAssemblyParser.cpp.obj	50547849776fa046
+5298	12797	7018930817550726	CMakeFiles/spasm.dir/assembler/SpadeAssemblyBaseVisitor.cpp.obj	e4b78b530f42e58
+7903	13845	7018930828050750	CMakeFiles/spasm.dir/assembler/SpadeAssemblyBaseListener.cpp.obj	a307a1d1460a306f
+13846	14961	7018930839118076	spasm.exe	65ea8698875cd38b
+6	3385	7018934456061608	CMakeFiles/spasm.dir/assembler/assembler_main.cpp.obj	dee92eb5aea2ab13
+3385	4731	7018934469446085	spasm.exe	65ea8698875cd38b
+6	3201	7018935226800620	CMakeFiles/spasm.dir/assembler/assembler_main.cpp.obj	dee92eb5aea2ab13
+3201	4379	7018935238505583	spasm.exe	65ea8698875cd38b

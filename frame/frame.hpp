@@ -8,6 +8,8 @@
 class ObjMethod;
 
 class Frame {
+    friend class VMState;
+
 private:
     vector<Obj *> constPool;
     uint8 *code;
@@ -19,6 +21,11 @@ private:
     ExceptionTable exceptions;
     LineNumberTable lines;
     ObjMethod *method;
+
+    Frame()
+            : constPool(), code(null), ip(null), stack(null), sp(null), args(), locals(0), exceptions(), lines(0),
+              method(null) {}
+
 public:
     Frame(vector<Obj *> &constPool,
           uint8 *code,

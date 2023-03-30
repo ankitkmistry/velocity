@@ -6,7 +6,7 @@
 #include "common.hpp"
 #include "format.hpp"
 
-class FatalError : std::runtime_error {
+class FatalError : public std::runtime_error {
 public:
     explicit FatalError(const string &message)
             : std::runtime_error(message) {}

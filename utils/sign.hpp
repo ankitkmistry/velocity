@@ -10,21 +10,21 @@ private:
     string name;
     const string signature;
 public:
-    Sign(const string& signature) : signature(signature) { set(); }
+    Sign(string signature) : signature(signature) { set(); }
 
     void set() {
         // Set the fields of the sign
     }
 
-    const string getLibrary() const { return library; }
+    string getLibrary() const { return library; }
 
-    const string getName() const { return name; }
+    string getName() const { return name; }
 
-    const string getPkg() const { return pkg; }
+    string getPkg() const { return pkg; }
 
-    const string getSignature() const { return signature; }
+    string getSignature() const { return signature; }
 
-    const string toString() const { return signature; }
+    string toString() const { return signature; }
 
     uint8 getArgsCount() {
         // TODO: Implement this

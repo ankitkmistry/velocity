@@ -32,52 +32,52 @@ ObjFloat *ObjFloat::operator-() const {
     return new ObjFloat(-val);
 }
 
-ObjFloat *ObjFloat::power(ObjFloat n) const {
+ObjFloat *ObjFloat::power(const ObjFloat& n) const {
     return new ObjFloat(pow(val, n.value()));
 }
 
-ObjFloat *ObjFloat::operator+(ObjFloat n) const {
+ObjFloat *ObjFloat::operator+(const ObjFloat& n) const {
     return new ObjFloat(val + n.value());
 }
 
-ObjFloat *ObjFloat::operator-(ObjFloat n) const {
+ObjFloat *ObjFloat::operator-(const ObjFloat& n) const {
     return new ObjFloat(val - n.value());
 }
 
-ObjFloat *ObjFloat::operator*(ObjFloat n) const {
+ObjFloat *ObjFloat::operator*(const ObjFloat& n) const {
     return new ObjFloat(val * n.value());
 }
 
-ObjFloat *ObjFloat::operator/(ObjFloat n) const {
+ObjFloat *ObjFloat::operator/(const ObjFloat& n) const {
     return new ObjFloat(val / n.value());
 }
 
-ObjBool *ObjFloat::operator<(ObjFloat n) const {
+ObjBool *ObjFloat::operator<(const ObjFloat& n) const {
     return new ObjBool(val < n.value());
 }
 
-ObjBool *ObjFloat::operator<=(ObjFloat n) const {
+ObjBool *ObjFloat::operator<=(const ObjFloat& n) const {
     return new ObjBool(val <= n.value());
 }
 
-ObjBool *ObjFloat::operator==(ObjFloat n) const {
+ObjBool *ObjFloat::operator==(const ObjFloat& n) const {
     return new ObjBool(val == n.value());
 }
 
-ObjBool *ObjFloat::operator!=(ObjFloat n) const {
+ObjBool *ObjFloat::operator!=(const ObjFloat& n) const {
     return new ObjBool(val != n.value());
 }
 
-ObjBool *ObjFloat::operator>=(ObjFloat n) const {
+ObjBool *ObjFloat::operator>=(const ObjFloat& n) const {
     return new ObjBool(val >= n.value());
 }
 
-ObjBool *ObjFloat::operator>(ObjFloat n) const {
+ObjBool *ObjFloat::operator>(const ObjFloat& n) const {
     return new ObjBool(val > n.value());
 }
 
 ObjFloat::operator ObjNumber() const {
-    return ObjNumber(this);
+    return {this};
 }
 
 Obj *ObjInt::copy() const {
@@ -96,52 +96,52 @@ ObjInt *ObjInt::operator-() const {
     return new ObjInt(-val);
 }
 
-ObjFloat *ObjInt::power(ObjInt n) const {
+ObjFloat *ObjInt::power(const ObjInt& n) const {
     return new ObjFloat(pow(val, n.value()));
 }
 
-ObjInt *ObjInt::operator+(ObjInt n) const {
+ObjInt *ObjInt::operator+(const ObjInt& n) const {
     return new ObjInt(val + n.value());
 }
 
-ObjInt *ObjInt::operator-(ObjInt n) const {
+ObjInt *ObjInt::operator-(const ObjInt& n) const {
     return new ObjInt(val - n.value());
 }
 
-ObjInt *ObjInt::operator*(ObjInt n) const {
+ObjInt *ObjInt::operator*(const ObjInt& n) const {
     return new ObjInt(val * n.value());
 }
 
-ObjInt *ObjInt::operator/(ObjInt n) const {
+ObjInt *ObjInt::operator/(const ObjInt& n) const {
     return new ObjInt(val / n.value());
 }
 
-ObjBool *ObjInt::operator<(ObjInt n) const {
+ObjBool *ObjInt::operator<(const ObjInt& n) const {
     return new ObjBool(val < n.value());
 }
 
-ObjBool *ObjInt::operator<=(ObjInt n) const {
+ObjBool *ObjInt::operator<=(const ObjInt& n) const {
     return new ObjBool(val <= n.value());
 }
 
-ObjBool *ObjInt::operator==(ObjInt n) const {
+ObjBool *ObjInt::operator==(const ObjInt& n) const {
     return new ObjBool(val == n.value());
 }
 
-ObjBool *ObjInt::operator!=(ObjInt n) const {
+ObjBool *ObjInt::operator!=(const ObjInt& n) const {
     return new ObjBool(val != n.value());
 }
 
-ObjBool *ObjInt::operator>=(ObjInt n) const {
+ObjBool *ObjInt::operator>=(const ObjInt& n) const {
     return new ObjBool(val >= n.value());
 }
 
-ObjBool *ObjInt::operator>(ObjInt n) const {
+ObjBool *ObjInt::operator>(const ObjInt& n) const {
     return new ObjBool(val > n.value());
 }
 
 ObjInt::operator ObjNumber() const {
-    return ObjNumber(this);
+    return {this};
 }
 
 ObjInt::operator ObjFloat() const {
@@ -152,20 +152,32 @@ ObjInt *ObjInt::operator~() const {
     return new ObjInt(~val);
 }
 
-ObjInt *ObjInt::operator<<(ObjInt n) const {
+ObjInt *ObjInt::operator<<(const ObjInt& n) const {
     return new ObjInt(val << n.value());
 }
 
-ObjInt *ObjInt::operator>>(ObjInt n) const {
+ObjInt *ObjInt::operator>>(const ObjInt& n) const {
     return new ObjInt(val >> n.value());
 }
 
-ObjInt *ObjInt::unsignedRightShift(ObjInt n) const {
-    return new ObjInt(static_cast<uint64>(val & 0xffffffff >> n.value());
+ObjInt *ObjInt::unsignedRightShift(const ObjInt& n) const {
+    return new ObjInt(val & 0x7fffffff >> n.value());
 }
 
-ObjInt *ObjInt::operator%(ObjInt n) const {
+ObjInt *ObjInt::operator%(const ObjInt& n) const {
     return new ObjInt(val % n.value());
+}
+
+ObjInt *ObjInt::operator&(const ObjInt &n) const {
+    return new ObjInt(val & n.value());
+}
+
+ObjInt *ObjInt::operator|(const ObjInt &n) const {
+    return new ObjInt(val | n.value());
+}
+
+ObjInt *ObjInt::operator^(const ObjInt &n) const {
+    return new ObjInt(val ^ n.value());
 }
 
 Obj *ObjArray::copy() const {
@@ -182,7 +194,7 @@ string ObjArray::toString() const {
     return "[" + str + "]";
 }
 
-Obj *ObjArray::get(int64 i) {
+Obj *ObjArray::get(int64 i) const {
     if (i >= length) throw IndexError(i);
     return array[i >= 0 ? i : length + i];
 }
@@ -190,6 +202,12 @@ Obj *ObjArray::get(int64 i) {
 void ObjArray::set(int64 i, Obj *value) {
     if (i >= length) throw IndexError(i);
     array[i >= 0 ? i : length + i] = value;
+}
+
+void ObjArray::foreach(function<void(Obj *)> func) const {
+    for (int i = 0; i < length; ++i) {
+        func(array[i]);
+    }
 }
 
 Obj *ObjNumber::operator-() const {

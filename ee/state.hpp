@@ -39,14 +39,14 @@ public:
     bool popFrame();
 
     // Stack operations
-    void push(Obj *val) { fp->push(val); }
+    void push(Obj *val) { getFrame()->push(val); }
 
-    Obj *pop() { return fp->pop(); }
+    Obj *pop() { return getFrame()->pop(); }
 
-    Obj *peek() { return fp->peek(); }
+    Obj *peek() { return getFrame()->peek(); }
 
     // Constant pool operations
-    Obj *loadConst(uint16 index) { return fp->getConstPool()[index]->copy(); }
+    Obj *loadConst(uint16 index) { return getFrame()->getConstPool()[index]->copy(); }
 
     // Code operations
     uint8 readByte() { return *ip++; }
@@ -64,9 +64,9 @@ public:
 
     Frame *getCallStack() const { return callStack; }
 
-    Frame *getFp() const { return fp; }
+    Frame *getFrame() const { return fp - 1; }
 
-    const stringstream &getOut() const { return out; }
+    stringstream &getOut() { return dynamic_cast<stringstream &>(out); }
 };
 
 #endif //VELOCITY_STATE_HPP

@@ -1,6 +1,7 @@
 #include <cstdio>
 #include "../utils/utils.hpp"
 #include "loader.hpp"
+#include "../ee/vm.hpp"
 #include "parser.hpp"
 #include "verifier.hpp"
 #include "../oop/objects.hpp"
@@ -25,13 +26,13 @@ ObjMethod *Loader::load(const string &path) {
     // Get the imports
     auto imports = dynamic_cast<ObjArray *>(constPool[elp.imports]);
     // Check each import
-    for (auto obj: *imports) {
+    imports->foreach([this](auto obj) {
         // Get the import library path
         string libPath = obj->toString();
         // Load it if it is already not loaded
         if (!isAlreadyLoaded(libPath))
             load(libPath);
-    }
+    });
 
     // Load the objects
     for (int i = 0; i < elp.objectsCount; ++i) {
@@ -92,19 +93,19 @@ Obj *Loader::readClass(ClassInfo klass) {
     auto constPool = readConstPool(klass.constantPool, klass.constantPoolCount);
     Sign sign{constPool[klass.thisClass]->toString()};
     vector<Type *> tparams;
-    for (auto tparam: *dynamic_cast<ObjArray *>(constPool[klass.typeParams])) {
+    dynamic_cast<ObjArray *>(constPool[klass.typeParams])->foreach([this, &tparams](auto tparam) {
         auto str = tparam->toString();
         if (containsRef(str)) throw corrupt();
         auto type = Type::TYPE_PARAM_(str);
         tparams.push_back(type);
         refs[str] = type;
-    }
+    });
     Table<Type *> supers;
-    for (auto super: *dynamic_cast<ObjArray *>(constPool[klass.supers])) {
+    dynamic_cast<ObjArray *>(constPool[klass.supers])->foreach([this, &supers](auto super) {
         auto str = super->toString();
         Type *type = findClass(str);
         supers[type->getSign().toString()] = type;
-    }
+    });
 
     Table<Obj *> members;
     for (int i = 0; i < klass.methodsCount; ++i) {

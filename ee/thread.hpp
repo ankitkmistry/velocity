@@ -20,7 +20,7 @@ public:
 
     Object *getValue() const { return value; }
 
-    const VMState &getState() const { return state; }
+    VMState &getState() const { return const_cast<VMState &>(state); }
 
     void setExitCode(int code) { exitCode = code; }
 

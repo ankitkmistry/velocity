@@ -1,4 +1,4 @@
-# Install script for directory: H:/Programming (Ankit)/Projects/Spade/1.0/velocity
+# Install script for directory: H:/Programming (Ankit)/Projects/spade/1.0/velocity
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "H:/Programming (Ankit)/Projects/Spade/1.0/velocity/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "H:/Programming (Ankit)/Projects/spade/1.0/velocity/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

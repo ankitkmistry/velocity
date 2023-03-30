@@ -78,7 +78,7 @@ public:
     }
 
     string toString() const override {
-        return "'" + str + "'";
+        return str;
     }
 
     Obj *copy() const override {
@@ -86,7 +86,7 @@ public:
     }
 };
 
-class ObjArray final : public Obj {
+class ObjArray final : public Obj, public Iterable<Obj *> {
 private:
     Obj **array;
     uint16 length;
@@ -96,19 +96,15 @@ public:
             array[i] = new ObjNull();
     }
 
-    Obj **begin() const { return &array[0]; }
+    void foreach(function<void(Obj *)> func) const override;
 
-    Obj **end() const { return &array[length - 1]; }
-
-    Obj *get(int64 i);
+    Obj *get(int64 i) const;
 
     void set(int64 i, Obj *value);
 
-    uint16 count() { return length; }
+    uint16 count() const { return length; }
 
-    bool truth() const override {
-        return length != 0;
-    }
+    bool truth() const override { return length != 0; }
 
     string toString() const override;
 
@@ -185,39 +181,45 @@ public:
 
     ObjInt *operator-() const;
 
-    ObjFloat *power(ObjInt n) const;
+    ObjFloat *power(const ObjInt &n) const;
 
-    ObjInt *operator+(ObjInt n) const;
+    ObjInt *operator+(const ObjInt &n) const;
 
-    ObjInt *operator-(ObjInt n) const;
+    ObjInt *operator-(const ObjInt &n) const;
 
-    ObjInt *operator*(ObjInt n) const;
+    ObjInt *operator*(const ObjInt &n) const;
 
-    ObjInt *operator/(ObjInt n) const;
+    ObjInt *operator/(const ObjInt &n) const;
 
-    ObjBool *operator<(ObjInt n) const;
+    ObjBool *operator<(const ObjInt &n) const;
 
-    ObjBool *operator<=(ObjInt n) const;
+    ObjBool *operator<=(const ObjInt &n) const;
 
-    ObjBool *operator==(ObjInt n) const;
+    ObjBool *operator==(const ObjInt &n) const;
 
-    ObjBool *operator!=(ObjInt n) const;
+    ObjBool *operator!=(const ObjInt &n) const;
 
-    ObjBool *operator>=(ObjInt n) const;
+    ObjBool *operator>=(const ObjInt &n) const;
 
-    ObjBool *operator>(ObjInt n) const;
+    ObjBool *operator>(const ObjInt &n) const;
 
     ObjInt *operator~() const;
 
-    ObjInt *operator%(ObjInt n) const;
+    ObjInt *operator%(const ObjInt &n) const;
 
-    ObjInt *operator<<(ObjInt n) const;
+    ObjInt *operator<<(const ObjInt &n) const;
 
-    ObjInt *operator>>(ObjInt n) const;
+    ObjInt *operator>>(const ObjInt &n) const;
 
-    ObjInt *unsignedRightShift(ObjInt n) const;
+    ObjInt *operator&(const ObjInt &n) const;
 
-    operator ObjNumber() const override;
+    ObjInt *operator|(const ObjInt &n) const;
+
+    ObjInt *operator^(const ObjInt &n) const;
+
+    ObjInt *unsignedRightShift(const ObjInt &n) const;
+
+    explicit operator ObjNumber() const override;
 
     operator ObjFloat() const;
 
@@ -238,27 +240,27 @@ public:
 
     ObjFloat *operator-() const;
 
-    ObjFloat *power(ObjFloat n) const;
+    ObjFloat *power(const ObjFloat &n) const;
 
-    ObjFloat *operator+(ObjFloat n) const;
+    ObjFloat *operator+(const ObjFloat &n) const;
 
-    ObjFloat *operator-(ObjFloat n) const;
+    ObjFloat *operator-(const ObjFloat &n) const;
 
-    ObjFloat *operator*(ObjFloat n) const;
+    ObjFloat *operator*(const ObjFloat &n) const;
 
-    ObjFloat *operator/(ObjFloat n) const;
+    ObjFloat *operator/(const ObjFloat &n) const;
 
-    ObjBool *operator<(ObjFloat n) const;
+    ObjBool *operator<(const ObjFloat &n) const;
 
-    ObjBool *operator<=(ObjFloat n) const;
+    ObjBool *operator<=(const ObjFloat &n) const;
 
-    ObjBool *operator==(ObjFloat n) const;
+    ObjBool *operator==(const ObjFloat &n) const;
 
-    ObjBool *operator!=(ObjFloat n) const;
+    ObjBool *operator!=(const ObjFloat &n) const;
 
-    ObjBool *operator>=(ObjFloat n) const;
+    ObjBool *operator>=(const ObjFloat &n) const;
 
-    ObjBool *operator>(ObjFloat n) const;
+    ObjBool *operator>(const ObjFloat &n) const;
 
     operator ObjNumber() const override;
 

@@ -13,9 +13,8 @@
 template<class To, class From>
 To cast(From val) {
     auto castVal = dynamic_cast<To>(val);
-    if (castVal == null) {
+    if (castVal == null)
         throw CastError(typeid(From).name(), typeid(To).name());
-    }
     return castVal;
 }
 
@@ -58,5 +57,11 @@ ResultType match(CompareType value,
         return defaultCase();
     }
 }
+
+template<class T>
+class Iterable {
+public:
+    virtual void foreach(function<void(T)> func) const = 0;
+};
 
 #endif /* UTILS_UTILS_HPP_ */

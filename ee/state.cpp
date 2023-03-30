@@ -1,12 +1,14 @@
 #include "state.hpp"
 
 VMState::VMState(const VM *vm, Frame *frame) : vm(vm) {
+    callStack = new Frame[FRAMES_MAX];
+    fp = callStack;
     pushFrame(frame);
 }
 
 void VMState::loadState() {
     // Load the code for the current frame
-    code = ip = fp->getCode();
+    code = ip = getFrame()->getCode();
 }
 
 void VMState::storeState() {
@@ -16,12 +18,11 @@ void VMState::storeState() {
         return;
     }
     // Store the ip for the frame
-    fp->setIp(ip);
+    getFrame()->setIp(ip);
 }
 
 void VMState::pushFrame(Frame *frame) {
-    if (callStack == null)callStack = frame;
-    storeState();
+    if (fp > callStack)storeState();
     if (fp - callStack + 1 >= FRAMES_MAX) {
         // TODO: throw runtime error: stack overflow
         throw runtime_error("bad state: stack overflow");

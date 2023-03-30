@@ -98,7 +98,7 @@ FieldInfo Parser::parseFieldInfo() {
 }
 
 MethodInfo Parser::parseMethodInfo() {
-    MethodInfo method;
+    MethodInfo method{};
     method.accessFlags = readShort();
     method.type = readByte();
     method.thisMethod = readShort();
@@ -153,7 +153,7 @@ MethodInfo::ExceptionTableInfo Parser::parseExceptionInfo() {
 }
 
 MethodInfo::LocalInfo Parser::parseLocalInfo() {
-    MethodInfo::LocalInfo local;
+    MethodInfo::LocalInfo local{};
     local.flags = readByte();
     local.thisLocal = readShort();
     local.type = readShort();
@@ -187,7 +187,7 @@ CpInfo Parser::parseCpInfo() {
             cp._char = readInt();
             break;
         case 0x04:
-            cp._int = readInt();
+            cp._int = readLong();
             break;
         case 0x05:
             cp._float = readLong();

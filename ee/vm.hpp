@@ -12,7 +12,7 @@ private:
     Table<Obj *> globals;
     set<Thread*> threads;
     vector<function<void()>> onExitList;
-    Loader loader = {this};
+    Loader loader = Loader(this);
 public:
     VM() = default;
 

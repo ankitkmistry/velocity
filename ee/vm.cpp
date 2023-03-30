@@ -1,5 +1,4 @@
 #include "vm.hpp"
-#include "../oop/objects.hpp"
 #include "opcode.hpp"
 #include "../oop/type.hpp"
 
@@ -13,7 +12,7 @@ int VM::start(const string &filename, vector<string> args) {
     // Complain if there is no entry point
     if (entry == null)throw new EntryPointNotFoundError(filename);
     if (entry->getFrame()->getArgs().count() != 1)
-        runtimeError("entry point must have one argument (string[]): " + entry->getSign().toString());
+        throw runtimeError("entry point must have one argument (string[]): " + entry->getSign().toString());
     // Execute from the entry
     return start(entry, argsRepr(args));
 }
@@ -27,8 +26,9 @@ ObjArray *VM::argsRepr(const vector<string> &args) {
 }
 
 int VM::start(ObjMethod *entry, ObjArray *args) {
-    entry->getFrame()->getLocals().set(0, args);
-    Thread thread{VMState(this, entry->getFrame()), [&](auto thr) { run(thr); }};
+    entry->getFrame()->getArgs().set(0, args);
+    const VMState state{this, entry->getFrame()};
+    Thread thread{state, [this](auto thr) { run(thr); }};
     threads.insert(&thread);
     thread.join();
 
@@ -58,10 +58,10 @@ void VM::setGlobal(string sign, Obj *val) {
 }
 
 void VM::run(Thread *thread) {
-    auto state = thread->getState();
+    auto& state = thread->getState();
     for (;;) {
         auto opcode = static_cast<Opcode>(state.readByte());
-        auto frame = state.getFp();
+        auto frame = state.getFrame();
 //        DebugOP.printVMState(state);
         switch (opcode) {
             case Opcode::NOP:
@@ -250,9 +250,9 @@ void VM::run(Thread *thread) {
             }
             case Opcode::UNPACK_ARRAY: {
                 auto array = cast<ObjArray *>(state.pop());
-                for (auto item: *array) {
+                array->foreach([&state](auto item) {
                     state.push(item);
-                }
+                });
                 break;
             }
             case Opcode::BUILD_ARRAY: {
@@ -320,7 +320,7 @@ void VM::run(Thread *thread) {
                 // Call it
                 call(thread, method, frame->getSp());
                 // Set 'this' (by convention slot 0 of locals)
-                state.getFp()->getLocals().set(0, object);
+                state.getFrame()->getLocals().set(0, object);
                 break;
             }
             case Opcode::INVOKE_STATIC: {
@@ -380,7 +380,7 @@ void VM::run(Thread *thread) {
                 // Call it
                 call(thread, method, frame->getSp());
                 // Set 'this' (by convention slot 0 of locals)
-                state.getFp()->getLocals().set(0, object);
+                state.getFrame()->getLocals().set(0, object);
                 break;
             }
             case Opcode::INVOKE_STATIC_FAST: {
@@ -592,35 +592,85 @@ void VM::run(Thread *thread) {
                 state.push(a - b);
                 break;
             }
-            case Opcode::LSHIFT:
+            case Opcode::LSHIFT: {
+                auto b = cast<ObjInt *>(state.pop());
+                auto a = cast<ObjInt *>(state.pop());
+                state.push(*a << *b);
                 break;
-            case Opcode::RSHIFT:
+            }
+            case Opcode::RSHIFT: {
+                auto b = cast<ObjInt *>(state.pop());
+                auto a = cast<ObjInt *>(state.pop());
+                state.push(*a >> *b);
                 break;
-            case Opcode::URSHIFT:
+            }
+            case Opcode::URSHIFT: {
+                auto b = cast<ObjInt *>(state.pop());
+                auto a = cast<ObjInt *>(state.pop());
+                state.push(a->unsignedRightShift(*b));
                 break;
-            case Opcode::AND:
+            }
+            case Opcode::AND: {
+                auto b = cast<ObjInt *>(state.pop());
+                auto a = cast<ObjInt *>(state.pop());
+                state.push(*a & *b);
                 break;
-            case Opcode::OR:
+            }
+            case Opcode::OR: {
+                auto b = cast<ObjInt *>(state.pop());
+                auto a = cast<ObjInt *>(state.pop());
+                state.push(*a | *b);
                 break;
-            case Opcode::XOR:
+            }
+            case Opcode::XOR: {
+                auto b = cast<ObjInt *>(state.pop());
+                auto a = cast<ObjInt *>(state.pop());
+                state.push(*a ^ *b);
                 break;
-            case Opcode::LT:
+            }
+            case Opcode::LT: {
+                auto b = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                auto a = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                state.push(a < b);
                 break;
-            case Opcode::LE:
+            }
+            case Opcode::LE: {
+                auto b = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                auto a = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                state.push(a <= b);
                 break;
-            case Opcode::EQ:
+            }
+            case Opcode::EQ: {
+                auto b = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                auto a = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                state.push(a == b);
                 break;
-            case Opcode::NE:
+            }
+            case Opcode::NE: {
+                auto b = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                auto a = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                state.push(a != b);
                 break;
-            case Opcode::GE:
+            }
+            case Opcode::GE: {
+                auto b = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                auto a = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                state.push(a >= b);
                 break;
-            case Opcode::GT:
+            }
+            case Opcode::GT: {
+                auto b = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                auto a = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                state.push(a > b);
                 break;
+            }
             case Opcode::IS:
                 break;
             case Opcode::IS_NULL:
+                state.push(new ObjBool(state.pop()->getSign().toString() == "null"));
                 break;
             case Opcode::IS_NON_NULL:
+                state.push(new ObjBool(state.pop()->getSign().toString() != "null"));
                 break;
             case Opcode::MONITOR_ENTER:
                 break;
@@ -636,13 +686,35 @@ void VM::run(Thread *thread) {
                 break;
             case Opcode::THROW:
                 break;
-            case Opcode::RETURN:
+            case Opcode::RETURN: {
+                // Pop the return value
+                auto val = state.pop();
+                // Pop the frame
+                state.popFrame();
+                // Return if call stack is empty
+                if (state.getFrame() == state.getCallStack()) {
+                    thread->setExitCode(cast<ObjInt *>(val)->value() & INT32_MAX);
+                    return;
+                }
+                // Push the return value
+                state.getFrame()->push(val);
                 break;
-            case Opcode::RETURN_VOID:
+            }
+            case Opcode::RETURN_VOID: {
+                state.popFrame();
+                // Return if call stack is empty
+                if (state.getFrame() == state.getCallStack()) {
+                    thread->setExitCode(0);
+                    return;
+                }
                 break;
+            }
             case Opcode::PRINTLN:
+                // TODO: For debug only
+                state.getOut() << state.pop()->toString() << "\n";
                 break;
             case Opcode::NUM_OPCODES:
+                // No use
                 break;
         }
     }
@@ -653,5 +725,13 @@ bool VM::checkCast(const Type *type1, const Type *type2) {
 }
 
 void VM::call(Thread *thread, ObjMethod *method, Obj **args) {
-
+    auto frame = new Frame(*method->getFrame());
+    for (int i = 0; i < frame->getArgs().count(); i++) {
+        auto arg = frame->getArgs().getArg(i);
+        arg.setValue(match<Obj *>(arg.getKind(), {
+                {Arg::Kind::VALUE, [&] { return args[i]->copy(); }},
+                {Arg::Kind::REF,   [&] { return args[i]; }}
+        }));
+    }
+    thread->getState().pushFrame(frame);
 }
