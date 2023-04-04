@@ -1,3 +1,0 @@
-H:/Programming (Ankit)/Projects/spade/1.0/velocity/cmake-build-debug/CMakeFiles/velocity.dir
-H:/Programming (Ankit)/Projects/spade/1.0/velocity/cmake-build-debug/CMakeFiles/edit_cache.dir
-H:/Programming (Ankit)/Projects/spade/1.0/velocity/cmake-build-debug/CMakeFiles/rebuild_cache.dir
