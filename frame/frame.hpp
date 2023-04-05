@@ -76,6 +76,10 @@ public:
     void setSp(Obj **__sp) { sp = __sp; }
 
     void setMethod(ObjMethod *met) { method = met; }
+
+    uint32 getPc();
+
+    uint32 getStackCount();
 };
 
 

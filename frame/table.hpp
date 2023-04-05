@@ -1,5 +1,5 @@
-#ifndef VELOCITY_TABLE_HPP
-#define VELOCITY_TABLE_HPP
+#ifndef VELOCITY_FRAME_TABLE_HPP
+#define VELOCITY_FRAME_TABLE_HPP
 
 #include <utility>
 
@@ -23,25 +23,15 @@ public:
 
     Arg &operator=(const Arg &arg) = default;
 
-    Kind getKind() const {
-        return kind;
-    }
+    Kind getKind() const { return kind; }
 
-    string getName() const {
-        return name;
-    }
+    string getName() const { return name; }
 
-    Obj *getValue() const {
-        return value;
-    }
+    Obj *getValue() const { return value; }
 
-    void setValue(Obj *val) {
-        value = val;
-    }
+    void setValue(Obj *val) { value = val; }
 
-    Table<string> getMeta() const {
-        return meta;
-    }
+    Table<string> getMeta() const { return meta; }
 
     string toString() const;
 };
@@ -63,25 +53,15 @@ public:
 
     Local &operator=(const Local &local) = default;
 
-    Kind getKind() const {
-        return kind;
-    }
+    Kind getKind() const { return kind; }
 
-    string getName() const {
-        return name;
-    }
+    string getName() const { return name; }
 
-    Obj *getValue() const {
-        return value;
-    }
+    Obj *getValue() const { return value; }
 
-    void setValue(Obj *val) {
-        value = val;
-    }
+    void setValue(Obj *val) { value = val; }
 
-    Table<string> getMeta() const {
-        return meta;
-    }
+    Table<string> getMeta() const { return meta; }
 
     string toString() const;
 };
@@ -100,25 +80,15 @@ public:
 
     Exception &operator=(const Exception &exception) = default;
 
-    uint32 getFrom() const {
-        return from;
-    }
+    uint32 getFrom() const { return from; }
 
-    uint32 getTo() const {
-        return to;
-    }
+    uint32 getTo() const { return to; }
 
-    uint32 getTarget() const {
-        return target;
-    }
+    uint32 getTarget() const { return target; }
 
-    Type *getType() const {
-        return type;
-    }
+    Type *getType() const { return type; }
 
-    Table<string> getMeta() const {
-        return meta;
-    }
+    Table<string> getMeta() const { return meta; }
 
     static Exception NO_EXCEPTION() { return Exception(0, 0, 0, null, {}); }
 
@@ -161,7 +131,7 @@ public:
 
     Obj *get(uint8 i) { return args[i].getValue(); }
 
-    void addArg(Arg arg) { args.push_back(arg); }
+    void addArg(const Arg &arg) { args.push_back(arg); }
 
     Arg getArg(uint8 i) { return args[i]; }
 
@@ -187,7 +157,7 @@ public:
 
     Obj *get(uint16 i) { return locals[i].getValue(); }
 
-    void addLocal(Local local) { locals.push_back(local); }
+    void addLocal(const Local &local) { locals.push_back(local); }
 
     Local getLocal(uint16 i) { return locals[i]; }
 
@@ -206,7 +176,7 @@ public:
 
     ExceptionTable &operator=(const ExceptionTable &table) = default;
 
-    void addException(Exception exception) { exceptions.push_back(exception); }
+    void addException(const Exception &exception) { exceptions.push_back(exception); }
 
     Exception &get(int i) { return exceptions[i]; }
 
@@ -215,4 +185,11 @@ public:
     Exception getTarget(uint32 pc, Type *type);
 };
 
-#endif //VELOCITY_TABLE_HPP
+class KindStringInfo {
+public:
+    static string ofArg(Arg::Kind kind);
+
+    static string ofLocal(Local::Kind kind);
+};
+
+#endif //VELOCITY_FRAME_TABLE_HPP

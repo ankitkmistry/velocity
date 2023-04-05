@@ -13,7 +13,7 @@ private:
     uint8 *code = null;
     uint8 *ip = null;
     Frame *callStack = null, *fp = null;
-    stringstream out;
+    std::stringstream out;
 public:
     VMState(const VM *vm, Frame *frame);
 
@@ -66,7 +66,9 @@ public:
 
     Frame *getFrame() const { return fp - 1; }
 
-    stringstream &getOut() { return dynamic_cast<stringstream &>(out); }
+    std::stringstream &getOut() { return dynamic_cast<std::stringstream &>(out); }
+
+    uint16 getCallStackSize() { return fp - callStack + 1; }
 };
 
 #endif //VELOCITY_STATE_HPP

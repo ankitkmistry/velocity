@@ -1,13 +1,13 @@
 #include "table.hpp"
 
 static const string argKindNames[] = {
-        "value",
-        "ref"
+        "VALUE",
+        "REF"
 };
 
 static const string localKindNames[] = {
-        "var",
-        "const"
+        "VAR",
+        "CONST"
 };
 
 string Arg::toString() const {
@@ -44,4 +44,12 @@ Exception ExceptionTable::getTarget(uint32 pc, Type *type) {
         }
     }
     return Exception::NO_EXCEPTION();
+}
+
+string KindStringInfo::ofArg(Arg::Kind kind) {
+    return argKindNames[kind];
+}
+
+string KindStringInfo::ofLocal(Local::Kind kind) {
+    return localKindNames[kind];
 }

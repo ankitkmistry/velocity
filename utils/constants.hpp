@@ -7,4 +7,12 @@
 #define VM_NAME "velocity"
 #define INFO_STRING LANG_NAME VM_NAME VERSION
 
+#if defined _WIN32
+#define OS_WINDOWS
+#elif defined (__LINUX__) || defined(__gnu_linux__) || defined(__linux__)
+#define OS_LINUX
+#elif defined (__APPLE__)
+#define OS_MAC
+#endif
+
 #endif //VELOCITY_CONSTANTS_HPP

@@ -10,7 +10,7 @@
 class VM {
 private:
     Table<Obj *> globals;
-    set<Thread*> threads;
+    std::set<Thread*> threads;
     vector<function<void()>> onExitList;
     Loader loader = Loader(this);
 public:

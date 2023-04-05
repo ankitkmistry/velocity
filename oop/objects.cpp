@@ -25,7 +25,7 @@ bool ObjFloat::truth() const {
 }
 
 string ObjFloat::toString() const {
-    return to_string(val);
+    return std::to_string(val);
 }
 
 ObjFloat *ObjFloat::operator-() const {
@@ -89,7 +89,7 @@ bool ObjInt::truth() const {
 }
 
 string ObjInt::toString() const {
-    return to_string(val);
+    return std::to_string(val);
 }
 
 ObjInt *ObjInt::operator-() const {

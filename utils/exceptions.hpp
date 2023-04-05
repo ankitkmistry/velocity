@@ -1,7 +1,6 @@
 #ifndef SOURCE_UTILS_EXCEPTIONS_HPP_
 #define SOURCE_UTILS_EXCEPTIONS_HPP_
 
-#include <stdexcept>
 
 #include "common.hpp"
 #include "format.hpp"

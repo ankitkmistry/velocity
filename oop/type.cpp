@@ -49,7 +49,7 @@ Obj *Type::getMember(string name) const {
 Obj *Type::getStaticMember(string &name) const {
     Obj *obj = null;
     try { obj = members.at(name); }
-    catch (out_of_range &) {
+    catch (std::out_of_range &) {
         // Check for the members in the super classes
         for (auto [_, super]: supers) {
             if ((obj = super->getStaticMember(name)) != null)break;

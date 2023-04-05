@@ -1,12 +1,10 @@
 #ifndef VELOCITY_LOADER_HPP
 #define VELOCITY_LOADER_HPP
 
-#include <set>
-#include <stack>
 #include "../utils/common.hpp"
 #include "../oop/obj.hpp"
 #include "../oop/method.hpp"
-#include "elfdef.hpp"
+#include "elpdef.hpp"
 #include "../frame/table.hpp"
 
 class VM;
@@ -14,8 +12,8 @@ class VM;
 class Loader {
 private:
     VM *vm;
-    set <string> loadedLibs = {};
-    stack <string> pathStack = {};
+    std::set <string> loadedLibs = {};
+    std::stack <string> pathStack = {};
     Table<Type *> refs = {};
 public:
     explicit Loader(VM *vm) : vm(vm) {}

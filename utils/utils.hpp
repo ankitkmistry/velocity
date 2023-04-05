@@ -1,12 +1,6 @@
 #ifndef UTILS_UTILS_HPP_
 #define UTILS_UTILS_HPP_
 
-#include <map>
-#include <vector>
-#include <iterator>
-#include <algorithm>
-#include <cstdio>
-#include <functional>
 #include "common.hpp"
 #include "exceptions.hpp"
 
@@ -31,6 +25,8 @@ string listToString(vector <T> data) {
         str += data[i].toString() + (i < length - 1 ? ", " : "");
     return str;
 }
+
+string rpad(const string& str, size_t length);
 
 template<class T>
 class Table final : public map<string, T> {
