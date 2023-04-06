@@ -1,6 +1,7 @@
 #include "vm.hpp"
 #include "opcode.hpp"
 #include "../oop/type.hpp"
+#include "../debug/debug.hpp"
 
 void VM::onExit(function<void()> fun) {
     onExitList.push_back(fun);
@@ -26,8 +27,8 @@ ObjArray *VM::argsRepr(const vector<string> &args) {
 }
 
 int VM::start(ObjMethod *entry, ObjArray *args) {
-    entry->getFrame()->getArgs().set(0, args);
-    const VMState state{this, entry->getFrame()};
+    entry->getFrame()->getArgs().set(0, cast<Obj *>(args));
+    VMState state{this, entry->getFrame()};
     Thread thread{state, [this](auto thr) { run(thr); }};
     threads.insert(&thread);
     thread.join();
@@ -58,11 +59,11 @@ void VM::setGlobal(string sign, Obj *val) {
 }
 
 void VM::run(Thread *thread) {
-    auto& state = thread->getState();
+    auto &state = thread->getState();
     for (;;) {
         auto opcode = static_cast<Opcode>(state.readByte());
         auto frame = state.getFrame();
-//        DebugOP.printVMState(state);
+        DebugOp::printVMState(&state);
         switch (opcode) {
             case Opcode::NOP:
                 // Do nothing
@@ -481,45 +482,45 @@ void VM::run(Thread *thread) {
                 break;
             }
             case Opcode::POP_JUMP_IF_LT: {
-                auto b = cast<ObjNumber *>(state.pop());
-                auto a = cast<ObjNumber *>(state.pop());
+                ObjNumber b = state.pop();
+                ObjNumber a = state.pop();
                 auto offset = state.readShort();
-                if ((*a < *b)->truth())state.adjust(offset);
+                if ((a < b)->truth())state.adjust(offset);
                 break;
             }
             case Opcode::POP_JUMP_IF_LE: {
-                auto b = cast<ObjNumber *>(state.pop());
-                auto a = cast<ObjNumber *>(state.pop());
+                ObjNumber b = state.pop();
+                ObjNumber a = state.pop();
                 auto offset = state.readShort();
-                if ((*a <= *b)->truth())state.adjust(offset);
+                if ((a <= b)->truth())state.adjust(offset);
                 break;
             }
             case Opcode::POP_JUMP_IF_EQ: {
-                auto b = cast<ObjNumber *>(state.pop());
-                auto a = cast<ObjNumber *>(state.pop());
+                ObjNumber b = state.pop();
+                ObjNumber a = state.pop();
                 auto offset = state.readShort();
-                if ((*a == *b)->truth())state.adjust(offset);
+                if ((a == b)->truth())state.adjust(offset);
                 break;
             }
             case Opcode::POP_JUMP_IF_NE: {
-                auto b = cast<ObjNumber *>(state.pop());
-                auto a = cast<ObjNumber *>(state.pop());
+                ObjNumber b = state.pop();
+                ObjNumber a = state.pop();
                 auto offset = state.readShort();
-                if ((*a != *b)->truth())state.adjust(offset);
+                if ((a != b)->truth())state.adjust(offset);
                 break;
             }
             case Opcode::POP_JUMP_IF_GE: {
-                auto b = cast<ObjNumber *>(state.pop());
-                auto a = cast<ObjNumber *>(state.pop());
+                ObjNumber b = state.pop();
+                ObjNumber a = state.pop();
                 auto offset = state.readShort();
-                if ((*a >= *b)->truth())state.adjust(offset);
+                if ((a >= b)->truth())state.adjust(offset);
                 break;
             }
             case Opcode::POP_JUMP_IF_GT: {
-                auto b = cast<ObjNumber *>(state.pop());
-                auto a = cast<ObjNumber *>(state.pop());
+                ObjNumber b = state.pop();
+                ObjNumber a = state.pop();
                 auto offset = state.readShort();
-                if ((*a > *b)->truth())state.adjust(offset);
+                if ((a > b)->truth())state.adjust(offset);
                 break;
             }
             case Opcode::NOT:
@@ -557,20 +558,20 @@ void VM::run(Thread *thread) {
                 break;
             }
             case Opcode::POWER: {
-                auto b = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
-                auto a = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                ObjNumber b = state.pop();
+                ObjNumber a = state.pop();
                 state.push(a.power(b));
                 break;
             }
             case Opcode::MULTIPLY: {
-                auto b = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
-                auto a = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                ObjNumber b = state.pop();
+                ObjNumber a = state.pop();
                 state.push(a * b);
                 break;
             }
             case Opcode::DIVIDE: {
-                auto b = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
-                auto a = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                ObjNumber b = state.pop();
+                ObjNumber a = state.pop();
                 state.push(a / b);
                 break;
             }
@@ -581,14 +582,14 @@ void VM::run(Thread *thread) {
                 break;
             }
             case Opcode::ADD: {
-                auto b = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
-                auto a = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                ObjNumber b = state.pop();
+                ObjNumber a = state.pop();
                 state.push(a + b);
                 break;
             }
             case Opcode::SUBTRACT: {
-                auto b = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
-                auto a = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                ObjNumber b = state.pop();
+                ObjNumber a = state.pop();
                 state.push(a - b);
                 break;
             }
@@ -629,38 +630,38 @@ void VM::run(Thread *thread) {
                 break;
             }
             case Opcode::LT: {
-                auto b = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
-                auto a = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                ObjNumber b = state.pop();
+                ObjNumber a = state.pop();
                 state.push(a < b);
                 break;
             }
             case Opcode::LE: {
-                auto b = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
-                auto a = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                ObjNumber b = state.pop();
+                ObjNumber a = state.pop();
                 state.push(a <= b);
                 break;
             }
             case Opcode::EQ: {
-                auto b = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
-                auto a = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                ObjNumber b = state.pop();
+                ObjNumber a = state.pop();
                 state.push(a == b);
                 break;
             }
             case Opcode::NE: {
-                auto b = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
-                auto a = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                ObjNumber b = state.pop();
+                ObjNumber a = state.pop();
                 state.push(a != b);
                 break;
             }
             case Opcode::GE: {
-                auto b = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
-                auto a = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                ObjNumber b = state.pop();
+                ObjNumber a = state.pop();
                 state.push(a >= b);
                 break;
             }
             case Opcode::GT: {
-                auto b = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
-                auto a = static_cast<ObjNumber>(*cast<ObjNumberConvertible *>(state.pop()));
+                ObjNumber b = state.pop();
+                ObjNumber a = state.pop();
                 state.push(a > b);
                 break;
             }
@@ -711,7 +712,7 @@ void VM::run(Thread *thread) {
             }
             case Opcode::PRINTLN:
                 // TODO: For debug only
-                state.getOut() << state.pop()->toString() << "\n";
+                state.write(state.pop()->toString() + "\n");
                 break;
             case Opcode::NUM_OPCODES:
                 // No use
@@ -727,8 +728,8 @@ bool VM::checkCast(const Type *type1, const Type *type2) {
 void VM::call(Thread *thread, ObjMethod *method, Obj **args) {
     auto frame = new Frame(*method->getFrame());
     for (int i = 0; i < frame->getArgs().count(); i++) {
-        auto arg = frame->getArgs().getArg(i);
-        arg.setValue(match<Obj *>(arg.getKind(), {
+        auto kind = frame->getArgs().getArg(i).getKind();
+        frame->getArgs().set(i, match<Obj *>(kind, {
                 {Arg::Kind::VALUE, [&] { return args[i]->copy(); }},
                 {Arg::Kind::REF,   [&] { return args[i]; }}
         }));

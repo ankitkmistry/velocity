@@ -16,6 +16,7 @@
 #include <functional>
 // TODO: <iostream> For debug only
 #include <iostream>
+#include <sstream>
 #include "constants.hpp"
 
 #define null (nullptr)

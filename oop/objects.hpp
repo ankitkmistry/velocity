@@ -125,14 +125,16 @@ private:
         const ObjFloat *_float;
     } numberUnion;
 public:
-    ObjNumber(const ObjInt *_int) {
-        type = Type::INT;
-        numberUnion = {._int=_int};
-    }
-
-    ObjNumber(const ObjFloat *_float) {
-        type = Type::FLOAT;
-        numberUnion = {._float=_float};
+    ObjNumber(Obj *obj){
+        if (is<ObjInt *>(obj)) {
+            type = Type::INT;
+            numberUnion = {._int=cast<ObjInt *>(obj)};
+        } else if (is<ObjFloat *>(obj)) {
+            type = Type::FLOAT;
+            numberUnion = {._float=cast<ObjFloat *>(obj)};
+        } else {
+            throw FatalError(format("can't convert '%s' to a number", obj->toString().c_str()));
+        }
     }
 
     Obj *operator-() const;
@@ -160,18 +162,11 @@ public:
     ObjBool *operator>(ObjNumber n) const;
 };
 
-class ObjNumberConvertible : public Obj {
-public:
-    ObjNumberConvertible(string sign) : Obj(Sign(sign), null) {}
-
-    virtual operator ObjNumber() const = 0;
-};
-
-class ObjInt final : public ObjNumberConvertible {
+class ObjInt final : public Obj {
 private:
     int64 val;
 public:
-    ObjInt(int64 val) : ObjNumberConvertible("int"), val(val) {}
+    ObjInt(int64 val) : Obj(Sign("int"), null), val(val) {}
 
     Obj *copy() const;
 
@@ -219,18 +214,16 @@ public:
 
     ObjInt *unsignedRightShift(const ObjInt &n) const;
 
-    explicit operator ObjNumber() const override;
-
     operator ObjFloat() const;
 
     int64 value() const { return val; }
 };
 
-class ObjFloat final : public ObjNumberConvertible {
+class ObjFloat final : public Obj {
 private:
     double val;
 public:
-    ObjFloat(double val) : ObjNumberConvertible("int"), val(val) {}
+    ObjFloat(double val) : Obj(Sign("int"), null), val(val) {}
 
     Obj *copy() const override;
 
@@ -261,8 +254,6 @@ public:
     ObjBool *operator>=(const ObjFloat &n) const;
 
     ObjBool *operator>(const ObjFloat &n) const;
-
-    operator ObjNumber() const override;
 
     double value() const { return val; }
 };

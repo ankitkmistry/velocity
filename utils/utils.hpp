@@ -18,7 +18,7 @@ bool is(V obj) {
 }
 
 template<class T>
-string listToString(vector <T> data) {
+string listToString(vector<T> data) {
     string str;
     const int length = data.size();
     for (uint16 i = 0; i < length; ++i)
@@ -26,7 +26,20 @@ string listToString(vector <T> data) {
     return str;
 }
 
-string rpad(const string& str, size_t length);
+template<class T>
+string listToString(vector<T *> data) {
+    string str;
+    const int length = data.size();
+    for (uint16 i = 0; i < length; ++i)
+        str += data[i]->toString() + (i < length - 1 ? ", " : "");
+    return str;
+}
+
+string rpad(const string &str, size_t length);
+
+string lpad(const string &str, size_t length);
+
+bool isNumber(const std::string &s);
 
 template<class T>
 class Table final : public map<string, T> {
@@ -35,7 +48,7 @@ class Table final : public map<string, T> {
 
 template<class ResultType, class CompareType>
 ResultType match(CompareType value,
-                 map <CompareType, function<ResultType()>> matchCases) {
+                 map<CompareType, function<ResultType()>> matchCases) {
     try {
         return static_cast<ResultType>(matchCases.at(value)());
     } catch (std::out_of_range &) {
@@ -45,7 +58,7 @@ ResultType match(CompareType value,
 
 template<class ResultType, class CompareType>
 ResultType match(CompareType value,
-                 map <CompareType, function<ResultType()>> matchCases,
+                 map<CompareType, function<ResultType()>> matchCases,
                  function<ResultType()> defaultCase) {
     try {
         return dynamic_cast<ResultType>(matchCases.at(value)());

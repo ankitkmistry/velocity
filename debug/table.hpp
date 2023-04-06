@@ -1,7 +1,6 @@
 #ifndef VELOCITY_DEBUG_TABLE_HPP
 #define VELOCITY_DEBUG_TABLE_HPP
 
-#include <ostream>
 #include "../utils/common.hpp"
 #include "../utils/exceptions.hpp"
 #include "../utils/utils.hpp"
@@ -9,9 +8,20 @@
 #include "../oop/type.hpp"
 #include "../frame/table.hpp"
 
+class IntPack {
+private:
+    uint32 i;
+public:
+    IntPack(uint32 i) : i(i) {}
+
+    string toString() const { return std::to_string(i); }
+};
+
 class DataTable {
 private:
     const string title;
+    // This field is done to maintain the insertion order which DataTable::data does not maintain
+    vector<string> keys;
     map<string, vector<string>> data;
     int width;
 
@@ -36,15 +46,6 @@ public:
     string toString() const;
 
     friend std::ostream &operator<<(std::ostream &os, const DataTable &table);
-};
-
-class IntPack {
-private:
-    uint32 i;
-public:
-    IntPack(uint32 i) : i(i) {}
-
-    string toString() const { return std::to_string(i); }
 };
 
 class CallStackTable : public DataTable {

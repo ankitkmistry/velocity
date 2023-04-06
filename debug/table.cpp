@@ -1,7 +1,6 @@
 #include "table.hpp"
 
-
-DataTable::DataTable(const string &title, const vector<string> &args) : title(title), data(), width(0) {
+DataTable::DataTable(const string &title, const vector<string> &args) : title(title), keys(args), data(), width(0) {
     for (const auto &arg: args) {
         data[arg] = {};
     }
@@ -11,19 +10,19 @@ string DataTable::toString() const {
     string out;
     vector<size_t> maxes;
     string separator;
-    vector<string> keys;
     vector<vector<string>> valuesVector;
 
     // Initialize the maxes and keys
-    for (auto &[key, values]: data) {
-        keys.push_back(key);
+    size_t j = 0;
+    for (auto &[_, values]: data) {
         valuesVector.push_back(values);
-        size_t max = 0;
+        size_t max = keys[j].length();
         for (const auto &value: values) {
             if (value.length() > max)
                 max = value.length();
         }
         maxes.push_back(max);
+        j++;
     }
 
     // Build the separator
@@ -40,7 +39,7 @@ string DataTable::toString() const {
     // Append the header
     out += '|';
     for (int i = 0; i < maxes.size(); ++i) {
-        out += format(" %s ", rpad(keys[i], maxes[i]).c_str()) + '|';
+        out += format(" %s ", lpad(keys[i], maxes[i]).c_str()) + '|';
     }
     out += '\n';
     out += separator;
@@ -50,9 +49,16 @@ string DataTable::toString() const {
         out += '|';
         int k = 0;
         for (auto values: valuesVector) {
-            out += format(" %s ", rpad(values[i], maxes[k]).c_str()) + '|';
+            auto value = values[i];
+            out += format(" %s ",
+                          (isNumber(value)
+                           ? rpad(value, maxes[k]) // If number then pad right
+                           : lpad(value, maxes[k]) // If not then pad left
+                          ).c_str())
+                   + '|';
             k++;
         }
+        out += '\n';
     }
     out += separator;
     return out;

@@ -35,7 +35,7 @@ private:
 
     static bool checkCast(const Type *type1, const Type *type2);
 
-    void call(Thread *thread, ObjMethod *method, Obj **args);
+    static void call(Thread *thread, ObjMethod *method, Obj **args);
 
     static ObjArray *argsRepr(const vector<string> &args);
 };

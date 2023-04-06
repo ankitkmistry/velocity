@@ -12,6 +12,7 @@ class Frame {
 
 private:
     vector<Obj *> constPool;
+    uint32 codeCount;
     uint8 *code;
     uint8 *ip;
     Obj **stack;
@@ -23,11 +24,15 @@ private:
     ObjMethod *method;
 
     Frame()
-            : constPool(), code(null), ip(null), stack(null), sp(null), args(), locals(0), exceptions(), lines(0),
+            : constPool(), codeCount(0), code(null), ip(null),
+              stack(null), sp(null),
+              args(), locals(0), exceptions(),
+              lines(0),
               method(null) {}
 
 public:
     Frame(vector<Obj *> &constPool,
+          uint32 codeCount,
           uint8 *code,
           uint32 maxStack,
           ArgsTable &args,
@@ -35,8 +40,12 @@ public:
           ExceptionTable &exceptions,
           LineNumberTable &lines,
           ObjMethod *method)
-            : constPool(constPool), code(code), ip(null), stack(new Obj *[maxStack]), sp(null), args(args),
-              locals(locals), exceptions(exceptions), lines(lines), method(method) {
+            : constPool(constPool),
+              codeCount(codeCount), code(code), ip(null),
+              stack(new Obj *[maxStack]), sp(null),
+              args(args), locals(locals), exceptions(exceptions),
+              lines(lines),
+              method(method) {
         ip = code;
         sp = stack;
     }
@@ -53,9 +62,9 @@ public:
 
     const vector<Obj *> &getConstPool() const { return constPool; }
 
-    uint8 *getCode() const { return const_cast<uint8 *>(code); }
+    uint8 *getCode() const { return code; }
 
-    const uint8 *getIp() const { return ip; }
+    uint8 *getIp() const { return ip; }
 
     Obj **getStack() const { return stack; }
 
@@ -71,15 +80,15 @@ public:
 
     ObjMethod *getMethod() const { return method; }
 
-    void setIp(uint8 *__ip) { ip = __ip; }
-
-    void setSp(Obj **__sp) { sp = __sp; }
+    void setIp(uint8 *ip_) { ip = ip_; }
 
     void setMethod(ObjMethod *met) { method = met; }
 
     uint32 getPc();
 
     uint32 getStackCount();
+
+    uint32 getCodeCount() const;
 };
 
 

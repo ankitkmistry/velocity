@@ -180,7 +180,11 @@ Obj *Loader::readMethod(vector<Obj *> &constPool, MethodInfo &method) {
         lines.addLine(lineInfo.byteCode, lineInfo.sourceCode);
     }
     auto meta = readMeta(method.meta);
-    auto *frame = new Frame{constPool, method.code, method.maxStack, args, locals, exceptions, lines, null};
+    auto *frame = new Frame{constPool,
+                            method.codeCount, method.code,
+                            method.maxStack,
+                            args, locals, exceptions,
+                            lines, null};
     auto methodObj = new ObjMethod(sign, null, meta, kind, frame);
     frame->setMethod(methodObj);
     if (kind == ObjMethod::CONSTRUCTOR)

@@ -17,6 +17,10 @@ uint32 Frame::getPc() {
 }
 
 uint32 Frame::getStackCount() {
-    return sp - stack + 1;
+    return sp - stack;
+}
+
+uint32 Frame::getCodeCount() const {
+    return codeCount;
 }
 

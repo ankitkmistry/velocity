@@ -1,8 +1,8 @@
 #ifndef VELOCITY_STATE_HPP
 #define VELOCITY_STATE_HPP
 
-#include <sstream>
 #include "../utils/common.hpp"
+#include "../utils/utils.hpp"
 #include "../frame/frame.hpp"
 
 class VM;
@@ -39,14 +39,14 @@ public:
     bool popFrame();
 
     // Stack operations
-    void push(Obj *val) { getFrame()->push(val); }
+    void push(Obj *val) const { getFrame()->push(val); }
 
-    Obj *pop() { return getFrame()->pop(); }
+    Obj *pop() const { return getFrame()->pop(); }
 
-    Obj *peek() { return getFrame()->peek(); }
+    Obj *peek() const { return getFrame()->peek(); }
 
     // Constant pool operations
-    Obj *loadConst(uint16 index) { return getFrame()->getConstPool()[index]->copy(); }
+    Obj *loadConst(uint16 index) const { return getFrame()->getConstPool()[index]->copy(); }
 
     // Code operations
     uint8 readByte() { return *ip++; }
@@ -66,9 +66,11 @@ public:
 
     Frame *getFrame() const { return fp - 1; }
 
-    std::stringstream &getOut() { return dynamic_cast<std::stringstream &>(out); }
+    void write(string str) { out << str; }
 
-    uint16 getCallStackSize() { return fp - callStack + 1; }
+    string getOutput() { return out.str(); }
+
+    uint16 getCallStackSize() { return fp - callStack; }
 };
 
 #endif //VELOCITY_STATE_HPP

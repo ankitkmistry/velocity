@@ -76,10 +76,6 @@ ObjBool *ObjFloat::operator>(const ObjFloat& n) const {
     return new ObjBool(val > n.value());
 }
 
-ObjFloat::operator ObjNumber() const {
-    return {this};
-}
-
 Obj *ObjInt::copy() const {
     return new ObjInt(val);
 }
@@ -138,10 +134,6 @@ ObjBool *ObjInt::operator>=(const ObjInt& n) const {
 
 ObjBool *ObjInt::operator>(const ObjInt& n) const {
     return new ObjBool(val > n.value());
-}
-
-ObjInt::operator ObjNumber() const {
-    return {this};
 }
 
 ObjInt::operator ObjFloat() const {
