@@ -8,6 +8,7 @@
 
 class Arg {
     friend class ArgsTable;
+
     friend class VM;
 
 public:
@@ -132,15 +133,13 @@ public:
 
     ArgsTable &operator=(const ArgsTable &argsTable) = default;
 
-    void set(uint8 i, Obj *val) {
-        args[i].value = val;
-    }
+    void set(uint8 i, Obj *val) { args[i].value = val; }
 
     Obj *get(uint8 i) { return args[i].value; }
 
     void addArg(const Arg &arg) { args.push_back(arg); }
 
-    Arg& getArg(uint8 i) { return args[i]; }
+    Arg &getArg(uint8 i) { return args[i]; }
 
     uint8 count() { return args.size(); }
 
@@ -166,7 +165,7 @@ public:
 
     void addLocal(const Local &local) { locals.push_back(local); }
 
-    Local& getLocal(uint16 i) { return locals[i]; }
+    Local &getLocal(uint16 i) { return locals[i]; }
 
     uint16 count() { return locals.size(); }
 

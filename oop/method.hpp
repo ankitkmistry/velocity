@@ -21,13 +21,9 @@ public:
               kind(kind),
               frame(frame) {}
 
-    Kind getKind() const {
-        return kind;
-    }
+    Kind getKind() const { return kind; }
 
-    Frame *getFrame() const {
-        return frame;
-    }
+    Frame *getFrame() const { return frame; }
 
     Obj *copy() const override;
 

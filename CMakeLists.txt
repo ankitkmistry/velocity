@@ -7,4 +7,4 @@ else ()
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 endif ()
 
-add_executable(velocity main.cpp loader/parser.cpp loader/verifier.cpp oop/oop.cpp oop/type.cpp oop/method.cpp frame/table.cpp oop/objects.cpp frame/frame.cpp ee/opcode.cpp ee/vm.cpp ee/thread.cpp ee/state.cpp frame/writer.cpp loader/loader.cpp loader/writer.cpp loader/writer.hpp debug/debug.cpp debug/table.cpp debug/table.hpp utils/utils.cpp)
+add_executable(velocity main.cpp loader/parser.cpp loader/verifier.cpp oop/oop.cpp oop/type.cpp oop/method.cpp frame/table.cpp oop/objects.cpp frame/frame.cpp ee/opcode.cpp ee/vm.cpp ee/thread.cpp ee/state.cpp frame/writer.cpp loader/loader.cpp loader/writer.cpp loader/writer.hpp debug/debug.cpp debug/table.cpp debug/table.hpp utils/utils.cpp ee/memory.cpp ee/memory.hpp)

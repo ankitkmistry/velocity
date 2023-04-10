@@ -15,8 +15,8 @@ void DebugOp::printVMState(VMState *state) {
     // Clear the console
     clearConsole();
     // Print the call stack
-    printCallStack(state->getCallStack(), state->getCallStackSize());
-    // Print the frame
+    printCallStack(state);
+    // Print the current frame
     printFrame(state->getFrame(), state);
     // Print the output
     cout << "Output\n" << state->getOutput() << "\n";
@@ -24,14 +24,15 @@ void DebugOp::printVMState(VMState *state) {
     std::getline(cin, dummy);
 }
 
-void DebugOp::printCallStack(Frame *callStack, uint16 count) {
+void DebugOp::printCallStack(VMState *state) {
     CallStackTable table;
-    for (int i = count - 1; i >= 0; i--) {
+    auto callStack = state->getCallStack();
+    for (int i = state->getCallStackSize() - 1; i >= 0; i--) {
         auto frame = &callStack[i];
         table.add(i,
                   frame->getMethod(),
                   frame->getArgs(),
-                  frame->getPc());
+                  state->getPc());
     }
     cout << table;
 }

@@ -8,7 +8,7 @@ class DebugOp {
 private:
     static void clearConsole();
 
-    static void printCallStack(Frame *callStack, uint16 i);
+    static void printCallStack(VMState *state);
 
     static void printFrame(Frame *frame, const VMState *state);
 

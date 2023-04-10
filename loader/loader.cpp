@@ -241,6 +241,7 @@ Arg Loader::readArg(vector<Obj *> &constPool, MethodInfo::ArgInfo &arg) {
 
 vector<Obj *> Loader::readConstPool(CpInfo *constantPool, uint16 count) {
     vector<Obj *> list;
+    list.reserve(count);
     for (int i = 0; i < count; ++i) {
         list.push_back(readCp(constantPool[i]));
     }

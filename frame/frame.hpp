@@ -70,13 +70,13 @@ public:
 
     Obj **getSp() const { return sp; }
 
-    ArgsTable getArgs() const { return args; }
+    ArgsTable& getArgs() const { return const_cast<ArgsTable &>(args); }
 
-    LocalsTable getLocals() const { return locals; }
+    LocalsTable& getLocals() const { return const_cast<LocalsTable &>(locals); }
 
-    ExceptionTable getExceptions() const { return exceptions; }
+    ExceptionTable& getExceptions() const { return const_cast<ExceptionTable &>(exceptions); }
 
-    LineNumberTable getLines() const { return lines; }
+    LineNumberTable& getLines() const { return const_cast<LineNumberTable &>(lines); }
 
     ObjMethod *getMethod() const { return method; }
 

@@ -11,7 +11,7 @@ int VM::start(const string &filename, vector<string> args) {
     // Load the file and get the entry point
     auto entry = loader.load(filename);
     // Complain if there is no entry point
-    if (entry == null)throw new EntryPointNotFoundError(filename);
+    if (entry == null)throw EntryPointNotFoundError(filename);
     if (entry->getFrame()->getArgs().count() != 1)
         throw runtimeError("entry point must have one argument (string[]): " + entry->getSign().toString());
     // Execute from the entry
@@ -59,8 +59,9 @@ void VM::setGlobal(string sign, Obj *val) {
 }
 
 void VM::run(Thread *thread) {
+    thread->setStatus(Thread::RUNNING);
     auto &state = thread->getState();
-    for (;;) {
+    for (; thread->isRunning();) {
         auto opcode = static_cast<Opcode>(state.readByte());
         auto frame = state.getFrame();
         DebugOp::printVMState(&state);
@@ -691,22 +692,21 @@ void VM::run(Thread *thread) {
                 // Pop the return value
                 auto val = state.pop();
                 // Pop the frame
-                state.popFrame();
                 // Return if call stack is empty
-                if (state.getFrame() == state.getCallStack()) {
-                    thread->setExitCode(cast<ObjInt *>(val)->value() & INT32_MAX);
-                    return;
+                if (!state.popFrame()) {
+                    thread->setExitCode(longToInt(cast<ObjInt *>(val)->value()));
+                    thread->setStatus(Thread::TERMINATED);
+                    break;
                 }
                 // Push the return value
                 state.getFrame()->push(val);
                 break;
             }
             case Opcode::RETURN_VOID: {
-                state.popFrame();
                 // Return if call stack is empty
-                if (state.getFrame() == state.getCallStack()) {
+                if (!state.popFrame()) {
                     thread->setExitCode(0);
-                    return;
+                    thread->setStatus(Thread::TERMINATED);
                 }
                 break;
             }

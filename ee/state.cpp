@@ -7,8 +7,12 @@ VMState::VMState(const VM *vm, Frame *frame) : vm(vm) {
 }
 
 void VMState::loadState() {
-    // Load the code for the current frame
-    code = ip = getFrame()->getCode();
+    if (fp > callStack) {
+        // Load the code for the current frame
+        code = getFrame()->getCode();
+        // Load the ip for the current frame
+        ip = getFrame()->getIp();
+    }
 }
 
 void VMState::storeState() {
@@ -23,7 +27,7 @@ void VMState::storeState() {
 
 void VMState::pushFrame(Frame *frame) {
     if (fp > callStack)storeState();
-    if (fp - callStack + 1 >= FRAMES_MAX) {
+    if (fp - callStack >= FRAMES_MAX) {
         // TODO: throw runtime error: stack overflow
         throw runtime_error("bad state: stack overflow");
     }
@@ -39,4 +43,8 @@ bool VMState::popFrame() {
     }
     fp = null;
     return false;
+}
+
+uint32 VMState::getPc() {
+    return ip - code;
 }

@@ -17,3 +17,8 @@ bool isNumber(const string &s) {
            && std::find_if(s.begin(), s.end(),
                            [](unsigned char c) { return !std::isdigit(c); }) == s.end();
 }
+
+int32 longToInt(int64 num) {
+    int sign = num >> 63 == 0 ? 1 : -1;
+    return static_cast<int32>(sign * (sign * num & 0xffffffff));
+}

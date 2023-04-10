@@ -41,6 +41,8 @@ string lpad(const string &str, size_t length);
 
 bool isNumber(const std::string &s);
 
+int32 longToInt(int64 num);
+
 template<class T>
 class Table final : public map<string, T> {
 

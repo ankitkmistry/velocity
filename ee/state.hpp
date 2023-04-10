@@ -66,11 +66,13 @@ public:
 
     Frame *getFrame() const { return fp - 1; }
 
-    void write(string str) { out << str; }
+    void write(const string& str) { out << str; }
 
     string getOutput() { return out.str(); }
 
     uint16 getCallStackSize() { return fp - callStack; }
+
+    uint32 getPc();
 };
 
 #endif //VELOCITY_STATE_HPP
