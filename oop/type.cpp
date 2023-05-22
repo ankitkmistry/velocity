@@ -1,4 +1,5 @@
 #include "type.hpp"
+#include "../memory/memory.hpp"
 
 static string kindNames[] = {
         "class",
@@ -16,7 +17,7 @@ void Type::recognizeUnknown(Type &type) {
 
     meta = type.meta;
     kind = type.kind;
-    conpool = type.conpool;
+    constPool = type.constPool;
     typeParams = type.typeParams;
     supers = type.supers;
     members = type.members;
@@ -27,7 +28,7 @@ Obj *Type::copy() const {
     for (auto [key, value]: members) {
         mems[key] = value->copy();
     }
-    return new Type(sign, meta, kind, conpool, typeParams, supers, mems);
+    return new(info.space->getManager()->getVM()) Type(sign, meta, kind, constPool, typeParams, supers, mems);
 }
 
 bool Type::truth() const {
@@ -58,10 +59,10 @@ Obj *Type::getStaticMember(string &name) const {
     return obj;
 }
 
-Type *Type::TYPE_PARAM_(string name) {
-    return new Type(Sign(name), {}, Kind::TYPE_PARAM, {}, {}, {}, {});
+Type *Type::TYPE_PARAM_(const string &name, VM *vm) {
+    return new (vm) Type(Sign(name), {}, Kind::TYPE_PARAM, {}, {}, {}, {});
 }
 
-Type *Type::SENTINEL_(string sign) {
-    return new Type(Sign(sign), {}, Kind::UNKNOWN, {}, {}, {}, {});
+Type *Type::SENTINEL_(const string &sign, VM *vm) {
+    return new (vm) Type(Sign(sign), {}, Kind::UNKNOWN, {}, {}, {}, {});
 }

@@ -1,6 +1,7 @@
 #ifndef VELOCITY_METHOD_HPP
 #define VELOCITY_METHOD_HPP
 
+#include "../utils/common.hpp"
 #include "obj.hpp"
 
 class Frame;

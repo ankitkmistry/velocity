@@ -124,6 +124,8 @@ public:
 };
 
 class ArgsTable {
+    friend class GarbageCollector;
+
 private:
     vector<Arg> args;
 public:
@@ -147,6 +149,8 @@ public:
 };
 
 class LocalsTable {
+    friend class GarbageCollector;
+
 private:
     uint16 closureStart;
     vector<Local> locals;
@@ -173,6 +177,8 @@ public:
 };
 
 class ExceptionTable {
+    friend class GarbageCollector;
+
 private:
     vector<Exception> exceptions;
 public:

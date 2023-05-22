@@ -8,15 +8,6 @@
 #include "../oop/type.hpp"
 #include "../frame/table.hpp"
 
-class IntPack {
-private:
-    uint32 i;
-public:
-    IntPack(uint32 i) : i(i) {}
-
-    string toString() const { return std::to_string(i); }
-};
-
 class DataTable {
 private:
     const string title;

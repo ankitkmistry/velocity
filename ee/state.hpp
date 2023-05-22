@@ -9,13 +9,13 @@ class VM;
 
 class VMState {
 private:
-    const VM *vm;
+    VM *vm;
     uint8 *code = null;
     uint8 *ip = null;
     Frame *callStack = null, *fp = null;
     std::stringstream out;
 public:
-    VMState(const VM *vm, Frame *frame);
+    VMState(VM *vm, Frame *frame);
 
     ~VMState() {
         code = ip = null;
@@ -56,7 +56,7 @@ public:
     void adjust(ptrdiff_t offset) { ip += offset; }
 
     // Getters
-    const VM *getVm() const { return vm; }
+    VM *getVM() const { return vm; }
 
     uint8 *getCode() const { return code; }
 
@@ -66,13 +66,13 @@ public:
 
     Frame *getFrame() const { return fp - 1; }
 
-    void write(const string& str) { out << str; }
+    void write(const string &str) { out << str; }
 
     string getOutput() { return out.str(); }
 
     uint16 getCallStackSize() { return fp - callStack; }
 
-    uint32 getPc();
+    uint32 getPc() { return ip - code; }
 };
 
 #endif //VELOCITY_STATE_HPP

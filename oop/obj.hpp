@@ -1,24 +1,37 @@
 #ifndef OOP_OBJ_HPP_
 #define OOP_OBJ_HPP_
 
+#include "../utils/common.hpp"
 #include "../utils/sign.hpp"
 #include "../utils/utils.hpp"
 
+class Space;
+
+class VM;
+
 class Type;
+
+struct MemoryInfo {
+    bool marked = false;
+    uint32 life = 0;
+    Space *space = null;
+};
 
 class Obj {
 protected:
+    MemoryInfo info{};
     Sign sign;
     Type *type;
     Table<string> meta;
 public:
-    Obj(const Sign sign, Type *type,
-        const Table<string> meta = Table<string>()) :
+    Obj(const Sign &sign, Type *type,
+        const Table<string> &meta = Table<string>()) :
             sign(sign), type(type), meta(meta) {
     }
 
-    virtual ~Obj() {
-    }
+    void *operator new(size_t size, VM *vm);
+
+    void operator delete(void *p, VM *vm);
 
     virtual Obj *copy() const = 0;
 
@@ -26,21 +39,15 @@ public:
 
     virtual string toString() const = 0;
 
-    const Table<string> &getMeta() const {
-        return meta;
-    }
+    MemoryInfo &getInfo() { return info; }
 
-    const Sign &getSign() const {
-        return sign;
-    }
+    const Table<string> &getMeta() const { return meta; }
 
-    const Type *getType() const {
-        return type;
-    }
+    const Sign &getSign() const { return sign; }
 
-    void setType(const Type *typ) {
-        this->type = type;
-    }
+    Type *getType() const { return type; }
+
+    void setType(Type *typ) { this->type = typ; }
 };
 
 #endif /* OOP_OBJ_HPP_ */

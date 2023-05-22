@@ -16,16 +16,16 @@ public:
     };
 private:
     Kind kind;
-    vector<Obj *> conpool;
+    vector<Obj *> constPool;
     vector<Type *> typeParams;
     Table<Type *> supers;
     Table<Obj *> members;
 public:
-    Type(const Sign &sign, const Table<string> &meta, Kind kind, const vector<Obj *> &conpool,
+    Type(const Sign &sign, const Table<string> &meta, Kind kind, const vector<Obj *> &constPool,
          const vector<Type *> &typeParams, const Table<Type *> &supers, const Table<Obj *> &members)
             : Obj(sign, null, meta),
               kind(kind),
-              conpool(conpool),
+              constPool(constPool),
               typeParams(typeParams),
               supers(supers),
               members(members) {}
@@ -36,7 +36,7 @@ public:
 
     Kind getKind() const { return kind; }
 
-    vector<Obj *> getConpool() const { return conpool; }
+    vector<Obj *> getConstPool() const { return constPool; }
 
     vector<Type *> getTypeParams() const { return typeParams; }
 
@@ -50,9 +50,9 @@ public:
 
     string toString() const override;
 
-    static Type *TYPE_PARAM_(string name);
+    static Type *TYPE_PARAM_(const string &name, VM *pVm);
 
-    static Type *SENTINEL_(string sign);
+    static Type *SENTINEL_(const string &sign, VM *pVm);
 
     Obj * getStaticMember(string &name) const;
 };

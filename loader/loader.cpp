@@ -1,11 +1,7 @@
-#include <cstdio>
-#include "../utils/utils.hpp"
-#include "loader.hpp"
-#include "../ee/vm.hpp"
 #include "parser.hpp"
 #include "verifier.hpp"
-#include "../oop/objects.hpp"
-#include "../oop/type.hpp"
+#include "loader.hpp"
+#include "../ee/vm.hpp"
 
 ObjMethod *Loader::load(const string &path) {
     // If already loaded, exit...
@@ -26,7 +22,7 @@ ObjMethod *Loader::load(const string &path) {
     // Get the imports
     auto imports = dynamic_cast<ObjArray *>(constPool[elp.imports]);
     // Check each import
-    imports->foreach([this](auto obj) {
+    imports->foreach([&](auto obj) {
         // Get the import library path
         string libPath = obj->toString();
         // Load it if it is already not loaded
@@ -68,12 +64,12 @@ Obj *Loader::readGlobal(vector<Obj *> &constPool, GlobalInfo &global) {
     auto meta = readMeta(global.meta);
 
     return match<Obj *>(sign.toString(), {
-            {"array", [] { return new ObjArray(0); }},
-            {"bool",  [] { return new ObjBool(false); }},
-            {"char",  [] { return new ObjChar('\0'); }},
-            {"float", [] { return new ObjFloat(0); }},
-            {"int",   [] { return new ObjInt(0); }}
-    }, [&] { return new Object(sign, type, meta, type->getMembers()); });
+            {"array", [&] { return new(vm) ObjArray(0); }},
+            {"bool",  [&] { return new(vm) ObjBool(false); }},
+            {"char",  [&] { return new(vm) ObjChar('\0'); }},
+            {"float", [&] { return new(vm) ObjFloat(0); }},
+            {"int",   [&] { return new(vm) ObjInt(0); }}
+    }, [&] { return new(vm) Object(sign, type, meta, type->getMembers()); });
 }
 
 Obj *Loader::readObj(vector<Obj *> &constPool, ObjInfo &obj) {
@@ -96,7 +92,7 @@ Obj *Loader::readClass(ClassInfo klass) {
     dynamic_cast<ObjArray *>(constPool[klass.typeParams])->foreach([this, &tparams](auto tparam) {
         auto str = tparam->toString();
         if (containsRef(str)) throw corrupt();
-        auto type = Type::TYPE_PARAM_(str);
+        auto type = Type::TYPE_PARAM_(str, vm);
         tparams.push_back(type);
         refs[str] = type;
     });
@@ -124,7 +120,7 @@ Obj *Loader::readClass(ClassInfo klass) {
     for (auto const &key: tparams)
         refs.erase(key->getSign().toString());
     auto meta = readMeta(klass.meta);
-    auto type = new Type(sign, meta, kind, constPool, tparams, supers, members);
+    auto type = new(vm) Type(sign, meta, kind, constPool, tparams, supers, members);
     type = resolveObj(sign.toString(), type);
     vm->setGlobal(sign.toString(), type);
     return type;
@@ -140,12 +136,12 @@ Obj *Loader::readField(vector<Obj *> &constPool, FieldInfo &field) {
     auto meta = readMeta(field.meta);
 
     return match<Obj *>(type->getSign().toString(), {
-            {"array", [] { return new ObjArray(0); }},
-            {"bool",  [] { return new ObjBool(false); }},
-            {"char",  [] { return new ObjChar('\0'); }},
-            {"float", [] { return new ObjFloat(0); }},
-            {"int",   [] { return new ObjInt(0); }}
-    }, [&] { return new Object(sign, type, meta, type->getMembers()); });
+            {"array", [&] { return new(vm) ObjArray(0); }},
+            {"bool",  [&] { return new(vm) ObjBool(false); }},
+            {"char",  [&] { return new(vm) ObjChar('\0'); }},
+            {"float", [&] { return new(vm) ObjFloat(0); }},
+            {"int",   [&] { return new(vm) ObjInt(0); }}
+    }, [&] { return new(vm) Object(sign, type, meta, type->getMembers()); });
 }
 
 Obj *Loader::readMethod(const string &klassSign, vector<Obj *> &constPool, MethodInfo &method) {
@@ -185,7 +181,7 @@ Obj *Loader::readMethod(vector<Obj *> &constPool, MethodInfo &method) {
                             method.maxStack,
                             args, locals, exceptions,
                             lines, null};
-    auto methodObj = new ObjMethod(sign, null, meta, kind, frame);
+    auto methodObj = new(vm) ObjMethod(sign, null, meta, kind, frame);
     frame->setMethod(methodObj);
     if (kind == ObjMethod::CONSTRUCTOR)
         vm->setGlobal(sign.toString(), methodObj);
@@ -212,12 +208,12 @@ Local Loader::readLocal(vector<Obj *> &constPool, MethodInfo::LocalInfo &local) 
     auto type = findClass(constPool[local.type]->toString());
     auto meta = readMeta(local.meta);
     auto obj = match<Obj *>(type->getSign().toString(), {
-            {"array", [] { return new ObjArray(0); }},
-            {"bool",  [] { return new ObjBool(false); }},
-            {"char",  [] { return new ObjChar('\0'); }},
-            {"float", [] { return new ObjFloat(0); }},
-            {"int",   [] { return new ObjInt(0); }}
-    }, [&] { return new Object(sign, type, meta, type->getMembers()); });
+            {"array", [&] { return new(vm) ObjArray(0); }},
+            {"bool",  [&] { return new(vm) ObjBool(false); }},
+            {"char",  [&] { return new(vm) ObjChar('\0'); }},
+            {"float", [&] { return new(vm) ObjFloat(0); }},
+            {"int",   [&] { return new(vm) ObjInt(0); }}
+    }, [&] { return new(vm) Object(sign, type, meta, type->getMembers()); });
     return {kind, sign.toString(), obj, meta};
 }
 
@@ -230,12 +226,12 @@ Arg Loader::readArg(vector<Obj *> &constPool, MethodInfo::ArgInfo &arg) {
     auto type = findClass(constPool[arg.type]->toString());
     auto meta = readMeta(arg.meta);
     auto obj = match<Obj *>(type->getSign().toString(), {
-            {"array", [] { return new ObjArray(0); }},
-            {"bool",  [] { return new ObjBool(false); }},
-            {"char",  [] { return new ObjChar('\0'); }},
-            {"float", [] { return new ObjFloat(0); }},
-            {"int",   [] { return new ObjInt(0); }}
-    }, [&] { return new Object(sign, type, meta, type->getMembers()); });
+            {"array", [&] { return new(vm) ObjArray(0); }},
+            {"bool",  [&] { return new(vm) ObjBool(false); }},
+            {"char",  [&] { return new(vm) ObjChar('\0'); }},
+            {"float", [&] { return new(vm) ObjFloat(0); }},
+            {"int",   [&] { return new(vm) ObjInt(0); }}
+    }, [&] { return new(vm) Object(sign, type, meta, type->getMembers()); });
     return {kind, sign.toString(), obj, meta};
 }
 
@@ -266,16 +262,16 @@ int64 unsignedToSigned(uint64 number) {
 
 Obj *Loader::readCp(CpInfo &cpInfo) {
     return match<Obj *>(cpInfo.tag, {
-            {0x00, [] { return new ObjNull; }},
-            {0x01, [] { return new ObjBool(true); }},
-            {0x02, [] { return new ObjBool(false); }},
-            {0x03, [&] { return new ObjChar((char) cpInfo._char); }},
-            {0x04, [&] { return new ObjInt(unsignedToSigned(cpInfo._int)); }},
-            {0x05, [&] { return new ObjFloat(rawToDouble(cpInfo._float)); }},
-            {0x06, [&] { return new ObjString(readUTF8(cpInfo._string)); }},
+            {0x00, [&] { return new(vm) ObjNull; }},
+            {0x01, [&] { return new(vm) ObjBool(true); }},
+            {0x02, [&] { return new(vm) ObjBool(false); }},
+            {0x03, [&] { return new(vm) ObjChar((char) cpInfo._char); }},
+            {0x04, [&] { return new(vm) ObjInt(unsignedToSigned(cpInfo._int)); }},
+            {0x05, [&] { return new(vm) ObjFloat(rawToDouble(cpInfo._float)); }},
+            {0x06, [&] { return new(vm) ObjString(readUTF8(cpInfo._string)); }},
             {0x07, [&] {
                 auto con = cpInfo._array;
-                auto array = new ObjArray(con.len);
+                auto array = new(vm) ObjArray(con.len);
                 for (int i = 0; i < con.len; ++i) {
                     array->set(i, readCp(con.items[i]));
                 }
@@ -307,7 +303,7 @@ Type *Loader::resolveObj(const string &sign, Type *type) {
         // Change it
         klass->recognizeUnknown(*type);
         // Delete it
-        delete type;
+        Obj::operator delete(type, vm);
         return klass;
     }
     return type;
@@ -327,7 +323,7 @@ Type *Loader::findClass(const string &sign) {
             type = dynamic_cast<Type *>(find2);
         } else {
             // Get a sentinel with the name attached to it
-            type = Type::SENTINEL_(sign);
+            type = Type::SENTINEL_(sign, vm);
             // Put the type
             refs[sign] = type;
         }

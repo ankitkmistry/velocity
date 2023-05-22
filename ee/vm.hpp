@@ -6,27 +6,34 @@
 #include "thread.hpp"
 #include "../loader/loader.hpp"
 #include "../oop/objects.hpp"
+#include "../memory/memory.hpp"
 
 class VM {
+    friend class GarbageCollector;
+
 private:
     Table<Obj *> globals;
-    std::set<Thread*> threads;
+    std::set<Thread *> threads;
     vector<function<void()>> onExitList;
-    Loader loader = Loader(this);
+    Loader loader{this};
+    MemoryManager memoryManager{this};
+
 public:
     VM() = default;
 
-    void onExit(function<void()> fun);
+    void onExit(const function<void()> &fun);
 
-    int start(const string &filename, vector<string> args);
+    int start(const string &filename, const vector<string> &args);
 
     int start(ObjMethod *entry, ObjArray *args);
 
-    static runtime_error runtimeError(string str);
+    runtime_error runtimeError(const string &str);
 
-    Obj *getGlobal(string sign);
+    Obj *getGlobal(const string &sign);
 
-    void setGlobal(string sign, Obj *val);
+    void setGlobal(const string &sign, Obj *val);
+
+    MemoryManager &getMemoryManager() { return memoryManager; }
 
 private:
     Table<Obj *> getGlobals() const { return globals; }
@@ -37,7 +44,7 @@ private:
 
     static void call(Thread *thread, ObjMethod *method, Obj **args);
 
-    static ObjArray *argsRepr(const vector<string> &args);
+    ObjArray *argsRepr(const vector<string> &args);
 };
 
 

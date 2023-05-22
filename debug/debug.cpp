@@ -1,6 +1,7 @@
 #include "debug.hpp"
 #include "table.hpp"
 #include "../ee/opcode.hpp"
+#include "../ee/vm.hpp"
 
 void DebugOp::clearConsole() {
 #if defined(OS_WINDOWS)
@@ -14,6 +15,12 @@ void DebugOp::printVMState(VMState *state) {
     string dummy;
     // Clear the console
     clearConsole();
+    // Print eden space
+    printMemory(state->getVM()->getMemoryManager().getEden());
+    cout << "\n";
+    // Print survivor space
+    printMemory(state->getVM()->getMemoryManager().getSurvivor());
+    cout << "\n";
     // Print the call stack
     printCallStack(state);
     // Print the current frame
@@ -152,6 +159,25 @@ void DebugOp::printConstPool(const vector<Obj *> &pool) {
                        rpad(std::to_string(i), max).c_str(),
                        pool.at(i)->toString().c_str());
     }
+}
+
+void DebugOp::printMemory(Space &space) {
+    if (space.getTotalSpace() == 0)return;
+    switch (space.getType()) {
+        case SpaceType::EDEN:
+            cout << "Eden Space\n";
+            cout << "----------\n";
+            break;
+        case SpaceType::SURVIVOR:
+            cout << "Survivor Space\n";
+            cout << "--------------\n";
+            break;
+    }
+    cout << "malloc requests: " << space.getMallocRequests() << "\n";
+    cout << "gc count:        " << space.getGcCount() << "\n";
+    cout << "used space:      " << space.getUsedSpace() << " bytes\n";
+    cout << "free space:      " << space.getFreeSpace() << " bytes\n";
+    cout << "total space:     " << space.getTotalSpace() << " bytes\n";
 }
 
 

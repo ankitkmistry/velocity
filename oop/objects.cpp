@@ -17,7 +17,7 @@ ObjString::ObjString(string str) :
 }
 
 Obj *ObjFloat::copy() const {
-    return new ObjFloat(val);
+    return new (info.space->getManager()->getVM()) ObjFloat(val);
 }
 
 bool ObjFloat::truth() const {
@@ -29,55 +29,55 @@ string ObjFloat::toString() const {
 }
 
 ObjFloat *ObjFloat::operator-() const {
-    return new ObjFloat(-val);
+    return new (info.space->getManager()->getVM()) ObjFloat(-val);
 }
 
 ObjFloat *ObjFloat::power(const ObjFloat& n) const {
-    return new ObjFloat(pow(val, n.value()));
+    return new (info.space->getManager()->getVM()) ObjFloat(pow(val, n.value()));
 }
 
 ObjFloat *ObjFloat::operator+(const ObjFloat& n) const {
-    return new ObjFloat(val + n.value());
+    return new (info.space->getManager()->getVM()) ObjFloat(val + n.value());
 }
 
 ObjFloat *ObjFloat::operator-(const ObjFloat& n) const {
-    return new ObjFloat(val - n.value());
+    return new (info.space->getManager()->getVM()) ObjFloat(val - n.value());
 }
 
 ObjFloat *ObjFloat::operator*(const ObjFloat& n) const {
-    return new ObjFloat(val * n.value());
+    return new (info.space->getManager()->getVM()) ObjFloat(val * n.value());
 }
 
 ObjFloat *ObjFloat::operator/(const ObjFloat& n) const {
-    return new ObjFloat(val / n.value());
+    return new (info.space->getManager()->getVM()) ObjFloat(val / n.value());
 }
 
 ObjBool *ObjFloat::operator<(const ObjFloat& n) const {
-    return new ObjBool(val < n.value());
+    return new (info.space->getManager()->getVM()) ObjBool(val < n.value());
 }
 
 ObjBool *ObjFloat::operator<=(const ObjFloat& n) const {
-    return new ObjBool(val <= n.value());
+    return new (info.space->getManager()->getVM()) ObjBool(val <= n.value());
 }
 
 ObjBool *ObjFloat::operator==(const ObjFloat& n) const {
-    return new ObjBool(val == n.value());
+    return new (info.space->getManager()->getVM()) ObjBool(val == n.value());
 }
 
 ObjBool *ObjFloat::operator!=(const ObjFloat& n) const {
-    return new ObjBool(val != n.value());
+    return new (info.space->getManager()->getVM()) ObjBool(val != n.value());
 }
 
 ObjBool *ObjFloat::operator>=(const ObjFloat& n) const {
-    return new ObjBool(val >= n.value());
+    return new (info.space->getManager()->getVM()) ObjBool(val >= n.value());
 }
 
 ObjBool *ObjFloat::operator>(const ObjFloat& n) const {
-    return new ObjBool(val > n.value());
+    return new (info.space->getManager()->getVM()) ObjBool(val > n.value());
 }
 
 Obj *ObjInt::copy() const {
-    return new ObjInt(val);
+    return new (info.space->getManager()->getVM()) ObjInt(val);
 }
 
 bool ObjInt::truth() const {
@@ -89,51 +89,51 @@ string ObjInt::toString() const {
 }
 
 ObjInt *ObjInt::operator-() const {
-    return new ObjInt(-val);
+    return new (info.space->getManager()->getVM()) ObjInt(-val);
 }
 
 ObjFloat *ObjInt::power(const ObjInt& n) const {
-    return new ObjFloat(pow(val, n.value()));
+    return new (info.space->getManager()->getVM()) ObjFloat(pow(val, n.value()));
 }
 
 ObjInt *ObjInt::operator+(const ObjInt& n) const {
-    return new ObjInt(val + n.value());
+    return new (info.space->getManager()->getVM()) ObjInt(val + n.value());
 }
 
 ObjInt *ObjInt::operator-(const ObjInt& n) const {
-    return new ObjInt(val - n.value());
+    return new (info.space->getManager()->getVM()) ObjInt(val - n.value());
 }
 
 ObjInt *ObjInt::operator*(const ObjInt& n) const {
-    return new ObjInt(val * n.value());
+    return new (info.space->getManager()->getVM()) ObjInt(val * n.value());
 }
 
 ObjInt *ObjInt::operator/(const ObjInt& n) const {
-    return new ObjInt(val / n.value());
+    return new (info.space->getManager()->getVM()) ObjInt(val / n.value());
 }
 
 ObjBool *ObjInt::operator<(const ObjInt& n) const {
-    return new ObjBool(val < n.value());
+    return new (info.space->getManager()->getVM()) ObjBool(val < n.value());
 }
 
 ObjBool *ObjInt::operator<=(const ObjInt& n) const {
-    return new ObjBool(val <= n.value());
+    return new (info.space->getManager()->getVM()) ObjBool(val <= n.value());
 }
 
 ObjBool *ObjInt::operator==(const ObjInt& n) const {
-    return new ObjBool(val == n.value());
+    return new (info.space->getManager()->getVM()) ObjBool(val == n.value());
 }
 
 ObjBool *ObjInt::operator!=(const ObjInt& n) const {
-    return new ObjBool(val != n.value());
+    return new (info.space->getManager()->getVM()) ObjBool(val != n.value());
 }
 
 ObjBool *ObjInt::operator>=(const ObjInt& n) const {
-    return new ObjBool(val >= n.value());
+    return new (info.space->getManager()->getVM()) ObjBool(val >= n.value());
 }
 
 ObjBool *ObjInt::operator>(const ObjInt& n) const {
-    return new ObjBool(val > n.value());
+    return new (info.space->getManager()->getVM()) ObjBool(val > n.value());
 }
 
 ObjInt::operator ObjFloat() const {
@@ -141,39 +141,39 @@ ObjInt::operator ObjFloat() const {
 }
 
 ObjInt *ObjInt::operator~() const {
-    return new ObjInt(~val);
+    return new (info.space->getManager()->getVM()) ObjInt(~val);
 }
 
 ObjInt *ObjInt::operator<<(const ObjInt& n) const {
-    return new ObjInt(val << n.value());
+    return new (info.space->getManager()->getVM()) ObjInt(val << n.value());
 }
 
 ObjInt *ObjInt::operator>>(const ObjInt& n) const {
-    return new ObjInt(val >> n.value());
+    return new (info.space->getManager()->getVM()) ObjInt(val >> n.value());
 }
 
 ObjInt *ObjInt::unsignedRightShift(const ObjInt& n) const {
-    return new ObjInt(val & 0x7fffffff >> n.value());
+    return new (info.space->getManager()->getVM()) ObjInt(val & 0x7fffffff >> n.value());
 }
 
 ObjInt *ObjInt::operator%(const ObjInt& n) const {
-    return new ObjInt(val % n.value());
+    return new (info.space->getManager()->getVM()) ObjInt(val % n.value());
 }
 
 ObjInt *ObjInt::operator&(const ObjInt &n) const {
-    return new ObjInt(val & n.value());
+    return new (info.space->getManager()->getVM()) ObjInt(val & n.value());
 }
 
 ObjInt *ObjInt::operator|(const ObjInt &n) const {
-    return new ObjInt(val | n.value());
+    return new (info.space->getManager()->getVM()) ObjInt(val | n.value());
 }
 
 ObjInt *ObjInt::operator^(const ObjInt &n) const {
-    return new ObjInt(val ^ n.value());
+    return new (info.space->getManager()->getVM()) ObjInt(val ^ n.value());
 }
 
 Obj *ObjArray::copy() const {
-    auto arr = new ObjArray(length);
+    auto arr = new (info.space->getManager()->getVM()) ObjArray(length);
     for (uint16 i = 0; i < length; ++i)
         arr->set(i, array[i]);
     return arr;
@@ -212,15 +212,15 @@ Obj *ObjNumber::operator-() const {
 ObjFloat *ObjNumber::power(ObjNumber n) const {
     if (type == Type::INT) {
         if (n.type == Type::INT) {
-            return new ObjFloat(pow(numberUnion._int->value(), n.numberUnion._int->value()));
+            return new (numberUnion._int->getInfo().space->getManager()->getVM()) ObjFloat(pow(numberUnion._int->value(), n.numberUnion._int->value()));
         } else {
-            return new ObjFloat(pow(numberUnion._int->value(), n.numberUnion._float->value()));
+            return new (numberUnion._int->getInfo().space->getManager()->getVM()) ObjFloat(pow(numberUnion._int->value(), n.numberUnion._float->value()));
         }
     } else {
         if (n.type == Type::INT) {
-            return new ObjFloat(pow(numberUnion._float->value(), n.numberUnion._int->value()));
+            return new (numberUnion._int->getInfo().space->getManager()->getVM()) ObjFloat(pow(numberUnion._float->value(), n.numberUnion._int->value()));
         } else {
-            return new ObjFloat(pow(numberUnion._float->value(), n.numberUnion._float->value()));
+            return new (numberUnion._int->getInfo().space->getManager()->getVM()) ObjFloat(pow(numberUnion._float->value(), n.numberUnion._float->value()));
         }
     }
 }

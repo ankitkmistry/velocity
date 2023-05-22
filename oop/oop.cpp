@@ -1,7 +1,8 @@
 #include "oop.hpp"
 #include "type.hpp"
+#include "../memory/memory.hpp"
 
-Obj *Object::getMember(string name) const {
+Obj *Object::getMember(const string& name) const {
     try {
         return members.at(name);
     } catch (std::out_of_range &) {
@@ -15,7 +16,7 @@ Obj *Object::copy() const {
     for (auto [key, value]: members) {
         mems[key] = value->copy();
     }
-    return new Object(sign, type, meta, mems);
+    return new (info.space->getManager()->getVM()) Object(sign, type, meta, mems);
 }
 
 bool Object::truth() const {

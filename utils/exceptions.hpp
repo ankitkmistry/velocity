@@ -57,6 +57,12 @@ public:
             : FatalError(format("reference not found: '%s'", sign.c_str())) {}
 };
 
+class MemoryError : public FatalError {
+public:
+    explicit MemoryError(size_t size)
+            : FatalError(format("failed to allocate memory: %d bytes", size)) {}
+};
+
 class Unreachable : public FatalError {
 public:
     explicit Unreachable() : FatalError("unreachable code reached") {}

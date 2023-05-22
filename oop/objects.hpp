@@ -5,6 +5,7 @@
 #include "../utils/common.hpp"
 #include "../utils/exceptions.hpp"
 #include "../oop/obj.hpp"
+#include "../memory/memory.hpp"
 
 class ObjBool : public Obj {
 private:
@@ -22,11 +23,11 @@ public:
     }
 
     Obj *copy() const override {
-        return new ObjBool(value);
+        return new (info.space->getManager()->getVM()) ObjBool(value);
     }
 
     ObjBool *operator!() const {
-        return new ObjBool(!value);
+        return new (info.space->getManager()->getVM()) ObjBool(!value);
     }
 };
 
@@ -46,7 +47,7 @@ public:
     }
 
     Obj *copy() const override {
-        return new ObjChar(c);
+        return new (info.space->getManager()->getVM()) ObjChar(c);
     }
 };
 
@@ -63,7 +64,7 @@ public:
     }
 
     Obj *copy() const override {
-        return new ObjNull();
+        return new (info.space->getManager()->getVM()) ObjNull();
     }
 };
 
@@ -82,7 +83,7 @@ public:
     }
 
     Obj *copy() const override {
-        return new ObjString(str);
+        return new (info.space->getManager()->getVM()) ObjString(str);
     }
 };
 
@@ -93,7 +94,7 @@ private:
 public:
     explicit ObjArray(uint16 length) : Obj(Sign("array"), null), array(new Obj *[length]), length(length) {
         for (int i = 0; i < length; ++i)
-            array[i] = new ObjNull();
+            array[i] = new (info.space->getManager()->getVM()) ObjNull();
     }
 
     void foreach(function<void(Obj *)> func) const override;
@@ -121,8 +122,8 @@ private:
         INT, FLOAT
     } type;
     union Number {
-        const ObjInt *_int;
-        const ObjFloat *_float;
+        ObjInt *_int;
+        ObjFloat *_float;
     } numberUnion;
 public:
     ObjNumber(Obj *obj){

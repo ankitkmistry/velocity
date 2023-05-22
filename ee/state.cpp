@@ -1,6 +1,6 @@
 #include "state.hpp"
 
-VMState::VMState(const VM *vm, Frame *frame) : vm(vm) {
+VMState::VMState(VM *vm, Frame *frame) : vm(vm) {
     callStack = new Frame[FRAMES_MAX];
     fp = callStack;
     pushFrame(frame);
@@ -43,8 +43,4 @@ bool VMState::popFrame() {
     }
     fp = null;
     return false;
-}
-
-uint32 VMState::getPc() {
-    return ip - code;
 }
