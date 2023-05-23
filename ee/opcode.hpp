@@ -3,6 +3,9 @@
 
 #include "../utils/common.hpp"
 
+/**
+ * Enum containing all opcodes of the bytecode language
+ */
 enum class Opcode {
     // Nop
     NOP,
@@ -129,12 +132,27 @@ enum class Opcode {
     NUM_OPCODES
 };
 
+/**
+ * Contains debug info for all opcodes
+ */
 class OpcodeInfo {
 public:
+    /**
+     * @param opcode
+     * @return string representation of the opcode
+     */
     static string toString(Opcode opcode);
 
+    /**
+     * @param opcode
+     * @return number of params needed for the opcode
+     */
     static uint8 getParams(Opcode opcode);
 
+    /**
+     * @param opcode
+     * @return whether the param of the opcode refers to the constant pool
+     */
     static bool takeFromConstPool(Opcode opcode);
 };
 

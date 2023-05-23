@@ -15,7 +15,7 @@ public:
 
     Table<Obj *> getMembers() { return members; }
 
-    Obj *getMember(const string& name) const;
+    Obj *getMember(const string &name) const;
 
     Obj *copy() const;
 

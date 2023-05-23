@@ -23,11 +23,11 @@ public:
     }
 
     Obj *copy() const override {
-        return new (info.space->getManager()->getVM()) ObjBool(value);
+        return new(info.space->getManager()->getVM()) ObjBool(value);
     }
 
     ObjBool *operator!() const {
-        return new (info.space->getManager()->getVM()) ObjBool(!value);
+        return new(info.space->getManager()->getVM()) ObjBool(!value);
     }
 };
 
@@ -36,7 +36,7 @@ private:
     const char c;
 
 public:
-    ObjChar(const char c);
+    ObjChar(char c);
 
     bool truth() const override {
         return c != '\0';
@@ -47,13 +47,13 @@ public:
     }
 
     Obj *copy() const override {
-        return new (info.space->getManager()->getVM()) ObjChar(c);
+        return new(info.space->getManager()->getVM()) ObjChar(c);
     }
 };
 
 class ObjNull : public Obj {
 public:
-    ObjNull();
+    explicit ObjNull();
 
     bool truth() const override {
         return false;
@@ -64,7 +64,7 @@ public:
     }
 
     Obj *copy() const override {
-        return new (info.space->getManager()->getVM()) ObjNull();
+        return new(info.space->getManager()->getVM()) ObjNull;
     }
 };
 
@@ -83,7 +83,7 @@ public:
     }
 
     Obj *copy() const override {
-        return new (info.space->getManager()->getVM()) ObjString(str);
+        return new(info.space->getManager()->getVM()) ObjString(str);
     }
 };
 
@@ -92,9 +92,11 @@ private:
     Obj **array;
     uint16 length;
 public:
-    explicit ObjArray(uint16 length) : Obj(Sign("array"), null), array(new Obj *[length]), length(length) {
+    explicit ObjArray(uint16 length)
+            : Obj(Sign("array"), null),
+              array(new(info.space->getManager()->getVM()) Obj *[length]), length(length) {
         for (int i = 0; i < length; ++i)
-            array[i] = new (info.space->getManager()->getVM()) ObjNull();
+            array[i] = new(info.space->getManager()->getVM()) ObjNull;
     }
 
     void foreach(function<void(Obj *)> func) const override;
@@ -126,7 +128,7 @@ private:
         ObjFloat *_float;
     } numberUnion;
 public:
-    ObjNumber(Obj *obj){
+    ObjNumber(Obj *obj) {
         if (is<ObjInt *>(obj)) {
             type = Type::INT;
             numberUnion = {._int=cast<ObjInt *>(obj)};

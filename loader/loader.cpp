@@ -1,6 +1,7 @@
 #include "parser.hpp"
 #include "verifier.hpp"
 #include "loader.hpp"
+#include "../oop/type.hpp"
 #include "../ee/vm.hpp"
 
 ObjMethod *Loader::load(const string &path) {
@@ -262,7 +263,7 @@ int64 unsignedToSigned(uint64 number) {
 
 Obj *Loader::readCp(CpInfo &cpInfo) {
     return match<Obj *>(cpInfo.tag, {
-            {0x00, [&] { return new(vm) ObjNull; }},
+            {0x00, [&] { return new(vm) ObjNull(); }},
             {0x01, [&] { return new(vm) ObjBool(true); }},
             {0x02, [&] { return new(vm) ObjBool(false); }},
             {0x03, [&] { return new(vm) ObjChar((char) cpInfo._char); }},

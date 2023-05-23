@@ -1,12 +1,11 @@
 #include "vm.hpp"
 #include "opcode.hpp"
+#include "../oop/type.hpp"
 #include "../debug/debug.hpp"
 
-void VM::onExit(const function<void()>& fun) {
-    onExitList.push_back(fun);
-}
+void VM::onExit(const function<void()> &fun) { onExitList.push_back(fun); }
 
-int VM::start(const string &filename, const vector<string>& args) {
+int VM::start(const string &filename, const vector<string> &args) {
     // Load the file and get the entry point
     auto entry = loader.load(filename);
     // Complain if there is no entry point
@@ -18,9 +17,9 @@ int VM::start(const string &filename, const vector<string>& args) {
 }
 
 ObjArray *VM::argsRepr(const vector<string> &args) {
-    auto array = new (this) ObjArray(args.size());
+    auto array = new(this) ObjArray(args.size());
     for (int i = 0; i < args.size(); ++i) {
-        array->set(i, new (this) ObjString(args[i]));
+        array->set(i, new(this) ObjString(args[i]));
     }
     return array;
 }
@@ -42,18 +41,18 @@ int VM::start(ObjMethod *entry, ObjArray *args) {
     return thread.getExitCode();
 }
 
-runtime_error VM::runtimeError(const string& str) {
+runtime_error VM::runtimeError(const string &str) {
     return runtime_error{str};
 }
 
-Obj *VM::getGlobal(const string& sign) {
+Obj *VM::getGlobal(const string &sign) {
     auto it = globals.find(sign);
     if (it == globals.end())
         return null;
     return it->second;
 }
 
-void VM::setGlobal(const string& sign, Obj *val) {
+void VM::setGlobal(const string &sign, Obj *val) {
     globals[sign] = val;
 }
 
@@ -258,13 +257,13 @@ void VM::run(Thread *thread) {
             }
             case Opcode::BUILD_ARRAY: {
                 auto count = state.readShort();
-                auto array = new (this) ObjArray(count);
+                auto array = new(this) ObjArray(count);
                 state.push(array);
                 break;
             }
             case Opcode::BUILD_ARRAY_FAST: {
                 auto count = state.readByte();
-                auto array = new (this) ObjArray(count);
+                auto array = new(this) ObjArray(count);
                 state.push(array);
                 break;
             }
@@ -290,7 +289,7 @@ void VM::run(Thread *thread) {
             }
             case Opcode::LOAD_LENGTH: {
                 auto array = cast<ObjArray *>(state.pop());
-                state.push(new (this) ObjInt(array->count()));
+                state.push(new(this) ObjInt(array->count()));
                 break;
             }
             case Opcode::INVOKE: {
@@ -436,7 +435,7 @@ void VM::run(Thread *thread) {
                 break;
             }
             case Opcode::SUB_CALL: {
-                auto address = new (this) ObjInt(frame->getIp() - frame->getCode());
+                auto address = new(this) ObjInt(frame->getIp() - frame->getCode());
                 state.push(address);
                 auto offset = state.readShort();
                 state.adjust(offset);
@@ -542,7 +541,7 @@ void VM::run(Thread *thread) {
                     obj->setType(type);
                     state.push(obj);
                 } else
-                    state.push(new (this) ObjNull);
+                    state.push(new(this) ObjNull);
                 break;
             }
             case Opcode::CHECKED_CAST: {
@@ -668,10 +667,10 @@ void VM::run(Thread *thread) {
             case Opcode::IS:
                 break;
             case Opcode::IS_NULL:
-                state.push(new (this) ObjBool(state.pop()->getSign().toString() == "null"));
+                state.push(new(this) ObjBool(is<ObjNull *>(state.pop())));
                 break;
             case Opcode::IS_NON_NULL:
-                state.push(new (this) ObjBool(state.pop()->getSign().toString() != "null"));
+                state.push(new(this) ObjBool(!is<ObjNull *>(state.pop())));
                 break;
             case Opcode::MONITOR_ENTER:
                 break;

@@ -54,7 +54,7 @@ public:
 
     static Type *SENTINEL_(const string &sign, VM *pVm);
 
-    Obj * getStaticMember(string &name) const;
+    Obj *getStaticMember(string &name) const;
 };
 
 #endif //VELOCITY_TYPE_HPP

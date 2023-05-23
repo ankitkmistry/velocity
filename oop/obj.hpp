@@ -1,6 +1,8 @@
 #ifndef OOP_OBJ_HPP_
 #define OOP_OBJ_HPP_
 
+#include <utility>
+
 #include "../utils/common.hpp"
 #include "../utils/sign.hpp"
 #include "../utils/utils.hpp"
@@ -18,16 +20,16 @@ struct MemoryInfo {
 };
 
 class Obj {
+    inline static map<Obj *, Space *> spaces{};
 protected:
     MemoryInfo info{};
     Sign sign;
     Type *type;
     Table<string> meta;
+
 public:
-    Obj(const Sign &sign, Type *type,
-        const Table<string> &meta = Table<string>()) :
-            sign(sign), type(type), meta(meta) {
-    }
+    Obj(Sign sign, Type *type,
+        const Table<string> &meta = Table<string>());
 
     void *operator new(size_t size, VM *vm);
 
@@ -40,6 +42,8 @@ public:
     virtual string toString() const = 0;
 
     MemoryInfo &getInfo() { return info; }
+
+    void setInfo(const MemoryInfo &info_) { info = info_; }
 
     const Table<string> &getMeta() const { return meta; }
 

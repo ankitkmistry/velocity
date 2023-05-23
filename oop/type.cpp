@@ -1,5 +1,6 @@
 #include "type.hpp"
 #include "../memory/memory.hpp"
+#include "objects.hpp"
 
 static string kindNames[] = {
         "class",
@@ -40,7 +41,6 @@ string Type::toString() const {
 }
 
 Obj *Type::getMember(string name) const {
-    // TODO: runtime error: can't find static member $name
     Obj *member = getStaticMember(name);
     if (member == null)
         throw runtime_error(format("can't find static member %s::%s", sign.toString().c_str(), name.c_str()));
@@ -56,13 +56,15 @@ Obj *Type::getStaticMember(string &name) const {
             if ((obj = super->getStaticMember(name)) != null)break;
         }
     }
+    if (obj == null)
+        obj = new(info.space->getManager()->getVM()) ObjNull;
     return obj;
 }
 
 Type *Type::TYPE_PARAM_(const string &name, VM *vm) {
-    return new (vm) Type(Sign(name), {}, Kind::TYPE_PARAM, {}, {}, {}, {});
+    return new(vm) Type(Sign(name), {}, Kind::TYPE_PARAM, {}, {}, {}, {});
 }
 
 Type *Type::SENTINEL_(const string &sign, VM *vm) {
-    return new (vm) Type(Sign(sign), {}, Kind::UNKNOWN, {}, {}, {}, {});
+    return new(vm) Type(Sign(sign), {}, Kind::UNKNOWN, {}, {}, {}, {});
 }

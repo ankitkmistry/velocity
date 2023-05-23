@@ -1,13 +1,12 @@
 #include "oop.hpp"
 #include "type.hpp"
-#include "../memory/memory.hpp"
+#include "objects.hpp"
 
-Obj *Object::getMember(const string& name) const {
+Obj *Object::getMember(const string &name) const {
     try {
         return members.at(name);
     } catch (std::out_of_range &) {
-        // TODO: runtime error: can't find member $name
-        return null;
+        return new (info.space->getManager()->getVM()) ObjNull;
     }
 }
 

@@ -1,12 +1,15 @@
 #ifndef VELOCITY_VM_HPP
 #define VELOCITY_VM_HPP
 
+#include <utility>
+
 #include "../utils/common.hpp"
-#include "../oop/obj.hpp"
 #include "thread.hpp"
-#include "../loader/loader.hpp"
+#include "../oop/obj.hpp"
 #include "../oop/objects.hpp"
+#include "../loader/loader.hpp"
 #include "../memory/memory.hpp"
+#include "settings.hpp"
 
 class VM {
     friend class GarbageCollector;
@@ -17,9 +20,10 @@ private:
     vector<function<void()>> onExitList;
     Loader loader{this};
     MemoryManager memoryManager{this};
+    Settings settings;
 
 public:
-    VM() = default;
+    explicit VM(Settings settings = {}) : settings(std::move(settings)) {}
 
     void onExit(const function<void()> &fun);
 
@@ -32,6 +36,8 @@ public:
     Obj *getGlobal(const string &sign);
 
     void setGlobal(const string &sign, Obj *val);
+
+    Settings &getSettings() { return settings; }
 
     MemoryManager &getMemoryManager() { return memoryManager; }
 
