@@ -5,10 +5,23 @@
 
 union Block {
     struct Header {
-        bool isFree = true;
-        size_t size;
+        int64 size;
         Block *next;
+
+        bool isFree() { return size < 0; }
+
+        void setFree(bool b) {
+            /*
+             * if size is -ve then free = true
+             * if size is +ve then free = false
+             */
+            if (b == (size < 0))return;
+            size = b ? -size : size;
+        }
+
+        int64 getSize() { return labs(size); }
     } header;
+
     intptr_t align = 0;
 };
 
@@ -26,14 +39,12 @@ private:
     SpaceType type;
     MemoryManager *manager;
 
-    uint32 mallocRequests = 0;
     uint32 gcCount = 0;
 
     Block *base = null;
-    Block *free = null;
 
+    size_t totalSpace = 0;
     size_t usedSpace = 0;
-    size_t freeSpace = 0;
 public:
     explicit Space(SpaceType type, MemoryManager *manager) : manager(manager), type(type) {}
 
@@ -49,15 +60,17 @@ public:
 
     SpaceType getType() const { return type; }
 
-    uint32 getMallocRequests() const { return mallocRequests; }
-
     uint32 getGcCount() const { return gcCount; }
 
     size_t getUsedSpace() const { return usedSpace; }
 
-    size_t getFreeSpace() const { return freeSpace; }
+    size_t getFreeSpace() const { return totalSpace - usedSpace; }
 
-    size_t getTotalSpace() const { return freeSpace + usedSpace; }
+    size_t getTotalSpace() const { return totalSpace; }
+
+    bool init(size_t units);
+
+    Block *getLargestFreeBlock();
 };
 
 #endif //VELOCITY_SPACE_HPP

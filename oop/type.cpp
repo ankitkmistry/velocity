@@ -18,7 +18,6 @@ void Type::recognizeUnknown(Type &type) {
 
     meta = type.meta;
     kind = type.kind;
-    constPool = type.constPool;
     typeParams = type.typeParams;
     supers = type.supers;
     members = type.members;
@@ -29,7 +28,7 @@ Obj *Type::copy() const {
     for (auto [key, value]: members) {
         mems[key] = value->copy();
     }
-    return new(info.space->getManager()->getVM()) Type(sign, meta, kind, constPool, typeParams, supers, mems);
+    return new(info.space->getManager()->getVM()) Type(sign, meta, kind, typeParams, supers, mems);
 }
 
 bool Type::truth() const {
@@ -62,9 +61,9 @@ Obj *Type::getStaticMember(string &name) const {
 }
 
 Type *Type::TYPE_PARAM_(const string &name, VM *vm) {
-    return new(vm) Type(Sign(name), {}, Kind::TYPE_PARAM, {}, {}, {}, {});
+    return new(vm) Type(Sign(name), {}, Kind::TYPE_PARAM, {}, {}, {});
 }
 
 Type *Type::SENTINEL_(const string &sign, VM *vm) {
-    return new(vm) Type(Sign(sign), {}, Kind::UNKNOWN, {}, {}, {}, {});
+    return new(vm) Type(Sign(sign), {}, Kind::UNKNOWN, {}, {}, {});
 }

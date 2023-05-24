@@ -59,29 +59,24 @@ ObjInfo Parser::parseObjInfo() {
 
 ClassInfo Parser::parseClassInfo() {
     ClassInfo klass{};
-    klass.constantPoolCount = readShort();
-    klass.constantPool = new CpInfo[klass.constantPoolCount];
-    for (int i = 0; i < klass.constantPoolCount; ++i) {
-        klass.constantPool[i] = parseCpInfo();
-    }
     klass.type = readByte();
     klass.accessFlags = readShort();
     klass.thisClass = readShort();
     klass.typeParams = readShort();
     klass.supers = readShort();
     klass.fieldsCount = readShort();
-    klass.fields = new FieldInfo[klass.constantPoolCount];
-    for (int i = 0; i < klass.constantPoolCount; ++i) {
+    klass.fields = new FieldInfo[klass.fieldsCount];
+    for (int i = 0; i < klass.fieldsCount; ++i) {
         klass.fields[i] = parseFieldInfo();
     }
     klass.methodsCount = readShort();
-    klass.methods = new MethodInfo[klass.constantPoolCount];
-    for (int i = 0; i < klass.constantPoolCount; ++i) {
+    klass.methods = new MethodInfo[klass.methodsCount];
+    for (int i = 0; i < klass.methodsCount; ++i) {
         klass.methods[i] = parseMethodInfo();
     }
     klass.objectsCount = readShort();
-    klass.objects = new ObjInfo[klass.constantPoolCount];
-    for (int i = 0; i < klass.constantPoolCount; ++i) {
+    klass.objects = new ObjInfo[klass.objectsCount];
+    for (int i = 0; i < klass.objectsCount; ++i) {
         klass.objects[i] = parseObjInfo();
     }
     klass.meta = parseMetaInfo();
@@ -102,6 +97,11 @@ MethodInfo Parser::parseMethodInfo() {
     method.accessFlags = readShort();
     method.type = readByte();
     method.thisMethod = readShort();
+    method.constantPoolCount = readShort();
+    method.constantPool = new CpInfo[method.constantPoolCount];
+    for (int i = 0; i < method.constantPoolCount; ++i) {
+        method.constantPool[i] = parseCpInfo();
+    }
     method.argsCount = readByte();
     method.args = new MethodInfo::ArgInfo[method.argsCount];
     for (int i = 0; i < method.argsCount; i++) {

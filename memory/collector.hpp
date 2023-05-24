@@ -9,6 +9,7 @@ private:
     VM *vm;
     Space *space;
     vector<Obj *> grayMaterial;
+    size_t collected = 0;
 
     void markRoots();
 
@@ -25,13 +26,15 @@ private:
     void sweep();
 
 public:
-    GarbageCollector(Space *space, VM *vm) : space(space), vm(vm) {}
+    explicit GarbageCollector(Space *space) : space(space), vm(space->getManager()->getVM()) {}
 
     void gc() {
         markRoots();
         traceReferences();
         sweep();
     }
+
+    size_t getCollectedMemory() { return collected; }
 };
 
 #endif //VELOCITY_COLLECTOR_HPP

@@ -25,7 +25,7 @@ private:
 
     Obj *readObj(vector<Obj *> &constPool, ObjInfo &obj);
 
-    Obj *readClass(ClassInfo klass);
+    Obj *readClass(vector<Obj *> &constPool, ClassInfo klass);
 
     Obj *readField(vector<Obj *> &constPool, FieldInfo &field);
 

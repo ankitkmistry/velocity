@@ -48,7 +48,7 @@ runtime_error VM::runtimeError(const string &str) {
 Obj *VM::getGlobal(const string &sign) {
     auto it = globals.find(sign);
     if (it == globals.end())
-        return null;
+        return new (this) ObjNull;
     return it->second;
 }
 

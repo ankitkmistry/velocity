@@ -18,6 +18,9 @@ void Verifier::check() {
     }
 
     auto cpCount = elp.constantPoolCount;
+    for (int i = 0; i < cpCount; ++i) {
+        checkCp(elp.constantPool[i]);
+    }
     for (int i = 0; i < elp.globalsCount; i++) {
         checkGlobal(elp.globals[i], cpCount);
     }
@@ -29,18 +32,17 @@ void Verifier::check() {
 void Verifier::checkObj(ObjInfo object, uint16 count) {
     switch (object.type) {
         case 0x01:
-            checkMethod(object._method, count);
+            checkMethod(object._method);
             break;
         case 0x02:
-            checkClass(object._class);
+            checkClass(object._class, count);
             break;
         default:
             throw corrupt();
     }
 }
 
-void Verifier::checkClass(ClassInfo klass) {
-    uint8 cpCount = klass.constantPoolCount;
+void Verifier::checkClass(ClassInfo klass, uint16 cpCount) {
     if (klass.type < 0x01 || klass.type > 0x04)
         throw corrupt();
     checkRange(klass.thisClass, cpCount);
@@ -50,7 +52,7 @@ void Verifier::checkClass(ClassInfo klass) {
         checkField(klass.fields[i], cpCount);
     }
     for (int i = 0; i < klass.methodsCount; i++) {
-        checkMethod(klass.methods[i], cpCount);
+        checkMethod(klass.methods[i]);
     }
     for (int i = 0; i < klass.objectsCount; i++) {
         checkObj(klass.objects[i], cpCount);
@@ -62,9 +64,13 @@ void Verifier::checkField(FieldInfo field, uint16 count) {
     checkRange(field.type, count);
 }
 
-void Verifier::checkMethod(MethodInfo method, uint16 cpCount) {
+void Verifier::checkMethod(MethodInfo method) {
     if (method.type != 0x01 && method.type != 0x02) {
         throw corrupt();
+    }
+    auto cpCount = method.constantPoolCount;
+    for (int i = 0; i < cpCount; ++i) {
+        checkCp(method.constantPool[i]);
     }
     checkRange(method.thisMethod, cpCount);
     for (int i = 0; i < method.argsCount; i++) {
@@ -115,8 +121,17 @@ void Verifier::checkGlobal(GlobalInfo global, uint16 cpCount) {
 }
 
 void Verifier::checkRange(ui4 i, ui4 count) {
-    if (i >= count) {
+    if (i >= count) throw corrupt();
+}
+
+void Verifier::checkCp(CpInfo info) {
+    if (info.tag > 0x07)
         throw corrupt();
+    if (info.tag == 0x07) {
+        auto array = info._array;
+        for (int i = 0; i < array.len; ++i) {
+            checkCp(array.items[i]);
+        }
     }
 }
 

@@ -76,18 +76,17 @@ Obj *Loader::readGlobal(vector<Obj *> &constPool, GlobalInfo &global) {
 Obj *Loader::readObj(vector<Obj *> &constPool, ObjInfo &obj) {
     return match<Obj *>(obj.type, {
             {0x01, [&] { return readMethod(constPool, obj._method); }},
-            {0x02, [&] { return readClass(obj._class); }}
+            {0x02, [&] { return readClass(constPool, obj._class); }}
     });
 }
 
-Obj *Loader::readClass(ClassInfo klass) {
+Obj *Loader::readClass(vector<Obj *> &constPool, ClassInfo klass) {
     auto kind = match<Type::Kind>(klass.type, {
             {0x01, [] { return Type::CLASS; }},
             {0x02, [] { return Type::INTERFACE; }},
             {0x03, [] { return Type::ENUM; }},
             {0x04, [] { return Type::ANNOTATION; }}
     });
-    auto constPool = readConstPool(klass.constantPool, klass.constantPoolCount);
     Sign sign{constPool[klass.thisClass]->toString()};
     vector<Type *> tparams;
     dynamic_cast<ObjArray *>(constPool[klass.typeParams])->foreach([this, &tparams](auto tparam) {
@@ -121,7 +120,7 @@ Obj *Loader::readClass(ClassInfo klass) {
     for (auto const &key: tparams)
         refs.erase(key->getSign().toString());
     auto meta = readMeta(klass.meta);
-    auto type = new(vm) Type(sign, meta, kind, constPool, tparams, supers, members);
+    auto type = new(vm) Type(sign, meta, kind, tparams, supers, members);
     type = resolveObj(sign.toString(), type);
     vm->setGlobal(sign.toString(), type);
     return type;
@@ -262,23 +261,32 @@ int64 unsignedToSigned(uint64 number) {
 }
 
 Obj *Loader::readCp(CpInfo &cpInfo) {
-    return match<Obj *>(cpInfo.tag, {
-            {0x00, [&] { return new(vm) ObjNull(); }},
-            {0x01, [&] { return new(vm) ObjBool(true); }},
-            {0x02, [&] { return new(vm) ObjBool(false); }},
-            {0x03, [&] { return new(vm) ObjChar((char) cpInfo._char); }},
-            {0x04, [&] { return new(vm) ObjInt(unsignedToSigned(cpInfo._int)); }},
-            {0x05, [&] { return new(vm) ObjFloat(rawToDouble(cpInfo._float)); }},
-            {0x06, [&] { return new(vm) ObjString(readUTF8(cpInfo._string)); }},
-            {0x07, [&] {
-                auto con = cpInfo._array;
-                auto array = new(vm) ObjArray(con.len);
-                for (int i = 0; i < con.len; ++i) {
-                    array->set(i, readCp(con.items[i]));
-                }
-                return array;
-            }}
-    });
+    switch (cpInfo.tag) {
+        case 0x00:
+            return new(vm) ObjNull();
+        case 0x01:
+            return new(vm) ObjBool(true);
+        case 0x02:
+            return new(vm) ObjBool(false);
+        case 0x03:
+            return new(vm) ObjChar((char) cpInfo._char);
+        case 0x04:
+            return new(vm) ObjInt(unsignedToSigned(cpInfo._int));
+        case 0x05:
+            return new(vm) ObjFloat(rawToDouble(cpInfo._float));
+        case 0x06:
+            return new(vm) ObjString(readUTF8(cpInfo._string));
+        case 0x07: {
+            auto con = cpInfo._array;
+            auto array = new(vm) ObjArray(con.len);
+            for (int i = 0; i < con.len; ++i) {
+                array->set(i, readCp(con.items[i]));
+            }
+            return array;
+        }
+        default:
+            throw Unreachable();
+    }
 }
 
 string Loader::readUTF8(__UTF8 &value) {

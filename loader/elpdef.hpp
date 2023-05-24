@@ -60,6 +60,9 @@ struct MethodInfo {
     ui1 type;
     cpidx thisMethod;
 
+    ui2 constantPoolCount;
+    CpInfo *constantPool;
+
     ui1 argsCount;
     struct ArgInfo {
         ui1 flags;
@@ -102,8 +105,6 @@ struct MethodInfo {
 struct ObjInfo;
 
 struct ClassInfo {
-    ui2 constantPoolCount;
-    CpInfo *constantPool;
     ui1 type;
     ui2 accessFlags;
     cpidx thisClass;

@@ -12,11 +12,11 @@ private:
 
     void checkObj(ObjInfo object, uint16 count);
 
-    void checkClass(ClassInfo klass);
+    void checkClass(ClassInfo klass, uint16 cpCount);
 
     void checkField(FieldInfo field, uint16 count);
 
-    void checkMethod(MethodInfo method, uint16 count);
+    void checkMethod(MethodInfo method);
 
     void checkLocal(MethodInfo::LocalInfo local, uint16 count);
 
@@ -29,6 +29,8 @@ private:
     void checkGlobal(GlobalInfo global, uint16 count);
 
     void checkRange(ui4 i, ui4 count);
+
+    void checkCp(CpInfo info);
 
     CorruptFileError corrupt() {
         return CorruptFileError(path);

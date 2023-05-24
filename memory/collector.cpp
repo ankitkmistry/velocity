@@ -78,10 +78,6 @@ void GarbageCollector::traceReferences() {
             }
         } else if (is<Type *>(obj)) {
             auto type = cast<Type *>(obj);
-            for (auto constant: type->getConstPool()) {
-                // mark every constant of the constant pool
-                mark(constant);
-            }
             for (auto typeParam: type->getTypeParams()) {
                 // mark every type params
                 mark((Obj *) typeParam);
@@ -127,8 +123,8 @@ void GarbageCollector::sweep() {
         } else {
             auto unreached = current;
             current = current->header.next;
-            if (previous)
-                previous->header.next = current;
+            if (previous != null) previous->header.next = current;
+            collected += unreached->header.size;
             space->deallocate(unreached);
         }
         if (current == space->base) break;

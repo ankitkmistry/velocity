@@ -173,7 +173,6 @@ void DebugOp::printMemory(Space &space) {
             cout << "--------------\n";
             break;
     }
-    cout << "malloc requests: " << space.getMallocRequests() << "\n";
     cout << "gc count:        " << space.getGcCount() << "\n";
     cout << "used space:      " << space.getUsedSpace() << " bytes\n";
     cout << "free space:      " << space.getFreeSpace() << " bytes\n";

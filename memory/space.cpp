@@ -3,63 +3,85 @@
 
 void *Space::allocate(size_t size) {
     auto settings = manager->getVM()->getSettings();
-    Block *prev;
     size_t units = (size + sizeof(Block) - 1) / sizeof(Block) + 1;
-    if ((prev = free) == null) { // No free list yet
-        base = moreSpace(0);
-        base->header.next = free = prev = base;
-    }
+    auto requiredSize = units * sizeof(Block);
+    if (base == null && !init(units))
+        throw MemoryError(requiredSize);
+
     alloc:
-    for (Block *p = prev->header.next;; prev = p, p = p->header.next) {
-        if (p->header.isFree && p->header.size >= units) { // big enough
-            if (p->header.size == units) // exactly
-                prev->header.next = p->header.next;
-            else { // allocate tail end
-                p->header.size -= units; // decrease the size
-                p += p->header.size; // move to the correct location
-                p->header.size = units; // set the size of the block
-            }
-            free = prev;
-            usedSpace += units * sizeof(Block);
-            p->header.isFree = false;
-            return (void *) (p + 1);
+    // obtain the largest free block
+    auto block = getLargestFreeBlock();
+    // if free block is big enough
+    if (block != null && block->header.getSize() >= units) {
+        // split the block and use tail end
+        block->header.size -= units;
+        block += block->header.size;
+        block->header.size = units;
+    } else
+        switch (type) {
+            case SpaceType::EDEN:
+                // if above threshold
+                if (totalSpace + requiredSize > settings.EDEN_THRESHOLD) {
+                    GarbageCollector edenCollector{this};
+                    // collect garbage in eden space
+                    edenCollector.gc();
+                    if (gcCount++ > settings.MAX_EDEN_GC) {
+                        GarbageCollector survivorCollector{&manager->getSurvivor()};
+                        // collect garbage in survivor space
+                        survivorCollector.gc();
+                        gcCount = 0;
+                    }
+                    // if enough memory was not collected
+                    if (edenCollector.getCollectedMemory() < requiredSize) {
+                        // increase the threshold
+                        settings.EDEN_THRESHOLD += units;
+                        // obtain from system
+                        block = moreSpace(units);
+                    } else // perform allocation again
+                        goto alloc;
+                } else // obtain from system
+                    block = moreSpace(units);
+                break;
+            case SpaceType::SURVIVOR:
+                // obtain from system
+                block = moreSpace(units);
+                break;
         }
-        // wrapped around free list
-        if (p == free) {
-            if ((p = moreSpace(units)) != null) {
-                prev->header.next = p;
-                p->header.next = free;
-                p = prev;
-            } else
-                switch (type) {
-                    case SpaceType::EDEN:
-                        if (mallocRequests > settings.MAX_MALLOC_REQUESTS) {
-                            mallocRequests = 0;
-                            if (gcCount > settings.MAX_EDEN_GC) {
-                                gcCount = 0;
-                                GarbageCollector collector1{this, manager->getVM()};
-                                collector1.gc();
-                                GarbageCollector collector2{&manager->getSurvivor(), manager->getVM()};
-                                collector2.gc();
-                            } else {
-                                GarbageCollector collector{this, manager->getVM()};
-                                collector.gc();
-                                gcCount++;
-                            }
-                            goto alloc;
-                        } else throw MemoryError(units * sizeof(Block));
-                    case SpaceType::SURVIVOR:
-                        throw MemoryError(units * sizeof(Block));
-                }
-        }
-    }
+    // if block was not obtained
+    if (block == null) throw MemoryError(requiredSize);
+    // set the block as used
+    block->header.setFree(false);
+    // increase the used space field
+    usedSpace += requiredSize;
+    return block;
 }
 
 Block *Space::moreSpace(size_t units) {
-    mallocRequests++;
-    auto block = (Block *) malloc(units * sizeof(Block));
-    if (block)
-        block->header = {true, units, null};
+    auto size = units * sizeof(Block) * getManager()->getVM()->getSettings().HEAP_GROWTH_FACTOR;
+    auto block = (Block *) malloc(size);
+    if (block == null)return null;
+    block->header = {-static_cast<int64>(units), null};
+    take(block);
+    return block;
+}
+
+bool Space::init(size_t units) {
+    auto size = units * sizeof(Block) * getManager()->getVM()->getSettings().HEAP_GROWTH_FACTOR;
+    base = (Block *) malloc(size);
+    if (base == null)return false;
+    base->header = {-static_cast<int64>(units), base};
+    totalSpace = size;
+    usedSpace = 0;
+    return true;
+}
+
+Block *Space::getLargestFreeBlock() {
+    Block *block = null;
+    for (Block *p = base->header.next;; p = p->header.next) {
+        if (p->header.isFree() && (block == null || p->header.size > block->header.size))
+            block = p;
+        if (p == base)break;
+    }
     return block;
 }
 
@@ -68,7 +90,7 @@ void Space::deallocate(void *pointer) {
     auto bp = (Block *) pointer - 1;
     Block *p;
     // iterate over the free list
-    for (p = free; !(bp > p && bp < p->header.next); p = p->header.next)
+    for (p = base; !(bp > p && bp < p->header.next); p = p->header.next)
         // check if the block was freed at the start or end of the arena
         if (p >= p->header.next && (bp > p || bp < p->header.next))
             break;
@@ -87,9 +109,8 @@ void Space::deallocate(void *pointer) {
     } else
         p->header.next = bp;
 
-    p->header.isFree = true;
-    free = p;
-    freeSpace += p->header.size * sizeof(Block);
+    p->header.setFree(true);
+    usedSpace -= p->header.size * sizeof(Block);
 }
 
 void Space::take(Block *block) {
@@ -97,4 +118,7 @@ void Space::take(Block *block) {
     auto *p2 = p1->header.next;
     block->header.next = p2;
     p1->header.next = block;
+    base = block;
+    totalSpace += block->header.size;
+    if (!block->header.isFree())usedSpace += block->header.size;
 }
