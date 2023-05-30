@@ -1,5 +1,4 @@
 #include "collector.hpp"
-#include "../oop/type.hpp"
 
 #define GET_OBJ(block) ((Obj *) (block + 1))
 
@@ -46,12 +45,21 @@ void GarbageCollector::markFrame(Frame *frame) {
         auto obj = local.getValue();
         mark(obj);
     }
+    for (const auto &closure: frame->getLocals().closures) {
+        // mark every value of closures
+        auto obj = closure->getValue();
+        mark(obj);
+    }
     for (const auto &exception: frame->getExceptions().exceptions) {
         // mark every value of exceptions
         auto obj = exception.getType();
         mark((Obj *) obj);
     }
     mark((Obj *) frame->getMethod());
+    for (auto typeParam: frame->getMethod()->getTypeParams()) {
+        // mark every type param
+        mark((Obj *) typeParam);
+    }
 }
 
 void GarbageCollector::mark(Obj *obj) {
@@ -79,7 +87,7 @@ void GarbageCollector::traceReferences() {
         } else if (is<Type *>(obj)) {
             auto type = cast<Type *>(obj);
             for (auto typeParam: type->getTypeParams()) {
-                // mark every type params
+                // mark every type param
                 mark((Obj *) typeParam);
             }
             for (auto [name, super]: type->getSupers()) {

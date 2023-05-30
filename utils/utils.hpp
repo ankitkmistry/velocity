@@ -35,9 +35,9 @@ string listToString(vector<T *> data) {
     return str;
 }
 
-string rpad(const string &str, size_t length);
+string padRight(const string &str, size_t length);
 
-string lpad(const string &str, size_t length);
+string padLeft(const string &str, size_t length);
 
 bool isNumber(const std::string &s);
 

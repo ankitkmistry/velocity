@@ -1,12 +1,12 @@
 #include "utils.hpp"
 
-string rpad(const string &str, size_t length) {
+string padRight(const string &str, size_t length) {
     return str.size() < length
            ? std::string(length - str.size(), ' ') + str
            : str;
 }
 
-string lpad(const string &str, size_t length) {
+string padLeft(const string &str, size_t length) {
     return str.size() < length
            ? str + std::string(length - str.size(), ' ')
            : str;

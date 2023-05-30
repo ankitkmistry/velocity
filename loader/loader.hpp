@@ -12,8 +12,8 @@ class VM;
 class Loader {
 private:
     VM *vm;
-    std::set <string> loadedLibs = {};
-    std::stack <string> pathStack = {};
+    std::set<string> loadedLibs = {};
+    std::stack<string> pathStack = {};
     Table<Type *> refs = {};
 public:
     explicit Loader(VM *vm) : vm(vm) {}
@@ -25,13 +25,13 @@ private:
 
     Obj *readObj(vector<Obj *> &constPool, ObjInfo &obj);
 
-    Obj *readClass(vector<Obj *> &constPool, ClassInfo klass);
+    Obj *readClass(vector<Obj *> &typeParam, ClassInfo klass);
 
     Obj *readField(vector<Obj *> &constPool, FieldInfo &field);
 
-    Obj *readMethod(const string &klassSign, vector<Obj *> &constPool, MethodInfo &method);
+    Obj *readMethod(const string &klassSign, MethodInfo &method);
 
-    Obj *readMethod(vector<Obj *> &constPool, MethodInfo &method);
+    Obj *readMethod(MethodInfo &method);
 
     Exception readException(vector<Obj *> &constPool, MethodInfo::ExceptionTableInfo &exception);
 

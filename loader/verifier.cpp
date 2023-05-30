@@ -69,10 +69,11 @@ void Verifier::checkMethod(MethodInfo method) {
         throw corrupt();
     }
     auto cpCount = method.constantPoolCount;
+    checkRange(method.thisMethod, cpCount);
     for (int i = 0; i < cpCount; ++i) {
         checkCp(method.constantPool[i]);
     }
-    checkRange(method.thisMethod, cpCount);
+    checkRange(method.typeParams, cpCount);
     for (int i = 0; i < method.argsCount; i++) {
         checkArg(method.args[i], cpCount);
     }

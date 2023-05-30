@@ -1,7 +1,6 @@
+#include "loader.hpp"
 #include "parser.hpp"
 #include "verifier.hpp"
-#include "loader.hpp"
-#include "../oop/type.hpp"
 #include "../ee/vm.hpp"
 
 ObjMethod *Loader::load(const string &path) {
@@ -21,14 +20,13 @@ ObjMethod *Loader::load(const string &path) {
     // Load the constant pool
     vector<Obj *> constPool = readConstPool(elp.constantPool, elp.constantPoolCount);
     // Get the imports
-    auto imports = dynamic_cast<ObjArray *>(constPool[elp.imports]);
+    auto imports = cast<ObjArray *>(constPool[elp.imports]);
     // Check each import
     imports->foreach([&](auto obj) {
         // Get the import library path
         string libPath = obj->toString();
-        // Load it if it is already not loaded
-        if (!isAlreadyLoaded(libPath))
-            load(libPath);
+        // Load it
+        load(libPath);
     });
 
     // Load the objects
@@ -54,7 +52,7 @@ ObjMethod *Loader::load(const string &path) {
                 obj->getType()->getKind() == Type::Kind::UNKNOWN))
             throw ReferenceNotFoundError(str);
     }
-    return dynamic_cast<ObjMethod *>(vm->getGlobal(sign));
+    return cast<ObjMethod *>(vm->getGlobal(sign));
 }
 
 bool Loader::isAlreadyLoaded(const string &path) { return loadedLibs.find(path) != loadedLibs.end(); }
@@ -74,10 +72,14 @@ Obj *Loader::readGlobal(vector<Obj *> &constPool, GlobalInfo &global) {
 }
 
 Obj *Loader::readObj(vector<Obj *> &constPool, ObjInfo &obj) {
-    return match<Obj *>(obj.type, {
-            {0x01, [&] { return readMethod(constPool, obj._method); }},
-            {0x02, [&] { return readClass(constPool, obj._class); }}
-    });
+    switch (obj.type) {
+        case 0x01:
+            return readMethod(obj._method);
+        case 0x02:
+            return readClass(constPool, obj._class);
+        default:
+            throw Unreachable();
+    }
 }
 
 Obj *Loader::readClass(vector<Obj *> &constPool, ClassInfo klass) {
@@ -88,16 +90,16 @@ Obj *Loader::readClass(vector<Obj *> &constPool, ClassInfo klass) {
             {0x04, [] { return Type::ANNOTATION; }}
     });
     Sign sign{constPool[klass.thisClass]->toString()};
-    vector<Type *> tparams;
-    dynamic_cast<ObjArray *>(constPool[klass.typeParams])->foreach([this, &tparams](auto tparam) {
-        auto str = tparam->toString();
+    vector<Type *> typeParams;
+    cast<ObjArray *>(constPool[klass.typeParams])->foreach([this, &typeParams](auto typeParam) {
+        auto str = typeParam->toString();
         if (containsRef(str)) throw corrupt();
         auto type = Type::TYPE_PARAM_(str, vm);
-        tparams.push_back(type);
+        typeParams.push_back(type);
         refs[str] = type;
     });
     Table<Type *> supers;
-    dynamic_cast<ObjArray *>(constPool[klass.supers])->foreach([this, &supers](auto super) {
+    cast<ObjArray *>(constPool[klass.supers])->foreach([this, &supers](auto super) {
         auto str = super->toString();
         Type *type = findClass(str);
         supers[type->getSign().toString()] = type;
@@ -105,7 +107,7 @@ Obj *Loader::readClass(vector<Obj *> &constPool, ClassInfo klass) {
 
     Table<Obj *> members;
     for (int i = 0; i < klass.methodsCount; ++i) {
-        auto method = readMethod(sign.toString(), constPool, klass.methods[i]);
+        auto method = readMethod(sign.toString(), klass.methods[i]);
         members[method->getSign().toString()] = method;
     }
     for (int i = 0; i < klass.fieldsCount; ++i) {
@@ -117,18 +119,16 @@ Obj *Loader::readClass(vector<Obj *> &constPool, ClassInfo klass) {
         members[object->getSign().toString()] = object;
     }
 
-    for (auto const &key: tparams)
-        refs.erase(key->getSign().toString());
     auto meta = readMeta(klass.meta);
-    auto type = new(vm) Type(sign, meta, kind, tparams, supers, members);
+
+    // Remove the type params
+    for (auto const &key: typeParams)
+        refs.erase(key->getSign().toString());
+    auto type = new(vm) Type(sign, kind, typeParams, supers, members, meta);
     type = resolveObj(sign.toString(), type);
     vm->setGlobal(sign.toString(), type);
     return type;
 }
-
-bool Loader::containsRef(const string &str) { return refs.find(str) != refs.end(); }
-
-CorruptFileError Loader::corrupt() { return CorruptFileError(pathStack.top()); }
 
 Obj *Loader::readField(vector<Obj *> &constPool, FieldInfo &field) {
     Sign sign{constPool[field.thisField]->toString()};
@@ -144,20 +144,30 @@ Obj *Loader::readField(vector<Obj *> &constPool, FieldInfo &field) {
     }, [&] { return new(vm) Object(sign, type, meta, type->getMembers()); });
 }
 
-Obj *Loader::readMethod(const string &klassSign, vector<Obj *> &constPool, MethodInfo &method) {
+Obj *Loader::readMethod(const string &klassSign, MethodInfo &method) {
     auto type = findClass(klassSign);
-    auto met = readMethod(constPool, method);
+    auto met = readMethod(method);
     met->setType(type);
     return met;
 }
 
-Obj *Loader::readMethod(vector<Obj *> &constPool, MethodInfo &method) {
+Obj *Loader::readMethod(MethodInfo &method) {
     auto kind = match<ObjMethod::Kind>(method.type, {
             {0x01, [] { return ObjMethod::FUNCTION; }},
             {0x02, [] { return ObjMethod::METHOD; }},
             {0x03, [] { return ObjMethod::CONSTRUCTOR; }}
     });
+    vector<Obj *> constPool = readConstPool(method.constantPool, method.constantPoolCount);
     Sign sign{constPool[method.thisMethod]->toString()};
+    vector<Type *> typeParams;
+    cast<ObjArray *>(constPool[method.typeParams])->foreach([this, &typeParams](auto typeParam) {
+        auto str = typeParam->toString();
+        // Type parameters can't be class names
+        if (containsRef(str)) throw corrupt();
+        auto type = Type::TYPE_PARAM_(str, vm);
+        typeParams.push_back(type);
+        refs[str] = type;
+    });
     ArgsTable args{};
     for (int i = 0; i < method.argsCount; ++i) {
         args.addArg(readArg(constPool, method.args[i]));
@@ -176,12 +186,16 @@ Obj *Loader::readMethod(vector<Obj *> &constPool, MethodInfo &method) {
         lines.addLine(lineInfo.byteCode, lineInfo.sourceCode);
     }
     auto meta = readMeta(method.meta);
+    // Remove the type params
+    for (auto const &key: typeParams)
+        refs.erase(key->getSign().toString());
+    // Create the frame
     auto *frame = new Frame{constPool,
                             method.codeCount, method.code,
                             method.maxStack,
                             args, locals, exceptions,
                             lines, null};
-    auto methodObj = new(vm) ObjMethod(sign, null, meta, kind, frame);
+    auto methodObj = new(vm) ObjMethod(sign, kind, frame, null, typeParams, meta);
     frame->setMethod(methodObj);
     if (kind == ObjMethod::CONSTRUCTOR)
         vm->setGlobal(sign.toString(), methodObj);
@@ -302,6 +316,10 @@ Table<string> Loader::readMeta(MetaInfo &meta) {
     return table;
 }
 
+CorruptFileError Loader::corrupt() { return CorruptFileError(pathStack.top()); }
+
+bool Loader::containsRef(const string &str) { return refs.find(str) != refs.end(); }
+
 Type *Loader::resolveObj(const string &sign, Type *type) {
     // Get the object
     auto find = refs.find(sign);
@@ -310,9 +328,9 @@ Type *Loader::resolveObj(const string &sign, Type *type) {
         // Get the sentinel
         auto klass = find->second;
         // Change it
-        klass->recognizeUnknown(*type);
+        klass->recognize(*type);
         // Delete it
-        Obj::operator delete(type, vm);
+        delete type;
         return klass;
     }
     return type;
@@ -327,9 +345,9 @@ Type *Loader::findClass(const string &sign) {
         // Then find it if already loaded
         auto find2 = vm->getGlobal(sign);
         // If it is loaded
-        if (find2 != null && is<Type *>(find2)) {
+        if (is<Type *>(find2)) {
             // Get it
-            type = dynamic_cast<Type *>(find2);
+            type = cast<Type *>(find2);
         } else {
             // Get a sentinel with the name attached to it
             type = Type::SENTINEL_(sign, vm);

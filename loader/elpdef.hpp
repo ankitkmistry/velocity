@@ -1,5 +1,5 @@
-#ifndef SOURCE_LOADER_ELFDEF_HPP_
-#define SOURCE_LOADER_ELFDEF_HPP_
+#ifndef LOADER_ELPDEF_HPP_
+#define LOADER_ELPDEF_HPP_
 
 #include "../utils/common.hpp"
 
@@ -17,7 +17,7 @@ struct __UTF8 {
 
 struct CpInfo;
 
-struct __Lcon {
+struct __Container {
     ui2 len;
     CpInfo *items;
 };
@@ -29,7 +29,7 @@ struct CpInfo {
         ui8 _int;
         ui8 _float;
         __UTF8 _string;
-        __Lcon _array;
+        __Container _array;
     };
 };
 
@@ -62,6 +62,8 @@ struct MethodInfo {
 
     ui2 constantPoolCount;
     CpInfo *constantPool;
+
+    cpidx typeParams;
 
     ui1 argsCount;
     struct ArgInfo {
@@ -144,4 +146,4 @@ struct ElpInfo {
     MetaInfo meta;
 };
 
-#endif /* SOURCE_LOADER_ELFDEF_HPP_ */
+#endif /* LOADER_ELPDEF_HPP_ */

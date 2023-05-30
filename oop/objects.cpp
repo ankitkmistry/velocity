@@ -1,4 +1,5 @@
 #include "objects.hpp"
+#include "cmath"
 
 ObjBool::ObjBool(bool value) :
         Obj(Sign("bool"), null), value(value) {
@@ -17,7 +18,7 @@ ObjString::ObjString(string str) :
 }
 
 Obj *ObjFloat::copy() const {
-    return new(info.space->getManager()->getVM()) ObjFloat(val);
+    return (Obj *) this;
 }
 
 bool ObjFloat::truth() const {
@@ -77,7 +78,7 @@ ObjBool *ObjFloat::operator>(const ObjFloat &n) const {
 }
 
 Obj *ObjInt::copy() const {
-    return new(info.space->getManager()->getVM()) ObjInt(val);
+    return (Obj *) this;
 }
 
 bool ObjInt::truth() const {

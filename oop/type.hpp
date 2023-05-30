@@ -20,17 +20,13 @@ private:
     Table<Type *> supers;
     Table<Obj *> members;
 public:
-    Type(const Sign &sign, const Table<string> &meta, Kind kind, const vector<Type *> &typeParams,
-         const Table<Type *> &supers, const Table<Obj *> &members)
+    Type(const Sign &sign, Kind kind, const vector<Type *> &typeParams, const Table<Type *> &supers,
+         const Table<Obj *> &members, const Table<string> &meta)
             : Obj(sign, null, meta),
               kind(kind),
               typeParams(typeParams),
               supers(supers),
               members(members) {}
-
-    void recognizeUnknown(Type &type);
-
-    Obj *getMember(string name) const;
 
     Kind getKind() const { return kind; }
 
@@ -40,7 +36,13 @@ public:
 
     Table<Obj *> getMembers() const { return members; }
 
+    void recognize(Type &type);
+
+    Obj *getMember(string name) const;
+
     Obj *getStaticMember(string &name) const;
+
+    void reifyTypeParam(uint8 i, Type &type) { typeParams[i]->recognize(type); }
 
     Obj *copy() const override;
 

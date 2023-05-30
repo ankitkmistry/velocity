@@ -1,8 +1,6 @@
 #ifndef VELOCITY_VM_HPP
 #define VELOCITY_VM_HPP
 
-#include <utility>
-
 #include "../utils/common.hpp"
 #include "thread.hpp"
 #include "../oop/obj.hpp"

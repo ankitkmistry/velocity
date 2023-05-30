@@ -6,7 +6,28 @@
 #include "../utils/utils.hpp"
 #include "../oop/obj.hpp"
 
-class Arg {
+class TableNode {
+protected:
+    string name;
+    Obj *value;
+    Table<string> meta;
+public:
+    TableNode(const string &name, Obj *value, const Table<string> &meta) : name(name), value(value), meta(meta) {}
+
+    TableNode &operator=(const TableNode &arg) = default;
+
+    void setValue(Obj *val) { value = val; }
+
+    const string &getName() const { return name; }
+
+    Obj *getValue() const { return value; }
+
+    const Table<string> &getMeta() const { return meta; }
+
+    virtual string toString() const = 0;
+};
+
+class Arg : public TableNode {
     friend class ArgsTable;
 
     friend class VM;
@@ -18,29 +39,18 @@ public:
     };
 private:
     Kind kind;
-    string name;
-    Obj *value;
-    Table<string> meta;
 public:
     Arg(Kind kind, string name, Obj *value, Table<string> &meta)
-            : kind(kind), name(name), value(value), meta(meta) {}
+            : TableNode(name, value, meta), kind(kind) {}
 
     Arg &operator=(const Arg &arg) = default;
 
     Kind getKind() const { return kind; }
 
-    string getName() const { return name; }
-
-    Obj *getValue() const { return value; }
-
-//    void setValue(Obj *val) { value = val; }
-
-    Table<string> getMeta() const { return meta; }
-
-    string toString() const;
+    string toString() const override;
 };
 
-class Local {
+class Local : public TableNode {
     friend class LocalsTable;
 
 public:
@@ -50,26 +60,15 @@ public:
     };
 private:
     Kind kind;
-    string name;
-    Obj *value;
-    Table<string> meta;
 public:
     Local(Kind kind, string name, Obj *value, Table<string> &meta)
-            : kind(kind), name(name), value(value), meta(meta) {}
+            : TableNode(name, value, meta), kind(kind) {}
 
     Local &operator=(const Local &local) = default;
 
     Kind getKind() const { return kind; }
 
-    string getName() const { return name; }
-
-    Obj *getValue() const { return value; }
-
-//    void setValue(Obj *val) { value = val; }
-
-    Table<string> getMeta() const { return meta; }
-
-    string toString() const;
+    string toString() const override;
 };
 
 class Exception {
@@ -154,6 +153,8 @@ class LocalsTable {
 private:
     uint16 closureStart;
     vector<Local> locals;
+    vector<TableNode *> closures;
+
 public:
     explicit LocalsTable(uint16 closureStart) : closureStart(closureStart), locals() {}
 
@@ -163,13 +164,17 @@ public:
 
     uint16 getClosureStart() const { return closureStart; }
 
-    void set(uint16 i, Obj *val) { locals[i].value = val; }
+    void set(uint16 i, Obj *val);
 
-    Obj *get(uint16 i) { return locals[i].value; }
+    Obj *get(uint16 i);
 
     void addLocal(const Local &local) { locals.push_back(local); }
 
+    void addClosure(TableNode *local) { closures.push_back(local); }
+
     Local &getLocal(uint16 i) { return locals[i]; }
+
+    TableNode* getClosure(uint16 i){ return closures[i]; }
 
     uint16 count() { return locals.size(); }
 

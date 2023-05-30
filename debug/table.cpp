@@ -39,7 +39,7 @@ string DataTable::toString() const {
     // Append the header
     out += '|';
     for (int i = 0; i < maxes.size(); ++i) {
-        out += format(" %s ", lpad(keys[i], maxes[i]).c_str()) + '|';
+        out += format(" %s ", padLeft(keys[i], maxes[i]).c_str()) + '|';
     }
     out += '\n';
     out += separator;
@@ -52,8 +52,8 @@ string DataTable::toString() const {
             auto value = values[i];
             out += format(" %s ",
                           (isNumber(value)
-                           ? rpad(value, maxes[k]) // If number then pad right
-                           : lpad(value, maxes[k]) // If not then pad left
+                           ? padRight(value, maxes[k]) // If number then pad right
+                           : padLeft(value, maxes[k]) // If not then pad left
                           ).c_str())
                    + '|';
             k++;

@@ -1,6 +1,5 @@
 #include "vm.hpp"
 #include "opcode.hpp"
-#include "../oop/type.hpp"
 #include "../debug/debug.hpp"
 
 void VM::onExit(const function<void()> &fun) { onExitList.push_back(fun); }
@@ -48,7 +47,7 @@ runtime_error VM::runtimeError(const string &str) {
 Obj *VM::getGlobal(const string &sign) {
     auto it = globals.find(sign);
     if (it == globals.end())
-        return new (this) ObjNull;
+        return new(this) ObjNull;
     return it->second;
 }
 
@@ -664,8 +663,18 @@ void VM::run(Thread *thread) {
                 state.push(a > b);
                 break;
             }
-            case Opcode::IS:
+            case Opcode::IS: {
+                auto b = state.pop();
+                auto a = state.pop();
+                state.push(new(this)ObjBool(a == b));
                 break;
+            }
+            case Opcode::IS_NOT: {
+                auto b = state.pop();
+                auto a = state.pop();
+                state.push(new(this)ObjBool(a != b));
+                break;
+            }
             case Opcode::IS_NULL:
                 state.push(new(this) ObjBool(is<ObjNull *>(state.pop())));
                 break;
@@ -673,19 +682,68 @@ void VM::run(Thread *thread) {
                 state.push(new(this) ObjBool(!is<ObjNull *>(state.pop())));
                 break;
             case Opcode::MONITOR_ENTER:
+                // todo: implement
                 break;
             case Opcode::MONITOR_EXIT:
+                // todo: implement
                 break;
-            case Opcode::LOAD_CLOSURE:
+            case Opcode::LOAD_CLOSURE: {
+                auto method = cast<ObjMethod *>(state.pop());
+                auto &locals = method->getFrame()->getLocals();
+                for (uint16 i = locals.getClosureStart(); i < locals.count(); i++) {
+                    TableNode *node;
+                    switch (state.readByte()) {
+                        case 0x01: // Arg as closure
+                            node = &frame->getArgs().getArg(state.readByte());
+                            break;
+                        case 0x02: // Local as closure
+                            node = &frame->getLocals().getLocal(state.readShort());
+                            break;
+                        default:
+                            // Todo: runtime error
+                            throw runtime_error("");
+                    }
+                    locals.addClosure(node);
+                }
                 break;
-            case Opcode::LOAD_CLOSURE_FAST:
+            }
+            case Opcode::LOAD_REIFIED: {
+                auto count = state.readByte();
+                // Pop the arguments
+                for (int i = 0; i < count; i++) state.pop();
+                auto args = frame->getSp();
+                auto obj = state.pop();
+                if (is<ObjMethod *>(obj)) {
+                    auto method = cast<ObjMethod *>(obj);
+                    for (int i = 0; i < count; i++) method->reifyTypeParam(i, *cast<Type *>(args[i]));
+                    state.push(method);
+                } else if (is<Type *>(obj)) {
+                    auto type = cast<Type *>(obj);
+                    for (int i = 0; i < count; i++) type->reifyTypeParam(i, *cast<Type *>(args[i]));
+                    state.push(type);
+                } else {
+                    // Todo: runtime error
+                    throw runtime_error("");
+                }
                 break;
-            case Opcode::LOAD_REIFIED:
+            }
+            case Opcode::THROW: {
+                auto value = state.pop();
+                while (state.getCallStackSize() > 0) {
+                    frame = state.getFrame();
+                    auto info = frame->getExceptions().getTarget(state.getPc(), value->getType());
+                    if (Exception::IS_NO_EXCEPTION(info)) state.popFrame();
+                    else {
+                        state.setPc(info.getTarget());
+                        state.push(value);
+                        break;
+                    }
+                }
+                if (state.getCallStackSize() == 0) {
+                    // todo: show stack trace
+                }
                 break;
-            case Opcode::LOAD_REIFIED_FAST:
-                break;
-            case Opcode::THROW:
-                break;
+            }
             case Opcode::RETURN: {
                 // Pop the return value
                 auto val = state.pop();

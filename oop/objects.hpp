@@ -1,7 +1,6 @@
 #ifndef OOP_OBJECTS_HPP_
 #define OOP_OBJECTS_HPP_
 
-#include "cmath"
 #include "../utils/common.hpp"
 #include "../utils/exceptions.hpp"
 #include "../oop/obj.hpp"
@@ -23,7 +22,7 @@ public:
     }
 
     Obj *copy() const override {
-        return new(info.space->getManager()->getVM()) ObjBool(value);
+        return (Obj *) this;
     }
 
     ObjBool *operator!() const {
@@ -47,13 +46,13 @@ public:
     }
 
     Obj *copy() const override {
-        return new(info.space->getManager()->getVM()) ObjChar(c);
+        return (Obj *) this;
     }
 };
 
 class ObjNull : public Obj {
 public:
-    explicit ObjNull();
+    ObjNull();
 
     bool truth() const override {
         return false;
@@ -64,7 +63,7 @@ public:
     }
 
     Obj *copy() const override {
-        return new(info.space->getManager()->getVM()) ObjNull;
+        return (Obj *) this;
     }
 };
 
@@ -83,7 +82,7 @@ public:
     }
 
     Obj *copy() const override {
-        return new(info.space->getManager()->getVM()) ObjString(str);
+        return (Obj *) this;
     }
 };
 

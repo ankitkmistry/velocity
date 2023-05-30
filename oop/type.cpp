@@ -11,16 +11,16 @@ static string kindNames[] = {
         "unknown"
 };
 
-void Type::recognizeUnknown(Type &type) {
-    if (kind != Kind::UNKNOWN) {
+void Type::recognize(Type &type) {
+    if (kind != Kind::UNKNOWN && kind != Kind::TYPE_PARAM)
         throw std::runtime_error("cannot change known object");
-    }
 
-    meta = type.meta;
+    sign = type.sign;
     kind = type.kind;
     typeParams = type.typeParams;
     supers = type.supers;
     members = type.members;
+    meta = type.meta;
 }
 
 Obj *Type::copy() const {
@@ -28,7 +28,7 @@ Obj *Type::copy() const {
     for (auto [key, value]: members) {
         mems[key] = value->copy();
     }
-    return new(info.space->getManager()->getVM()) Type(sign, meta, kind, typeParams, supers, mems);
+    return new(info.space->getManager()->getVM()) Type(sign, kind, typeParams, supers, mems, meta);
 }
 
 bool Type::truth() const {
@@ -61,9 +61,9 @@ Obj *Type::getStaticMember(string &name) const {
 }
 
 Type *Type::TYPE_PARAM_(const string &name, VM *vm) {
-    return new(vm) Type(Sign(name), {}, Kind::TYPE_PARAM, {}, {}, {});
+    return new(vm) Type(Sign(name), Kind::TYPE_PARAM, {}, {}, {}, {});
 }
 
 Type *Type::SENTINEL_(const string &sign, VM *vm) {
-    return new(vm) Type(Sign(sign), {}, Kind::UNKNOWN, {}, {}, {});
+    return new(vm) Type(Sign(sign), Kind::UNKNOWN, {}, {}, {}, {});
 }

@@ -33,7 +33,7 @@ public:
 
     void *operator new(size_t size, VM *vm);
 
-    void operator delete(void *p, VM *vm);
+    void operator delete(void *p);
 
     virtual Obj *copy() const = 0;
 

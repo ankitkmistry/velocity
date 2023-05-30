@@ -10,7 +10,6 @@ class VM;
 class VMState {
 private:
     VM *vm;
-    uint8 *code = null;
     uint8 *ip = null;
     Frame *callStack = null, *fp = null;
     std::stringstream out;
@@ -18,15 +17,15 @@ public:
     VMState(VM *vm, Frame *frame);
 
     ~VMState() {
-        code = ip = null;
+        ip = null;
         callStack = fp = null;
         while (popFrame());
     }
 
     VMState(const VMState &state)
-            : vm(state.vm), code(state.code),
-              ip(state.ip), callStack(state.callStack),
-              fp(state.fp), out(state.out.str()) {}
+            : vm(state.vm), ip(state.ip),
+              callStack(state.callStack), fp(state.fp),
+              out(state.out.str()) {}
 
     // State operations
     /**
@@ -100,8 +99,6 @@ public:
     // Getters
     VM *getVM() const { return vm; }
 
-    uint8 *getCode() const { return code; }
-
     uint8 *getIp() const { return ip; }
 
     Frame *getCallStack() const { return callStack; }
@@ -114,7 +111,9 @@ public:
 
     uint16 getCallStackSize() { return fp - callStack; }
 
-    uint32 getPc() { return ip - code; }
+    uint32 getPc() { return ip - getFrame()->code; }
+
+    void setPc(uint32 pc){ ip = getFrame()->code + pc; }
 };
 
 #endif //VELOCITY_STATE_HPP

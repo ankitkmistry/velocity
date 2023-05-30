@@ -111,6 +111,7 @@ enum class Opcode {
     GE,
     GT,
     IS,
+    IS_NOT,
     IS_NULL,
     IS_NON_NULL,
 
@@ -120,9 +121,7 @@ enum class Opcode {
 
     // Miscellaneous
     LOAD_CLOSURE,
-    LOAD_CLOSURE_FAST,
     LOAD_REIFIED,
-    LOAD_REIFIED_FAST,
     THROW,
     RETURN,
     RETURN_VOID,

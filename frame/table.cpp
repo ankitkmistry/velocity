@@ -53,3 +53,17 @@ string KindStringInfo::ofArg(Arg::Kind kind) {
 string KindStringInfo::ofLocal(Local::Kind kind) {
     return localKindNames[kind];
 }
+
+void LocalsTable::set(uint16 i, Obj *val) {
+    if (i >= closureStart) {
+        closures[i - closureStart]->setValue(val);
+    }
+    locals[i].value = val;
+}
+
+Obj *LocalsTable::get(uint16 i) {
+    if (i >= closureStart) {
+        return closures[i - closureStart]->getValue();
+    }
+    return locals[i].value;
+}

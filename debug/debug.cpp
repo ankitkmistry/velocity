@@ -123,7 +123,7 @@ void DebugOp::printCode(const uint8 *code, const uint8 *ip, const uint32 codeCou
         }
         cout << format(" %s %s: %s %s\n",
                        (index == ip - code - 1 ? ">" : " "),
-                       rpad(std::to_string(index), max).c_str(),
+                       padRight(std::to_string(index), max).c_str(),
                        OpcodeInfo::toString(opcode).c_str(),
                        param.c_str());
     }
@@ -132,11 +132,25 @@ void DebugOp::printCode(const uint8 *code, const uint8 *ip, const uint32 codeCou
 void DebugOp::printLocals(LocalsTable locals) {
     if (locals.count() == 0)return;
     LocalVarTable table{locals.getClosureStart()};
-    for (int i = 0; i < locals.count(); ++i) {
+    ClosureTable closure;
+    int i;
+    for (i = 0; i < locals.getClosureStart(); ++i) {
         auto local = locals.getLocal(i);
         table.add(i, local.getKind(), local.getName(), local.getValue());
     }
+    for (int j = 0; i < locals.count(); i++, j++) {
+        auto node = locals.getClosure(i);
+        if (is<Local *>(node)) {
+            auto local = cast<Local *>(node);
+            closure.add(i, true, local->getKind(), local->getName(), local->getValue());
+        } else {
+            auto arg = cast<Arg *>(node);
+            closure.add(i, false, arg->getKind(), arg->getName(), arg->getValue());
+        }
+    }
     cout << table;
+    if (locals.getClosureStart() < locals.count())
+        cout << closure;
 }
 
 void DebugOp::printArgs(ArgsTable args) {
@@ -156,7 +170,7 @@ void DebugOp::printConstPool(const vector<Obj *> &pool) {
     cout << "-------------\n";
     for (int i = 0; i < pool.size(); ++i) {
         cout << format(" %s: %s\n",
-                       rpad(std::to_string(i), max).c_str(),
+                       padRight(std::to_string(i), max).c_str(),
                        pool.at(i)->toString().c_str());
     }
 }

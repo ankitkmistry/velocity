@@ -8,8 +8,6 @@ VMState::VMState(VM *vm, Frame *frame) : vm(vm) {
 
 void VMState::loadState() {
     if (fp > callStack) {
-        // Load the code for the current frame
-        code = getFrame()->getCode();
         // Load the ip for the current frame
         ip = getFrame()->getIp();
     }

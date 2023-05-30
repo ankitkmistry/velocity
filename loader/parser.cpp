@@ -102,6 +102,7 @@ MethodInfo Parser::parseMethodInfo() {
     for (int i = 0; i < method.constantPoolCount; ++i) {
         method.constantPool[i] = parseCpInfo();
     }
+    method.typeParams = readShort();
     method.argsCount = readByte();
     method.args = new MethodInfo::ArgInfo[method.argsCount];
     for (int i = 0; i < method.argsCount; i++) {
@@ -196,7 +197,7 @@ CpInfo Parser::parseCpInfo() {
             cp._string = parseUTF8();
             break;
         case 0x07:
-            cp._array = parseLcon();
+            cp._array = parseContainer();
             break;
         default:
             corruptFileError();
@@ -204,14 +205,14 @@ CpInfo Parser::parseCpInfo() {
     return cp;
 }
 
-__Lcon Parser::parseLcon() {
-    __Lcon lcon{};
-    lcon.len = readShort();
-    lcon.items = new CpInfo[lcon.len];
-    for (int i = 0; i < lcon.len; ++i) {
-        lcon.items[i] = parseCpInfo();
+__Container Parser::parseContainer() {
+    __Container container{};
+    container.len = readShort();
+    container.items = new CpInfo[container.len];
+    for (int i = 0; i < container.len; ++i) {
+        container.items[i] = parseCpInfo();
     }
-    return lcon;
+    return container;
 }
 
 __UTF8 Parser::parseUTF8() {

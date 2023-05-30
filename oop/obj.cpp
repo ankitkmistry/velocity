@@ -14,7 +14,7 @@ void *Obj::operator new(size_t size, VM *vm) {
     return obj;
 }
 
-void Obj::operator delete(void *p, VM *vm) {
+void Obj::operator delete(void *p) {
     auto obj = (Obj *) p;
     obj->info.space->deallocate(obj);
 }
