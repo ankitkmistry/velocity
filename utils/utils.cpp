@@ -22,3 +22,14 @@ int32 longToInt(int64 num) {
     int sign = num >> 63 == 0 ? 1 : -1;
     return static_cast<int32>(sign * (sign * num & 0xffffffff));
 }
+
+int find(string text, char c, int start, int end) {
+    for (int i = start; i < end; ++i) {
+        if (text[i] == c)return i;
+    }
+    return text.length();
+}
+
+int find(string text, char c) {
+    return find(text, c, 0, text.length());
+}

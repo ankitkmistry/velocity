@@ -9,13 +9,12 @@ private:
     string pkg;
     string name;
     string signature;
-    uint8 argsCount;
+    bool argsPresent = false;
+    uint8 argsCount = -1;
 public:
     Sign(string signature) : signature(signature) { set(); }
 
-    void set() {
-        // Todo: Set the fields of the sign
-    }
+    void set();
 
     string getLibrary() const { return library; }
 
@@ -25,9 +24,11 @@ public:
 
     string getSignature() const { return signature; }
 
-    string toString() const { return signature; }
-
     uint8 getArgsCount() { return argsCount; }
+
+    bool isArgsPresent() const { return argsPresent; }
+
+    string toString() const { return signature; }
 };
 
 #endif /* UTILS_SIGN_HPP_ */

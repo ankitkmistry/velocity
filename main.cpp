@@ -3,9 +3,23 @@
 
 void runVM();
 
+void signTest();
+
 int main() {
     std::ios_base::sync_with_stdio(false);
-    runVM();
+    cout << std::boolalpha;
+    signTest();
+//    runVM();
+}
+
+void signTest() {
+    Sign sign{".list.set<T>(rt!spade::lang.int, T)"};
+    cout << "signature:  " << sign.getSignature() << "\n";
+    cout << "library:    " << sign.getLibrary() << "\n";
+    cout << "package:    " << sign.getPkg() << "\n";
+    cout << "name:       " << sign.getName() << "\n";
+    cout << "args count: " << (int) sign.getArgsCount() << "\n";
+    cout << "has args:   " << (bool) sign.isArgsPresent() << "\n";
 }
 
 void runVM() {
