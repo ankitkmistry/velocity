@@ -67,7 +67,6 @@ struct MethodInfo {
 
     ui1 argsCount;
     struct ArgInfo {
-        ui1 flags;
         cpidx thisArg;
         cpidx type;
         MetaInfo meta;
@@ -76,7 +75,6 @@ struct MethodInfo {
     ui2 localsCount;
     ui2 closureStart;
     struct LocalInfo {
-        ui1 flags;
         cpidx thisLocal;
         cpidx type;
         MetaInfo meta;

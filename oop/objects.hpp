@@ -84,6 +84,8 @@ public:
     Obj *copy() const override {
         return (Obj *) this;
     }
+
+    ObjString(uint8 *bytes, uint16 len);
 };
 
 class ObjArray final : public Obj, public Iterable<Obj *> {

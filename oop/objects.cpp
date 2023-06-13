@@ -17,6 +17,11 @@ ObjString::ObjString(string str) :
         Obj(Sign("string"), null), str(str) {
 }
 
+ObjString::ObjString(uint8 *bytes, uint16 len) :
+        Obj(Sign("string"), null), str() {
+    str = string(bytes, bytes + len);
+}
+
 Obj *ObjFloat::copy() const {
     return (Obj *) this;
 }
@@ -198,9 +203,7 @@ void ObjArray::set(int64 i, Obj *value) {
 }
 
 void ObjArray::foreach(function<void(Obj *)> func) const {
-    for (int i = 0; i < length; ++i) {
-        func(array[i]);
-    }
+    for (int i = 0; i < length; ++i) func(array[i]);
 }
 
 Obj *ObjNumber::operator-() const {
@@ -287,9 +290,9 @@ Obj *ObjNumber::operator/(ObjNumber n) const {
         }
     } else {
         if (n.type == Type::INT) {
-            return *numberUnion._float + *n.numberUnion._int;
+            return *numberUnion._float / *n.numberUnion._int;
         } else {
-            return *n.numberUnion._float + *numberUnion._float;
+            return *n.numberUnion._float / *numberUnion._float;
         }
     }
 }

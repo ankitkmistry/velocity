@@ -10,7 +10,7 @@ private:
 
     static void printCallStack(VMState *state);
 
-    static void printFrame(Frame *frame, const VMState *state);
+    static void printFrame(Frame *frame);
 
     static void printStack(Obj **stack, uint32 count);
 

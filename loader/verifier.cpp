@@ -90,9 +90,6 @@ void Verifier::checkMethod(MethodInfo method) {
 }
 
 void Verifier::checkLocal(MethodInfo::LocalInfo local, uint16 cpCount) {
-    if (local.flags != 0x01 && local.flags != 0x02) {
-        throw corrupt();
-    }
     checkRange(local.thisLocal, cpCount);
     checkRange(local.type, cpCount);
 }
@@ -107,9 +104,6 @@ void Verifier::checkException(MethodInfo::ExceptionTableInfo exception,
 }
 
 void Verifier::checkArg(MethodInfo::ArgInfo arg, uint16 cpCount) {
-    if (arg.flags != 0x01 && arg.flags != 0x02 && arg.flags != 0x03) {
-        throw corrupt();
-    }
     checkRange(arg.thisArg, cpCount);
     checkRange(arg.type, cpCount);
 }

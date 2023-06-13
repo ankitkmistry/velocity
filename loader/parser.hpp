@@ -7,7 +7,7 @@
 
 class Parser {
 private:
-    uint32 index=0;
+    uint32 index = 0;
     FILE *file;
     string path;
 
@@ -37,20 +37,35 @@ private:
 
     __UTF8 parseUTF8();
 
-    uint8 readByte() { index++;return fgetc(file); }
+    uint8 readByte() {
+        index++;
+        return fgetc(file);
+    }
 
-    uint16 readShort() { return readByte() << 8 | readByte(); }
+    uint16 readShort() {
+        uint8 a = readByte();
+        uint8 b = readByte();
+        return a << 8 | b;
+    }
 
-    uint32 readInt() { return readShort() << 16 | readShort(); }
+    uint32 readInt() {
+        uint16 a = readShort();
+        uint16 b = readShort();
+        return a << 16 | b;
+    }
 
-    uint64 readLong() { return static_cast<uint64>(readInt()) << 32 | readInt(); }
+    uint64 readLong() {
+        uint64 a = static_cast<uint64>(readInt());
+        uint32 b = readInt();
+        return a << 32 | b;
+    }
 
     [[noreturn]]void corruptFileError() {
         throw CorruptFileError(path);
     }
 
 public:
-    Parser(FILE *file, const string& path) : file(file), path(path) {
+    Parser(FILE *file, const string &path) : file(file), path(path) {
         if (file == null) throw FileNotFoundError(path);
     }
 

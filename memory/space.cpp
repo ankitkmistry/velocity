@@ -2,6 +2,8 @@
 #include "collector.hpp"
 
 void *Space::allocate(size_t size) {
+    return malloc(size);
+
     auto settings = manager->getVM()->getSettings();
     size_t units = (size + sizeof(Block) - 1) / sizeof(Block) + 1;
     auto requiredSize = units * sizeof(Block);
@@ -86,6 +88,9 @@ Block *Space::getLargestFreeBlock() {
 }
 
 void Space::deallocate(void *pointer) {
+    free(pointer);
+    return;
+
     // get pointer to block
     auto bp = (Block *) pointer - 1;
     Block *p;

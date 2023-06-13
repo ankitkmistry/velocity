@@ -19,7 +19,7 @@ union Block {
             size = b ? -size : size;
         }
 
-        int64 getSize() { return labs(size); }
+        int64 getSize() { return std::abs(size); }
     } header;
 
     intptr_t align = 0;

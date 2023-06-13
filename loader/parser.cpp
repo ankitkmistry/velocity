@@ -25,6 +25,7 @@ ElpInfo Parser::parse() {
         elp.objects[i] = parseObjInfo();
     }
     elp.meta = parseMetaInfo();
+    if (fgetc(file) != EOF) corruptFileError();
     return elp;
 }
 
@@ -155,7 +156,6 @@ MethodInfo::ExceptionTableInfo Parser::parseExceptionInfo() {
 
 MethodInfo::LocalInfo Parser::parseLocalInfo() {
     MethodInfo::LocalInfo local{};
-    local.flags = readByte();
     local.thisLocal = readShort();
     local.type = readShort();
     local.meta = parseMetaInfo();
@@ -164,7 +164,6 @@ MethodInfo::LocalInfo Parser::parseLocalInfo() {
 
 MethodInfo::ArgInfo Parser::parseArgInfo() {
     MethodInfo::ArgInfo arg{};
-    arg.flags = readByte();
     arg.thisArg = readShort();
     arg.type = readShort();
     arg.meta = parseMetaInfo();

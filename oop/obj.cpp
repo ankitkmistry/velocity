@@ -2,7 +2,7 @@
 #include "../ee/vm.hpp"
 
 Obj::Obj(Sign sign, Type *type, const Table<string> &meta) :
-        sign(std::move(sign)), type(type), meta(meta) {
+        sign(sign), type(type), meta(meta) {
     info.space = spaces[this];
     spaces.erase(this);
 }

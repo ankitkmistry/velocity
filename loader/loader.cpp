@@ -47,10 +47,12 @@ ObjMethod *Loader::load(const string &path) {
     loadedLibs.insert(path);
     pathStack.pop();
     for (auto [str, obj]: refs) {
-        if (obj->getType() != null
-            && (obj->getType()->getKind() == Type::Kind::TYPE_PARAM ||
-                obj->getType()->getKind() == Type::Kind::UNKNOWN))
-            throw ReferenceNotFoundError(str);
+        if (obj->getType() != null) {
+            if (obj->getType()->getKind() == Type::Kind::TYPE_PARAM)
+                throw ReferenceNotFoundError(str);
+            else if (obj->getType()->getKind() == Type::Kind::UNKNOWN && pathStack.size() == 1)
+                throw ReferenceNotFoundError(str);
+        }
     }
     return cast<ObjMethod *>(vm->getGlobal(sign));
 }
@@ -59,10 +61,10 @@ bool Loader::isAlreadyLoaded(const string &path) { return loadedLibs.find(path) 
 
 Obj *Loader::readGlobal(vector<Obj *> &constPool, GlobalInfo &global) {
     Sign sign{constPool[global.thisGlobal]->toString()};
-    auto type = findClass(constPool[global.type]->getSign().toString());
+    auto type = findClass(constPool[global.type]->toString());
     auto meta = readMeta(global.meta);
 
-    return match<Obj *>(sign.toString(), {
+    return match<Obj *>(constPool[global.type]->toString(), {
             {"array", [&] { return new(vm) ObjArray(0); }},
             {"bool",  [&] { return new(vm) ObjBool(false); }},
             {"char",  [&] { return new(vm) ObjChar('\0'); }},
@@ -83,12 +85,23 @@ Obj *Loader::readObj(vector<Obj *> &constPool, ObjInfo &obj) {
 }
 
 Obj *Loader::readClass(vector<Obj *> &constPool, ClassInfo klass) {
-    auto kind = match<Type::Kind>(klass.type, {
-            {0x01, [] { return Type::CLASS; }},
-            {0x02, [] { return Type::INTERFACE; }},
-            {0x03, [] { return Type::ENUM; }},
-            {0x04, [] { return Type::ANNOTATION; }}
-    });
+    Type::Kind kind;
+    switch (klass.type) {
+        case 0x01:
+            kind = Type::CLASS;
+            break;
+        case 0x02:
+            kind = Type::INTERFACE;
+            break;
+        case 0x03:
+            kind = Type::ENUM;
+            break;
+        case 0x04:
+            kind = Type::ANNOTATION;
+            break;
+        default:
+            throw Unreachable();
+    }
     Sign sign{constPool[klass.thisClass]->toString()};
     vector<Type *> typeParams;
     cast<ObjArray *>(constPool[klass.typeParams])->foreach([this, &typeParams](auto typeParam) {
@@ -132,10 +145,10 @@ Obj *Loader::readClass(vector<Obj *> &constPool, ClassInfo klass) {
 
 Obj *Loader::readField(vector<Obj *> &constPool, FieldInfo &field) {
     Sign sign{constPool[field.thisField]->toString()};
-    auto type = findClass(constPool[field.type]->getSign().toString());
+    auto type = findClass(constPool[field.type]->toString());
     auto meta = readMeta(field.meta);
 
-    return match<Obj *>(type->getSign().toString(), {
+    return match<Obj *>(constPool[field.type]->toString(), {
             {"array", [&] { return new(vm) ObjArray(0); }},
             {"bool",  [&] { return new(vm) ObjBool(false); }},
             {"char",  [&] { return new(vm) ObjChar('\0'); }},
@@ -152,11 +165,20 @@ Obj *Loader::readMethod(const string &klassSign, MethodInfo &method) {
 }
 
 Obj *Loader::readMethod(MethodInfo &method) {
-    auto kind = match<ObjMethod::Kind>(method.type, {
-            {0x01, [] { return ObjMethod::FUNCTION; }},
-            {0x02, [] { return ObjMethod::METHOD; }},
-            {0x03, [] { return ObjMethod::CONSTRUCTOR; }}
-    });
+    ObjMethod::Kind kind;
+    switch (method.type) {
+        case 0x01:
+            kind = ObjMethod::FUNCTION;
+            break;
+        case 0x02:
+            kind = ObjMethod::METHOD;
+            break;
+        case 0x03:
+            kind = ObjMethod::CONSTRUCTOR;
+            break;
+        default:
+            throw Unreachable();
+    }
     vector<Obj *> constPool = readConstPool(method.constantPool, method.constantPoolCount);
     Sign sign{constPool[method.thisMethod]->toString()};
     vector<Type *> typeParams;
@@ -214,39 +236,31 @@ Exception Loader::readException(vector<Obj *> &constPool, MethodInfo::ExceptionT
 }
 
 Local Loader::readLocal(vector<Obj *> &constPool, MethodInfo::LocalInfo &local) {
-    auto kind = match<Local::Kind>(local.flags, {
-            {0x01, [] { return Local::VAR; }},
-            {0x02, [] { return Local::CONST; }}
-    });
     Sign sign{constPool[local.thisLocal]->toString()};
     auto type = findClass(constPool[local.type]->toString());
     auto meta = readMeta(local.meta);
-    auto obj = match<Obj *>(type->getSign().toString(), {
+    auto obj = match<Obj *>(constPool[local.type]->toString(), {
             {"array", [&] { return new(vm) ObjArray(0); }},
             {"bool",  [&] { return new(vm) ObjBool(false); }},
             {"char",  [&] { return new(vm) ObjChar('\0'); }},
             {"float", [&] { return new(vm) ObjFloat(0); }},
             {"int",   [&] { return new(vm) ObjInt(0); }}
     }, [&] { return new(vm) Object(sign, type, meta, type->getMembers()); });
-    return {kind, sign.toString(), obj, meta};
+    return {sign.toString(), obj, meta};
 }
 
 Arg Loader::readArg(vector<Obj *> &constPool, MethodInfo::ArgInfo &arg) {
-    auto kind = match<Arg::Kind>(arg.flags, {
-            {0x01, [] { return Arg::VALUE; }},
-            {0x02, [] { return Arg::REF; }}
-    });
     Sign sign{constPool[arg.thisArg]->toString()};
     auto type = findClass(constPool[arg.type]->toString());
     auto meta = readMeta(arg.meta);
-    auto obj = match<Obj *>(type->getSign().toString(), {
+    auto obj = match<Obj *>(constPool[arg.type]->toString(), {
             {"array", [&] { return new(vm) ObjArray(0); }},
             {"bool",  [&] { return new(vm) ObjBool(false); }},
             {"char",  [&] { return new(vm) ObjChar('\0'); }},
             {"float", [&] { return new(vm) ObjFloat(0); }},
             {"int",   [&] { return new(vm) ObjInt(0); }}
     }, [&] { return new(vm) Object(sign, type, meta, type->getMembers()); });
-    return {kind, sign.toString(), obj, meta};
+    return {sign.toString(), obj, meta};
 }
 
 vector<Obj *> Loader::readConstPool(CpInfo *constantPool, uint16 count) {
@@ -289,7 +303,7 @@ Obj *Loader::readCp(CpInfo &cpInfo) {
         case 0x05:
             return new(vm) ObjFloat(rawToDouble(cpInfo._float));
         case 0x06:
-            return new(vm) ObjString(readUTF8(cpInfo._string));
+            return new(vm) ObjString(cpInfo._string.bytes, cpInfo._string.len);
         case 0x07: {
             auto con = cpInfo._array;
             auto array = new(vm) ObjArray(con.len);
@@ -304,7 +318,7 @@ Obj *Loader::readCp(CpInfo &cpInfo) {
 }
 
 string Loader::readUTF8(__UTF8 &value) {
-    return {reinterpret_cast<const char *>(value.bytes), value.len};
+    return string(reinterpret_cast<const char *>(value.bytes), value.len);
 }
 
 Table<string> Loader::readMeta(MetaInfo &meta) {
@@ -337,6 +351,8 @@ Type *Loader::resolveObj(const string &sign, Type *type) {
 }
 
 Type *Loader::findClass(const string &sign) {
+    static const std::set<string> &internalTypes{"array", "bool", "char", "float", "int"};
+    if (internalTypes.contains(sign))return null;
     // Find in reference pool
     auto find1 = refs.find(sign);
     Type *type;

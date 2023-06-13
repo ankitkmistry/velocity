@@ -10,33 +10,22 @@ class VM;
 class VMState {
 private:
     VM *vm;
-    uint8 *ip = null;
     Frame *callStack = null, *fp = null;
     std::stringstream out;
 public:
     VMState(VM *vm, Frame *frame);
 
     ~VMState() {
-        ip = null;
         callStack = fp = null;
         while (popFrame());
     }
 
     VMState(const VMState &state)
-            : vm(state.vm), ip(state.ip),
+            : vm(state.vm),
               callStack(state.callStack), fp(state.fp),
               out(state.out.str()) {}
 
     // State operations
-    /**
-     * Sets the code and ip respectively and loads the state
-     */
-    void loadState();
-
-    /**
-     * Saves the code and ip to the frame
-     */
-    void storeState();
 
     // Frame operations
     /**
@@ -47,7 +36,7 @@ public:
 
     /**
      * Pops the active call frame and reloads the state
-     * @return the call frame
+     * @return true if the call stack is not empty, false otherwise
      */
     bool popFrame();
 
@@ -82,24 +71,25 @@ public:
      * Advances ip by 1 byte and returns the byte read
      * @return the byte
      */
-    uint8 readByte() { return *ip++; }
+    uint8 readByte() { return *getFrame()->ip++; }
 
     /**
      * Advances ip by 2 bytes and returns the bytes read
      * @return the short
      */
-    uint16 readShort() { return (ip += 2, (ip[-2] << 8) | ip[-1]); }
+    uint16 readShort() {
+        getFrame()->ip += 2;
+        return (getFrame()->ip[-2] << 8) | getFrame()->ip[-1];
+    }
 
     /**
      * Adjusts the ip by offset
      * @param offset
      */
-    void adjust(ptrdiff_t offset) { ip += offset; }
+    void adjust(ptrdiff_t offset) { getFrame()->ip += offset; }
 
     // Getters
     VM *getVM() const { return vm; }
-
-    uint8 *getIp() const { return ip; }
 
     Frame *getCallStack() const { return callStack; }
 
@@ -111,9 +101,9 @@ public:
 
     uint16 getCallStackSize() { return fp - callStack; }
 
-    uint32 getPc() { return ip - getFrame()->code; }
+    uint32 getPc() { return getFrame()->ip - getFrame()->code; }
 
-    void setPc(uint32 pc){ ip = getFrame()->code + pc; }
+    void setPc(uint32 pc) { getFrame()->ip = getFrame()->code + pc; }
 };
 
 #endif //VELOCITY_STATE_HPP

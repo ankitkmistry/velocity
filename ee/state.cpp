@@ -6,38 +6,18 @@ VMState::VMState(VM *vm, Frame *frame) : vm(vm) {
     pushFrame(frame);
 }
 
-void VMState::loadState() {
-    if (fp > callStack) {
-        // Load the ip for the current frame
-        ip = getFrame()->getIp();
-    }
-}
-
-void VMState::storeState() {
-    // Set frame pointer
-    if (fp == null) {
-        fp = callStack;
-        return;
-    }
-    // Store the ip for the frame
-    getFrame()->setIp(ip);
-}
-
 void VMState::pushFrame(Frame *frame) {
-    if (fp > callStack)storeState();
     if (fp - callStack >= FRAMES_MAX) {
         // TODO: throw runtime error: stack overflow
         throw runtime_error("bad state: stack overflow");
     }
     *fp++ = *frame;
-    loadState();
 }
 
 bool VMState::popFrame() {
     if (fp > callStack) {
         fp--;
-        loadState();
-        return true;
+        return fp != callStack;
     }
     fp = null;
     return false;

@@ -14,10 +14,11 @@
 #include <algorithm>
 #include <cstdio>
 #include <functional>
-// TODO: <iostream> For debug only
-#include <iostream>
 #include <sstream>
 #include "constants.hpp"
+
+// TODO: For debug only
+#include <iostream>
 
 #define null (nullptr)
 

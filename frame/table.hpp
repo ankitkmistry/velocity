@@ -24,7 +24,7 @@ public:
 
     const Table<string> &getMeta() const { return meta; }
 
-    virtual string toString() const = 0;
+    virtual string toString() const { return name; }
 };
 
 class Arg : public TableNode {
@@ -33,42 +33,20 @@ class Arg : public TableNode {
     friend class VM;
 
 public:
-    enum Kind {
-        VALUE,
-        REF
-    };
-private:
-    Kind kind;
-public:
-    Arg(Kind kind, string name, Obj *value, Table<string> &meta)
-            : TableNode(name, value, meta), kind(kind) {}
+    Arg(string name, Obj *value, Table<string> &meta)
+            : TableNode(name, value, meta) {}
 
     Arg &operator=(const Arg &arg) = default;
-
-    Kind getKind() const { return kind; }
-
-    string toString() const override;
 };
 
 class Local : public TableNode {
     friend class LocalsTable;
 
 public:
-    enum Kind {
-        VAR,
-        CONST
-    };
-private:
-    Kind kind;
-public:
-    Local(Kind kind, string name, Obj *value, Table<string> &meta)
-            : TableNode(name, value, meta), kind(kind) {}
+    Local(string name, Obj *value, Table<string> &meta)
+            : TableNode(name, value, meta) {}
 
     Local &operator=(const Local &local) = default;
-
-    Kind getKind() const { return kind; }
-
-    string toString() const override;
 };
 
 class Exception {
@@ -174,7 +152,7 @@ public:
 
     Local &getLocal(uint16 i) { return locals[i]; }
 
-    TableNode* getClosure(uint16 i){ return closures[i]; }
+    TableNode *getClosure(uint16 i) { return closures[i]; }
 
     uint16 count() { return locals.size(); }
 
@@ -200,13 +178,6 @@ public:
     uint8 count() { return exceptions.size(); }
 
     Exception getTarget(uint32 pc, Type *type);
-};
-
-class KindStringInfo {
-public:
-    static string ofArg(Arg::Kind kind);
-
-    static string ofLocal(Local::Kind kind);
 };
 
 #endif //VELOCITY_FRAME_TABLE_HPP

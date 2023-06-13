@@ -5,6 +5,8 @@
 
 #if defined _WIN32
 #define OS_WINDOWS
+#pragma warning (disable : 4996)
+#pragma warning (disable : 4291)
 #elif defined (__LINUX__) || defined(__gnu_linux__) || defined(__linux__)
 #define OS_LINUX
 #elif defined (__APPLE__)

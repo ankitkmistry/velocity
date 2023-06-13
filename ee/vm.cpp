@@ -26,7 +26,10 @@ ObjArray *VM::argsRepr(const vector<string> &args) {
 int VM::start(ObjMethod *entry, ObjArray *args) {
     entry->getFrame()->getArgs().set(0, cast<Obj *>(args));
     VMState state{this, entry->getFrame()};
-    Thread thread{state, [this](auto thr) { run(thr); }};
+    Thread thread{state, [this](auto thr) {
+        thr->setStatus(Thread::RUNNING);
+        run(thr);
+    }};
     threads.insert(&thread);
     thread.join();
 
@@ -56,7 +59,6 @@ void VM::setGlobal(const string &sign, Obj *val) {
 }
 
 void VM::run(Thread *thread) {
-    thread->setStatus(Thread::RUNNING);
     auto &state = thread->getState();
     for (; thread->isRunning();) {
         auto opcode = static_cast<Opcode>(state.readByte());
@@ -227,7 +229,7 @@ void VM::run(Thread *thread) {
                 // Pop the arguments
                 for (int i = 0; i < count; i++) state.pop();
                 // Call the method
-                call(thread, method, frame->getSp());
+                call(thread, method, frame->sp);
                 break;
             }
             case Opcode::LOAD_OBJECT_FAST: {
@@ -244,7 +246,7 @@ void VM::run(Thread *thread) {
                 // Pop the arguments
                 for (int i = 0; i < count; i++) state.pop();
                 // Call the method
-                call(thread, method, frame->getSp());
+                call(thread, method, frame->sp);
                 break;
             }
             case Opcode::UNPACK_ARRAY: {
@@ -299,7 +301,7 @@ void VM::run(Thread *thread) {
                 // Get the method
                 auto method = cast<ObjMethod *>(state.pop());
                 // Call it
-                call(thread, method, frame->getSp());
+                call(thread, method, frame->sp + 1);
                 break;
             }
             case Opcode::INVOKE_VIRTUAL: {
@@ -317,7 +319,7 @@ void VM::run(Thread *thread) {
                 // Get the method
                 auto method = cast<ObjMethod *>(object->getMember(name));
                 // Call it
-                call(thread, method, frame->getSp());
+                call(thread, method, frame->sp + 1);
                 // Set 'this' (by convention slot 0 of locals)
                 state.getFrame()->getLocals().set(0, object);
                 break;
@@ -337,7 +339,7 @@ void VM::run(Thread *thread) {
                 // Get the method
                 auto method = cast<ObjMethod *>(type->getMember(name));
                 // Call it
-                call(thread, method, frame->getSp());
+                call(thread, method, frame->sp + 1);
                 break;
             }
             case Opcode::INVOKE_LOCAL: {
@@ -348,7 +350,7 @@ void VM::run(Thread *thread) {
                 // Pop the arguments
                 for (int i = 0; i < count; i++) state.pop();
                 // Call it
-                call(thread, method, frame->getSp());
+                call(thread, method, frame->sp);
                 break;
             }
             case Opcode::INVOKE_GLOBAL: {
@@ -359,7 +361,7 @@ void VM::run(Thread *thread) {
                 // Pop the arguments
                 for (int i = 0; i < count; i++) state.pop();
                 // Call it
-                call(thread, method, frame->getSp());
+                call(thread, method, frame->sp);
                 break;
             }
             case Opcode::INVOKE_VIRTUAL_FAST: {
@@ -377,7 +379,7 @@ void VM::run(Thread *thread) {
                 // Get the method
                 auto method = cast<ObjMethod *>(object->getMember(name));
                 // Call it
-                call(thread, method, frame->getSp());
+                call(thread, method, frame->sp + 1);
                 // Set 'this' (by convention slot 0 of locals)
                 state.getFrame()->getLocals().set(0, object);
                 break;
@@ -397,7 +399,7 @@ void VM::run(Thread *thread) {
                 // Get the method
                 auto method = cast<ObjMethod *>(type->getMember(name));
                 // Call it
-                call(thread, method, frame->getSp());
+                call(thread, method, frame->sp + 1);
                 break;
             }
             case Opcode::INVOKE_LOCAL_FAST: {
@@ -408,7 +410,7 @@ void VM::run(Thread *thread) {
                 // Pop the arguments
                 for (int i = 0; i < count; i++) state.pop();
                 // Call it
-                call(thread, method, frame->getSp());
+                call(thread, method, frame->sp);
                 break;
             }
             case Opcode::INVOKE_GLOBAL_FAST: {
@@ -419,7 +421,7 @@ void VM::run(Thread *thread) {
                 // Pop the arguments
                 for (int i = 0; i < count; i++) state.pop();
                 // Call it
-                call(thread, method, frame->getSp());
+                call(thread, method, frame->sp);
                 break;
             }
             case Opcode::INVOKE_ARG: {
@@ -430,11 +432,11 @@ void VM::run(Thread *thread) {
                 // Pop the arguments
                 for (int i = 0; i < count; i++) state.pop();
                 // Call it
-                call(thread, method, frame->getSp());
+                call(thread, method, frame->sp);
                 break;
             }
             case Opcode::SUB_CALL: {
-                auto address = new(this) ObjInt(frame->getIp() - frame->getCode());
+                auto address = new(this) ObjInt(frame->ip - frame->code);
                 state.push(address);
                 auto offset = state.readShort();
                 state.adjust(offset);
@@ -442,7 +444,7 @@ void VM::run(Thread *thread) {
             }
             case Opcode::SUB_RETURN: {
                 auto address = cast<ObjInt *>(state.pop());
-                frame->setIp(frame->getCode() + address->value());
+                frame->setIp(frame->code + address->value());
                 break;
             }
             case Opcode::JUMP_FORWARD: {
@@ -711,7 +713,7 @@ void VM::run(Thread *thread) {
                 auto count = state.readByte();
                 // Pop the arguments
                 for (int i = 0; i < count; i++) state.pop();
-                auto args = frame->getSp();
+                auto args = frame->sp;
                 auto obj = state.pop();
                 if (is<ObjMethod *>(obj)) {
                     auto method = cast<ObjMethod *>(obj);
@@ -784,11 +786,7 @@ bool VM::checkCast(const Type *type1, const Type *type2) {
 void VM::call(Thread *thread, ObjMethod *method, Obj **args) {
     auto frame = new Frame(*method->getFrame());
     for (int i = 0; i < frame->getArgs().count(); i++) {
-        auto kind = frame->getArgs().getArg(i).getKind();
-        frame->getArgs().set(i, match<Obj *>(kind, {
-                {Arg::Kind::VALUE, [&] { return args[i]->copy(); }},
-                {Arg::Kind::REF,   [&] { return args[i]; }}
-        }));
+        frame->getArgs().set(i, args[i]);
     }
     thread->getState().pushFrame(frame);
 }

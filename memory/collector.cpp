@@ -31,7 +31,7 @@ void GarbageCollector::markFrame(Frame *frame) {
         // mark every constant of the constant pool
         mark(constant);
     }
-    for (auto obj = *frame->getStack(); obj < *frame->getSp(); obj++) {
+    for (auto obj = *frame->stack; obj < *frame->sp; obj++) {
         // mark every object of stack
         mark(obj);
     }

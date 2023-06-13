@@ -13,10 +13,12 @@ class Frame {
 private:
     vector<Obj *> constPool;
     uint32 codeCount;
+public:
     uint8 *code;
     uint8 *ip;
     Obj **stack;
     Obj **sp;
+private:
     ArgsTable args;
     LocalsTable locals;
     ExceptionTable exceptions;
@@ -61,14 +63,6 @@ public:
     Obj *peek();
 
     const vector<Obj *> &getConstPool() const { return constPool; }
-
-    uint8 *getCode() const { return code; }
-
-    uint8 *getIp() const { return ip; }
-
-    Obj **getStack() const { return stack; }
-
-    Obj **getSp() const { return sp; }
 
     ArgsTable &getArgs() const { return const_cast<ArgsTable &>(args); }
 

@@ -1,0 +1,35 @@
+method 'fib(int)':
+    args: 'n': 'int';
+    maxstack: 4
+    code:
+                 LOAD_ARG        0
+                 CONSTANT        1
+                 POP_JUMP_IF_EQ  $ifBr
+                 LOAD_ARG        0
+                 CONSTANT        2
+                 POP_JUMP_IF_NE  $elseBr
+        $ifBr:   CONSTANT        1
+                 RETURN
+        $elseBr: LOAD_ARG        0
+                 CONSTANT        1
+                 SUBTRACT
+                 INVOKE_GLOBAL   'fib(int)'
+                 LOAD_ARG        0
+                 CONSTANT        2
+                 SUBTRACT
+                 INVOKE_GLOBAL   'fib(int)'
+                 ADD
+                 RETURN
+    ;
+;
+
+entry method 'main(string[])':
+    args: 'args': 'string[]';
+    maxstack: 4
+    code:
+        LOAD_GLOBAL_FAST    'fib(int)'
+        CONSTANT            3
+        INVOKE              1
+        RETURN_VOID
+    ;
+;

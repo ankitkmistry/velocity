@@ -50,32 +50,30 @@ public:
 
 class ArgumentTable : public DataTable {
 public:
-    ArgumentTable() : DataTable("Args Table", {"slot", "kind", "name", "value"}) {}
+    ArgumentTable() : DataTable("Args Table", {"slot", "name", "value"}) {}
 
-    void add(uint8 slot, Arg::Kind kind, const string &name, Obj *value) {
-        set({std::to_string(slot), KindStringInfo::ofArg(kind), name, value->toString()});
+    void add(uint8 slot, const string &name, Obj *value) {
+        set({std::to_string(slot), name, value->toString()});
     }
 };
 
 class LocalVarTable : public DataTable {
 public:
     explicit LocalVarTable(uint16 closureStart) : DataTable(format("Locals Table | closureStart: %d", closureStart),
-                                                            {"slot", "kind", "name", "value"}) {}
+                                                            {"slot", "name", "value"}) {}
 
-    void add(uint8 slot, Local::Kind kind, const string &name, Obj *value) {
-        set({std::to_string(slot), KindStringInfo::ofLocal(kind), name, value->toString()});
+    void add(uint8 slot, const string &name, Obj *value) {
+        set({std::to_string(slot), name, value->toString()});
     }
 };
 
 class ClosureTable : public DataTable {
 public:
-    ClosureTable() : DataTable("Closures", {"slot", "type", "kind", "name", "value"}) {}
+    ClosureTable() : DataTable("Closures", {"slot", "type", "name", "value"}) {}
 
-    void add(uint8 slot, bool isLocal, int kind, const string &name, Obj *value) {
+    void add(uint8 slot, bool isLocal, const string &name, Obj *value) {
         set({std::to_string(slot),
              isLocal ? "local" : "arg",
-             isLocal ? KindStringInfo::ofLocal(static_cast<Local::Kind>(kind))
-                     : KindStringInfo::ofArg(static_cast<Arg::Kind>(kind)),
              name,
              value->toString()});
     }
