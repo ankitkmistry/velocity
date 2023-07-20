@@ -28,15 +28,14 @@ Exception ExceptionTable::getTarget(uint32 pc, Type *type) {
 }
 
 void LocalsTable::set(uint16 i, Obj *val) {
-    if (i >= closureStart) {
+    if (i >= closureStart)
         closures[i - closureStart]->setValue(val);
-    }
-    locals[i].value = val;
+    else
+        locals[i].value = val;
 }
 
 Obj *LocalsTable::get(uint16 i) {
-    if (i >= closureStart) {
+    if (i >= closureStart)
         return closures[i - closureStart]->getValue();
-    }
     return locals[i].value;
 }

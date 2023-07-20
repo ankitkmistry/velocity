@@ -70,6 +70,10 @@ public:
     }
 
     ElpInfo parse();
+
+    MethodInfo::MatchInfo parseMatchInfo();
+
+    MethodInfo::MatchInfo::CaseInfo parseCaseInfo();
 };
 
 #endif /* SOURCE_LOADER_PARSER_HPP_ */

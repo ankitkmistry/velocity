@@ -78,26 +78,18 @@ public:
     static bool IS_NO_EXCEPTION(const Exception &exception) { return exception.type == null; }
 };
 
-class LineNumberTable {
+class Case {
 private:
-    vector<uint32> bytecode;
-    vector<uint64> sourcecode;
+    Obj *value;
+    uint32 location;
 public:
-    explicit LineNumberTable(size_t count) : bytecode(count), sourcecode(count) {}
+    Case(Obj *value, uint32 location) : value(value), location(location) {}
 
-    LineNumberTable(const LineNumberTable &table) = default;
+    Case &operator=(const Case &exception) = default;
 
-    LineNumberTable &operator=(const LineNumberTable &lines) = default;
+    Obj *getValue() const { return value; }
 
-    void addLine(uint32 byteLine, uint64 sourceLine);
-
-    uint64 getSourceLine(uint32 byteLine);
-
-    const vector<uint32> &getBytecode() const { return bytecode; }
-
-    const vector<uint64> &getSourcecode() const { return sourcecode; }
-
-    size_t count() { return bytecode.capacity(); }
+    uint32 getLocation() const { return location; }
 };
 
 class ArgsTable {
@@ -178,6 +170,53 @@ public:
     uint8 count() { return exceptions.size(); }
 
     Exception getTarget(uint32 pc, Type *type);
+};
+
+class LineNumberTable {
+private:
+    vector<uint32> bytecode;
+    vector<uint64> sourcecode;
+public:
+    explicit LineNumberTable(size_t count) : bytecode(count), sourcecode(count) {}
+
+    LineNumberTable(const LineNumberTable &table) = default;
+
+    LineNumberTable &operator=(const LineNumberTable &lines) = default;
+
+    void addLine(uint32 byteLine, uint64 sourceLine);
+
+    uint64 getSourceLine(uint32 byteLine);
+
+    const vector<uint32> &getBytecode() const { return bytecode; }
+
+    const vector<uint64> &getSourcecode() const { return sourcecode; }
+
+    size_t count() { return bytecode.capacity(); }
+};
+
+class MatchTable {
+    friend class GarbageCollector;
+
+private:
+    vector<Case> cases;
+    uint32 defaultLocation;
+public:
+    MatchTable(const vector<Case> &cases, uint32 defaultLocation) : cases(cases), defaultLocation(defaultLocation) {}
+
+    const vector<Case> &getCases() const { return cases; }
+
+    uint32 getDefaultLocation() const { return defaultLocation; }
+
+    size_t count() { return cases.size(); }
+
+    uint32 perform(Obj *value) {
+        // Todo improve this to perform fast matching in case of integer values
+        for (auto kase: cases) {
+            if (kase.getValue() == value)
+                return kase.getLocation();
+        }
+        return defaultLocation;
+    }
 };
 
 #endif //VELOCITY_FRAME_TABLE_HPP

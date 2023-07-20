@@ -27,7 +27,6 @@ using std::string,
         std::map,
         std::function,
         std::any,
-        std::runtime_error,
         std::cout, std::cin;
 
 using uint8 = std::uint8_t;

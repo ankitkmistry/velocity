@@ -56,6 +56,8 @@ private:
     CorruptFileError corrupt();
 
     bool containsRef(const string &str);
+
+    MatchTable readMatch(MethodInfo::MatchInfo match, vector<Obj *> vector1);
 };
 
 #endif //VELOCITY_LOADER_HPP

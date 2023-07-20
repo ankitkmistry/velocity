@@ -99,6 +99,19 @@ struct MethodInfo {
         ui8 sourceCode;
     } *lineNumberTable;
 
+    ui2 lambdaCount;
+    MethodInfo *lambdas;
+
+    ui2 matchCount;
+    struct MatchInfo {
+        ui2 caseCount;
+        struct CaseInfo {
+            cpidx value;
+            ui4 location;
+        } *cases;
+        ui4 defaultLocation;
+    } *matches;
+
     MetaInfo meta;
 };
 

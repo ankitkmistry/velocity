@@ -42,7 +42,7 @@ string Type::toString() const {
 Obj *Type::getMember(string name) const {
     Obj *member = getStaticMember(name);
     if (member == null)
-        throw runtime_error(format("can't find static member %s::%s", sign.toString().c_str(), name.c_str()));
+        throw FatalError(format("can't find static member %s::%s", sign.toString().c_str(), name.c_str()));
     return member;
 }
 

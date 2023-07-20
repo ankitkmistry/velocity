@@ -207,6 +207,17 @@ Obj *Loader::readMethod(MethodInfo &method) {
         auto lineInfo = method.lineNumberTable[i];
         lines.addLine(lineInfo.byteCode, lineInfo.sourceCode);
     }
+    vector<ObjMethod *> lambdas;
+    lambdas.reserve(method.lambdaCount);
+    for (int i = 0; i < method.lambdaCount; ++i) {
+        lambdas.push_back(cast<ObjMethod *>(readMethod(method.lambdas[i])));
+    }
+    vector<MatchTable> matches;
+    matches.reserve(method.matchCount);
+    for (int i = 0; i < method.matchCount; ++i) {
+        matches.push_back(readMatch(method.matches[i], constPool));
+    }
+
     auto meta = readMeta(method.meta);
     // Remove the type params
     for (auto const &key: typeParams)
@@ -222,6 +233,16 @@ Obj *Loader::readMethod(MethodInfo &method) {
     if (kind == ObjMethod::CONSTRUCTOR)
         vm->setGlobal(sign.toString(), methodObj);
     return methodObj;
+}
+
+MatchTable Loader::readMatch(MethodInfo::MatchInfo match, vector<Obj *> constPool) {
+    vector<Case> cases;
+    cases.reserve(match.caseCount);
+    for (int i = 0; i < match.caseCount; ++i) {
+        auto kase = match.cases[i];
+        cases.push_back({constPool[kase.value]->copy(), kase.location});
+    }
+    return {cases, match.defaultLocation};
 }
 
 Exception Loader::readException(vector<Obj *> &constPool, MethodInfo::ExceptionTableInfo &exception) {

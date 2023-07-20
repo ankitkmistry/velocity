@@ -87,6 +87,21 @@ void Verifier::checkMethod(MethodInfo method) {
     for (int i = 0; i < method.lineNumberTableCount; i++) {
         checkLine(method.lineNumberTable[i], codeCount);
     }
+    for (int i = 0; i < method.lambdaCount; ++i) {
+        checkMethod(method.lambdas[i]);
+    }
+    for (int i = 0; i < method.matchCount; ++i) {
+        checkMatch(method.matches[i], codeCount, cpCount);
+    }
+}
+
+void Verifier::checkMatch(MethodInfo::MatchInfo info, uint32 codeCount, uint16 cpCount) {
+    for (int i = 0; i < info.caseCount; ++i) {
+        auto kase = info.cases[i];
+        checkRange(kase.value, cpCount);
+        checkRange(kase.location, codeCount);
+    }
+    checkRange(info.defaultLocation, codeCount);
 }
 
 void Verifier::checkLocal(MethodInfo::LocalInfo local, uint16 cpCount) {

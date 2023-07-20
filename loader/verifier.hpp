@@ -40,6 +40,8 @@ public:
     Verifier(const ElpInfo elp, const string path) : elp(elp), path(path) {}
 
     void check();
+
+    void checkMatch(MethodInfo::MatchInfo info, uint32 codeCount, uint16 cpCount);
 };
 
 #endif /* SOURCE_LOADER_VERIFIER_HPP_ */

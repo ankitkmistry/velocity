@@ -23,6 +23,8 @@ private:
     LocalsTable locals;
     ExceptionTable exceptions;
     LineNumberTable lines;
+    vector<ObjMethod *> lambdas;
+    vector<MatchTable> matches;
     ObjMethod *method;
 
     Frame()
@@ -71,6 +73,10 @@ public:
     ExceptionTable &getExceptions() const { return const_cast<ExceptionTable &>(exceptions); }
 
     LineNumberTable &getLines() const { return const_cast<LineNumberTable &>(lines); }
+
+    const vector<ObjMethod *> &getLambdas() const { return lambdas; }
+
+    const vector<MatchTable> &getMatches() const { return matches; }
 
     ObjMethod *getMethod() const { return method; }
 

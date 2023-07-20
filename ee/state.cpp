@@ -9,7 +9,7 @@ VMState::VMState(VM *vm, Frame *frame) : vm(vm) {
 void VMState::pushFrame(Frame *frame) {
     if (fp - callStack >= FRAMES_MAX) {
         // TODO: throw runtime error: stack overflow
-        throw runtime_error("bad state: stack overflow");
+        throw FatalError("bad state: stack overflow");
     }
     *fp++ = *frame;
 }

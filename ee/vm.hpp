@@ -29,7 +29,7 @@ public:
 
     int start(ObjMethod *entry, ObjArray *args);
 
-    runtime_error runtimeError(const string &str);
+    ThrowSignal runtimeError(const string &str);
 
     Obj *getGlobal(const string &sign);
 

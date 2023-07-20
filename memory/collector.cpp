@@ -55,6 +55,14 @@ void GarbageCollector::markFrame(Frame *frame) {
         auto obj = exception.getType();
         mark((Obj *) obj);
     }
+    for (const auto &match: frame->getMatches()) {
+        // mark every match
+        for (const auto &kase: match.cases) {
+            // mark every case value
+            auto obj = kase.getValue();
+            mark(obj);
+        }
+    }
     mark((Obj *) frame->getMethod());
     for (auto typeParam: frame->getMethod()->getTypeParams()) {
         // mark every type param

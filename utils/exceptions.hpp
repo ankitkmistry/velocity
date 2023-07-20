@@ -11,6 +11,23 @@ public:
             : std::runtime_error(message) {}
 };
 
+class RuntimeError : public std::runtime_error {
+public:
+    explicit RuntimeError(const string &arg) : std::runtime_error(arg) {}
+};
+
+class Obj;
+
+class ThrowSignal : public RuntimeError {
+private:
+    Obj *value;
+public:
+    ThrowSignal(Obj *value) : RuntimeError("value is thrown in the vm"), value(value) {}
+
+    Obj *getValue() const { return value; }
+};
+
+
 class CorruptFileError : public FatalError {
 private:
     string path;

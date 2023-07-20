@@ -133,8 +133,35 @@ MethodInfo Parser::parseMethodInfo() {
     for (int i = 0; i < method.lineNumberTableCount; i++) {
         method.lineNumberTable[i] = parseLineInfo();
     }
+    method.lambdaCount = readShort();
+    method.lambdas = new MethodInfo[method.lambdaCount];
+    for (int i = 0; i < method.lambdaCount; i++) {
+        method.lambdas[i] = parseMethodInfo();
+    }
+    method.matchCount = readShort();
+    method.matches = new MethodInfo::MatchInfo[method.matchCount];
+    for (int i = 0; i < method.matchCount; i++) {
+        method.matches[i] = parseMatchInfo();
+    }
     method.meta = parseMetaInfo();
     return method;
+}
+
+MethodInfo::MatchInfo Parser::parseMatchInfo() {
+    MethodInfo::MatchInfo match{};
+    match.caseCount = readShort();
+    match.cases = new MethodInfo::MatchInfo::CaseInfo[match.caseCount];
+    for (int i = 0; i < match.caseCount; i++) {
+        match.cases[i] = parseCaseInfo();
+    }
+    return match;
+}
+
+MethodInfo::MatchInfo::CaseInfo Parser::parseCaseInfo() {
+    MethodInfo::MatchInfo::CaseInfo kase{};
+    kase.value = readShort();
+    kase.location = readInt();
+    return kase;
 }
 
 MethodInfo::LineInfo Parser::parseLineInfo() {
