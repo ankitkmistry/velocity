@@ -29,6 +29,10 @@ private:
 
     MethodInfo::ArgInfo parseArgInfo();
 
+    MethodInfo::MatchInfo parseMatchInfo();
+
+    MethodInfo::MatchInfo::CaseInfo parseCaseInfo();
+
     GlobalInfo parseGlobalInfo();
 
     CpInfo parseCpInfo();
@@ -59,7 +63,6 @@ private:
         uint32 b = readInt();
         return a << 32 | b;
     }
-
     [[noreturn]]void corruptFileError() {
         throw CorruptFileError(path);
     }
@@ -69,11 +72,12 @@ public:
         if (file == null) throw FileNotFoundError(path);
     }
 
+    /**
+     * This function parses the file associated with this parser
+     * and returns the bytecode data
+     * @return The bytecode data in the form of ElpInfo
+     */
     ElpInfo parse();
-
-    MethodInfo::MatchInfo parseMatchInfo();
-
-    MethodInfo::MatchInfo::CaseInfo parseCaseInfo();
 };
 
 #endif /* SOURCE_LOADER_PARSER_HPP_ */

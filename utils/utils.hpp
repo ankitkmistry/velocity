@@ -33,7 +33,7 @@ bool is(V obj) {
 }
 
 /**
- * Converts a vector<T> to a comma separated list. <br>
+ * Converts a vector<T> to a comma separated list.
  * Assumes that values have a toString() method that gives string representation of the value.
  * @tparam T type of the vectors
  * @param data
@@ -49,7 +49,7 @@ string listToString(vector<T> data) {
 }
 
 /**
- * Converts a vector<T*> to a comma separated list. <br>
+ * Converts a vector<T*> to a comma separated list.
  * Assumes that values have a toString() method that gives string representation of the value.
  * @tparam T type of the vectors
  * @param data

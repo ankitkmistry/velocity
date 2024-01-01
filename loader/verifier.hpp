@@ -5,6 +5,9 @@
 #include "../utils/common.hpp"
 #include "../utils/exceptions.hpp"
 
+/**
+ * Represents the bytecode verifier
+ */
 class Verifier {
 private:
     const ElpInfo elp;
@@ -18,13 +21,15 @@ private:
 
     void checkMethod(MethodInfo method);
 
-    void checkLocal(MethodInfo::LocalInfo local, uint16 count);
+    void checkArg(MethodInfo::ArgInfo arg, uint16 count);
 
-    void checkLine(MethodInfo::LineInfo line, uint16 codeCount);
+    void checkLocal(MethodInfo::LocalInfo local, uint16 count);
 
     void checkException(MethodInfo::ExceptionTableInfo exception, uint16 count);
 
-    void checkArg(MethodInfo::ArgInfo arg, uint16 count);
+    void checkLine(MethodInfo::LineInfo line, uint16 codeCount);
+
+    void checkMatch(MethodInfo::MatchInfo info, uint32 codeCount, uint16 cpCount);
 
     void checkGlobal(GlobalInfo global, uint16 count);
 
@@ -32,16 +37,17 @@ private:
 
     void checkCp(CpInfo info);
 
-    CorruptFileError corrupt() {
-        return CorruptFileError(path);
-    }
-
+    CorruptFileError corrupt() { return CorruptFileError(path); }
 public:
     Verifier(const ElpInfo elp, const string path) : elp(elp), path(path) {}
 
-    void check();
-
-    void checkMatch(MethodInfo::MatchInfo info, uint32 codeCount, uint16 cpCount);
+    /**
+     * This function verifies the bytecode for basic standards.
+     * This function does not check syntax or semantics of the bytecode.
+     * This function only verifies if the bytecode has maintained basic standards
+     * for various values.
+     */
+    void verify();
 };
 
 #endif /* SOURCE_LOADER_VERIFIER_HPP_ */

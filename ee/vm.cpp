@@ -775,7 +775,7 @@ void VM::run(Thread *thread) {
                 }
                 case Opcode::PRINTLN:
                     // TODO: For debug only
-                    state.write(state.pop()->toString() + "\n");
+                    write(state.pop()->toString() + "\n");
                     break;
                 case Opcode::NUM_OPCODES:
                     // No use
@@ -804,6 +804,7 @@ void VM::run(Thread *thread) {
 }
 
 bool VM::checkCast(const Type *type1, const Type *type2) {
+    // todo implement this
     return false;
 }
 

@@ -96,7 +96,7 @@ void Space::deallocate(void *pointer) {
     Block *p;
     // iterate over the free list
     for (p = base; !(bp > p && bp < p->header.next); p = p->header.next)
-        // check if the block was freed at the start or end of the arena
+        // verify if the block was freed at the start or end of the arena
         if (p >= p->header.next && (bp > p || bp < p->header.next))
             break;
 

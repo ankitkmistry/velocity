@@ -9,6 +9,9 @@
 
 class VM;
 
+/**
+ * Represents the loader of the vm
+ */
 class Loader {
 private:
     VM *vm;
@@ -18,6 +21,12 @@ private:
 public:
     explicit Loader(VM *vm) : vm(vm) {}
 
+    /**
+     * This function loads the bytecode file at <i>path</i> and
+     * returns the function object which is the entry point of the bytecode file
+     * @param path the path to the file
+     * @return the entry point if present, null otherwise
+     */
     ObjMethod *load(const string &path);
 
 private:
@@ -34,6 +43,8 @@ private:
     Obj *readMethod(MethodInfo &method);
 
     Exception readException(vector<Obj *> &constPool, MethodInfo::ExceptionTableInfo &exception);
+
+    MatchTable readMatch(vector<Obj *> constPool, MethodInfo::MatchInfo match);
 
     Local readLocal(vector<Obj *> &constPool, MethodInfo::LocalInfo &local);
 
@@ -53,11 +64,9 @@ private:
 
     bool isAlreadyLoaded(const string &path);
 
-    CorruptFileError corrupt();
-
     bool containsRef(const string &str);
 
-    MatchTable readMatch(MethodInfo::MatchInfo match, vector<Obj *> vector1);
+    CorruptFileError corrupt();
 };
 
 #endif //VELOCITY_LOADER_HPP

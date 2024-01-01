@@ -15,7 +15,7 @@ ObjMethod *Loader::load(const string &path) {
     // Construct the verifier
     Verifier verifier{elp, path};
     // Verify it...
-    verifier.check();
+    verifier.verify();
 
     // Load the constant pool
     vector<Obj *> constPool = readConstPool(elp.constantPool, elp.constantPoolCount);
@@ -215,7 +215,7 @@ Obj *Loader::readMethod(MethodInfo &method) {
     vector<MatchTable> matches;
     matches.reserve(method.matchCount);
     for (int i = 0; i < method.matchCount; ++i) {
-        matches.push_back(readMatch(method.matches[i], constPool));
+        matches.push_back(readMatch(constPool, method.matches[i]));
     }
 
     auto meta = readMeta(method.meta);
@@ -235,7 +235,7 @@ Obj *Loader::readMethod(MethodInfo &method) {
     return methodObj;
 }
 
-MatchTable Loader::readMatch(MethodInfo::MatchInfo match, vector<Obj *> constPool) {
+MatchTable Loader::readMatch(vector<Obj *> constPool, MethodInfo::MatchInfo match) {
     vector<Case> cases;
     cases.reserve(match.caseCount);
     for (int i = 0; i < match.caseCount; ++i) {

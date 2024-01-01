@@ -3,6 +3,9 @@
 
 #include "../utils/common.hpp"
 
+/**
+ * Represents VM settings
+ */
 struct Settings {
     const string VERSION = "1.0";
     const string LANG_NAME = "spade";

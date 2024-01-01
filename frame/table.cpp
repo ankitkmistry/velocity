@@ -39,3 +39,28 @@ Obj *LocalsTable::get(uint16 i) {
         return closures[i - closureStart]->getValue();
     return locals[i].value;
 }
+
+Local &LocalsTable::getLocal(uint16 i) {
+    // TODO: FATAL ERROR
+    // if (i >= closureStart) FATAL_ERROR();
+    return locals[i];
+}
+
+TableNode *LocalsTable::getClosure(uint16 i) {
+    // TODO: FATAL ERROR
+    // if (i-closureStart >= closures.size()) FATAL_ERROR();
+    return closures[i - closureStart];
+}
+
+uint32 MatchTable::perform(Obj *value) {
+    // Info: improve this to perform fast matching in case of integer values
+    if (is<ObjInt *>(value)) {
+        auto val = cast<ObjInt *>(value)->value();
+        return cases[val].getLocation();
+    }
+    for (auto kase: cases) {
+        if (kase.getValue() == value)
+            return kase.getLocation();
+    }
+    return defaultLocation;
+}

@@ -11,7 +11,6 @@ class VMState {
 private:
     VM *vm;
     Frame *callStack = null, *fp = null;
-    std::stringstream out;
 public:
     VMState(VM *vm, Frame *frame);
 
@@ -22,15 +21,12 @@ public:
 
     VMState(const VMState &state)
             : vm(state.vm),
-              callStack(state.callStack), fp(state.fp),
-              out(state.out.str()) {}
-
-    // State operations
+              callStack(state.callStack), fp(state.fp) {}
 
     // Frame operations
     /**
      * Pushes a call frame on top of the call stack
-     * @param frame
+     * @param frame the frame to be pushed
      */
     void pushFrame(Frame *frame);
 
@@ -43,7 +39,7 @@ public:
     // Stack operations
     /**
      * Pushes val on top of the operand stack
-     * @param val
+     * @param val value to be pushed
      */
     void push(Obj *val) const { getFrame()->push(val); }
 
@@ -62,7 +58,7 @@ public:
     /**
      * Loads the constant from the constant pool at index
      * @param index
-     * @return the value
+     * @return the loaded value
      */
     Obj *loadConst(uint16 index) const { return getFrame()->getConstPool()[index]->copy(); }
 
@@ -84,25 +80,40 @@ public:
 
     /**
      * Adjusts the ip by offset
-     * @param offset
+     * @param offset offset to be adjusted
      */
     void adjust(ptrdiff_t offset) { getFrame()->ip += offset; }
 
     // Getters
+    /**
+     * @return The vm pointer associated with this state
+     */
     VM *getVM() const { return vm; }
 
+    /**
+     * @return The call stack
+     */
     Frame *getCallStack() const { return callStack; }
 
+    /**
+     * @return The active frame
+     */
     Frame *getFrame() const { return fp - 1; }
 
-    void write(const string &str) { out << str; }
-
-    string getOutput() { return out.str(); }
-
+    /**
+     * @return The size of the call stack
+     */
     uint16 getCallStackSize() { return fp - callStack; }
 
+    /**
+     * @return The program counter
+     */
     uint32 getPc() { return getFrame()->ip - getFrame()->code; }
 
+    /**
+     * Sets the program counter
+     * @param pc the program counter value
+     */
     void setPc(uint32 pc) { getFrame()->ip = getFrame()->code + pc; }
 };
 

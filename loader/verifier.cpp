@@ -1,6 +1,6 @@
 #include "verifier.hpp"
 
-void Verifier::check() {
+void Verifier::verify() {
     auto magic = elp.magic;
     switch (elp.type) {
         case 0x01: {

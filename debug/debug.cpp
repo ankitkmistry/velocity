@@ -136,10 +136,10 @@ void DebugOp::printLocals(LocalsTable locals) {
         auto node = locals.getClosure(i);
         if (is<Local *>(node)) {
             auto local = cast<Local *>(node);
-            closure.add(i, true, local->getName(), local->getValue());
+            closure.add(j, true, local->getName(), local->getValue());
         } else {
             auto arg = cast<Arg *>(node);
-            closure.add(i, false, arg->getName(), arg->getValue());
+            closure.add(j, false, arg->getName(), arg->getValue());
         }
     }
     cout << table;
