@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <cstdio>
 #include <functional>
+#include <filesystem>
 #include <sstream>
 #include "constants.hpp"
 
@@ -28,6 +29,8 @@ using std::string,
         std::function,
         std::any,
         std::cout, std::cin;
+
+using intptr = std::intptr_t;
 
 using uint8 = std::uint8_t;
 using uint16 = std::uint16_t;

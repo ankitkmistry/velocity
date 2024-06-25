@@ -102,6 +102,10 @@ bool isNumber(const std::string &s);
 
 int32 longToInt(int64 num);
 
+string getAbsolutePath(string path);
+
+string getFilenameFromPath(string path);
+
 template<class T>
 class Table final : public map<string, T> {
 

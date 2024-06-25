@@ -8,27 +8,15 @@ static string kindNames[] = {
         "enum",
         "annotation",
         "type_parameter",
-        "unknown"
+        "unresolved"
 };
 
-void Type::recognize(Type &type) {
-    if (kind != Kind::UNKNOWN && kind != Kind::TYPE_PARAM)
-        throw std::runtime_error("cannot change known object");
-
-    sign = type.sign;
-    kind = type.kind;
-    typeParams = type.typeParams;
-    supers = type.supers;
-    members = type.members;
-    meta = type.meta;
-}
-
 Obj *Type::copy() const {
-    Table<Obj *> mems{};
-    for (auto [key, value]: members) {
-        mems[key] = value->copy();
+    Table<Obj *> membersCopy{};
+    for (auto [key, value]: membersCopy) {
+        membersCopy[key] = value->copy();
     }
-    return new(info.space->getManager()->getVM()) Type(sign, kind, typeParams, supers, mems, meta);
+    return new(info.space->getManager()->getVM()) Type(sign, kind, typeParams, supers, membersCopy, meta);
 }
 
 bool Type::truth() const {
@@ -65,5 +53,19 @@ Type *Type::TYPE_PARAM_(const string &name, VM *vm) {
 }
 
 Type *Type::SENTINEL_(const string &sign, VM *vm) {
-    return new(vm) Type(Sign(sign), Kind::UNKNOWN, {}, {}, {}, {});
+    return new(vm) Type(Sign(sign), Kind::UNRESOLVED, {}, {}, {}, {});
 }
+
+Type::Type(Type &type) : Obj(type.sign, null, type.meta) {
+    kind = type.kind;
+    typeParams = type.typeParams;
+    supers = type.supers;
+    members = type.members;
+}
+
+/*Type::Type(Type &&type) : Obj(std::move(type.sign), null, std::move(type.meta)) {
+    kind = std::move(type.kind);
+    typeParams = std::move(type.typeParams);
+    supers = std::move(type.supers);
+    members = std::move(type.members);
+}*/

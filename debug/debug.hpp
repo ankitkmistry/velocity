@@ -29,7 +29,7 @@ private:
 public:
     static void printVMState(VMState *state);
 
-    static void printMemory(Space &space);
+    static void printMemory(const Space &space);
 };
 
 #endif //VELOCITY_DEBUG_HPP

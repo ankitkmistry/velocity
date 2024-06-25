@@ -12,7 +12,7 @@ public:
         ENUM,
         ANNOTATION,
         TYPE_PARAM,
-        UNKNOWN
+        UNRESOLVED
     };
 private:
     Kind kind;
@@ -28,6 +28,10 @@ public:
               supers(supers),
               members(members) {}
 
+    Type(Type &type);
+
+    void setKind(Kind kind_) { kind = kind_; }
+
     Kind getKind() const { return kind; }
 
     vector<Type *> getTypeParams() const { return typeParams; }
@@ -36,13 +40,11 @@ public:
 
     Table<Obj *> getMembers() const { return members; }
 
-    void recognize(Type &type);
-
     Obj *getMember(string name) const;
 
     Obj *getStaticMember(string &name) const;
 
-    void reifyTypeParam(uint8 i, Type &type) { typeParams[i]->recognize(type); }
+    void reifyTypeParam(uint8 i, Type &type) { *typeParams[i] = type; }
 
     Obj *copy() const override;
 

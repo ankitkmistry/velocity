@@ -29,13 +29,13 @@ void Verifier::verify() {
     }
 }
 
-void Verifier::checkObj(ObjInfo object, uint16 count) {
+void Verifier::checkObj(ObjInfo object, uint16 cpCount) {
     switch (object.type) {
         case 0x01:
-            checkMethod(object._method);
+            checkMethod(object._method, cpCount);
             break;
         case 0x02:
-            checkClass(object._class, count);
+            checkClass(object._class, cpCount);
             break;
         default:
             throw corrupt();
@@ -52,26 +52,21 @@ void Verifier::checkClass(ClassInfo klass, uint16 cpCount) {
         checkField(klass.fields[i], cpCount);
     }
     for (int i = 0; i < klass.methodsCount; i++) {
-        checkMethod(klass.methods[i]);
+        checkMethod(klass.methods[i], cpCount);
     }
     for (int i = 0; i < klass.objectsCount; i++) {
         checkObj(klass.objects[i], cpCount);
     }
 }
 
-void Verifier::checkField(FieldInfo field, uint16 count) {
-    checkRange(field.thisField, count);
-    checkRange(field.type, count);
+void Verifier::checkField(FieldInfo field, uint16 cpCount) {
+    checkRange(field.thisField, cpCount);
+    checkRange(field.type, cpCount);
 }
 
-void Verifier::checkMethod(MethodInfo method) {
+void Verifier::checkMethod(MethodInfo method, uint16 cpCount) {
     if (method.type != 0x01 && method.type != 0x02) {
         throw corrupt();
-    }
-    auto cpCount = method.constantPoolCount;
-    checkRange(method.thisMethod, cpCount);
-    for (int i = 0; i < cpCount; ++i) {
-        checkCp(method.constantPool[i]);
     }
     checkRange(method.typeParams, cpCount);
     for (int i = 0; i < method.argsCount; i++) {
@@ -88,7 +83,7 @@ void Verifier::checkMethod(MethodInfo method) {
         checkLine(method.lineNumberTable[i], codeCount);
     }
     for (int i = 0; i < method.lambdaCount; ++i) {
-        checkMethod(method.lambdas[i]);
+        checkMethod(method.lambdas[i], 0);
     }
     for (int i = 0; i < method.matchCount; ++i) {
         checkMatch(method.matches[i], codeCount, cpCount);
@@ -114,8 +109,8 @@ void Verifier::checkLine(MethodInfo::LineInfo line, uint16 codeCount) {
 }
 
 void Verifier::checkException(MethodInfo::ExceptionTableInfo exception,
-                              uint16 count) {
-    checkRange(exception.exception, count);
+                              uint16 cpCount) {
+    checkRange(exception.exception, cpCount);
 }
 
 void Verifier::checkArg(MethodInfo::ArgInfo arg, uint16 cpCount) {

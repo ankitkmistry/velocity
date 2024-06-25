@@ -19,10 +19,10 @@ void Sign::set() {
         } while (false)
     int start = 0;
     int i = 0;
-    if (find(signature, '!', 0, find(signature, '(')) != signature.length()) {
+    /*if (find(signature, '!', 0, find(signature, '(')) != signature.length()) {
         i = signature.find('!') + 1;
         set(library);
-    }
+    }*/
     if (find(signature, '.') != signature.length()) {
         i = signature.find('.') + 1;
         set(pkg);

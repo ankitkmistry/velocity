@@ -1,4 +1,5 @@
 #include "utils.hpp"
+#include "common.hpp"
 
 string padRight(const string &str, size_t length) {
     return str.size() < length
@@ -32,4 +33,17 @@ int find(string text, char c, int start, int end) {
 
 int find(string text, char c) {
     return find(text, c, 0, text.length());
+}
+
+string getAbsolutePath(string path) {
+    std::filesystem::path p(path);
+    if (!p.is_absolute()) {
+        p = std::filesystem::current_path() / p;
+    }
+    return p.string();
+}
+
+string getFilenameFromPath(string path) {
+    std::filesystem::path p(path);
+    return p.filename().string();
 }

@@ -1,6 +1,7 @@
 #include "vm.hpp"
-#include "opcode.hpp"
+
 #include "../debug/debug.hpp"
+#include "opcode.hpp"
 
 void VM::onExit(const function<void()> &fun) { onExitList.push_back(fun); }
 
@@ -8,7 +9,7 @@ int VM::start(const string &filename, const vector<string> &args) {
     // Load the file and get the entry point
     auto entry = loader.load(filename);
     // Complain if there is no entry point
-    if (entry == null)throw EntryPointNotFoundError(filename);
+    if (entry == null) throw EntryPointNotFoundError(filename);
     if (entry->getFrame()->getArgs().count() != 1)
         throw runtimeError("entry point must have one argument (string[]): " + entry->getSign().toString());
     // Execute from the entry
@@ -60,7 +61,7 @@ void VM::setGlobal(const string &sign, Obj *val) {
 
 void VM::run(Thread *thread) {
     auto &state = thread->getState();
-    for (; thread->isRunning();) {
+    while (thread->isRunning()) {
         auto opcode = static_cast<Opcode>(state.readByte());
         auto frame = state.getFrame();
         DebugOp::printVMState(&state);
@@ -467,67 +468,67 @@ void VM::run(Thread *thread) {
                 case Opcode::JUMP_IF_TRUE: {
                     auto obj = state.peek();
                     auto offset = state.readShort();
-                    if (obj->truth())state.adjust(offset);
+                    if (obj->truth()) state.adjust(offset);
                     break;
                 }
                 case Opcode::JUMP_IF_FALSE: {
                     auto obj = state.peek();
                     auto offset = state.readShort();
-                    if (!obj->truth())state.adjust(offset);
+                    if (!obj->truth()) state.adjust(offset);
                     break;
                 }
                 case Opcode::POP_JUMP_IF_TRUE: {
                     auto obj = state.pop();
                     auto offset = state.readShort();
-                    if (obj->truth())state.adjust(offset);
+                    if (obj->truth()) state.adjust(offset);
                     break;
                 }
                 case Opcode::POP_JUMP_IF_FALSE: {
                     auto obj = state.pop();
                     auto offset = state.readShort();
-                    if (!obj->truth())state.adjust(offset);
+                    if (!obj->truth()) state.adjust(offset);
                     break;
                 }
                 case Opcode::POP_JUMP_IF_LT: {
                     ObjNumber b = state.pop();
                     ObjNumber a = state.pop();
                     auto offset = state.readShort();
-                    if ((a < b)->truth())state.adjust(offset);
+                    if ((a < b)->truth()) state.adjust(offset);
                     break;
                 }
                 case Opcode::POP_JUMP_IF_LE: {
                     ObjNumber b = state.pop();
                     ObjNumber a = state.pop();
                     auto offset = state.readShort();
-                    if ((a <= b)->truth())state.adjust(offset);
+                    if ((a <= b)->truth()) state.adjust(offset);
                     break;
                 }
                 case Opcode::POP_JUMP_IF_EQ: {
                     ObjNumber b = state.pop();
                     ObjNumber a = state.pop();
                     auto offset = state.readShort();
-                    if ((a == b)->truth())state.adjust(offset);
+                    if ((a == b)->truth()) state.adjust(offset);
                     break;
                 }
                 case Opcode::POP_JUMP_IF_NE: {
                     ObjNumber b = state.pop();
                     ObjNumber a = state.pop();
                     auto offset = state.readShort();
-                    if ((a != b)->truth())state.adjust(offset);
+                    if ((a != b)->truth()) state.adjust(offset);
                     break;
                 }
                 case Opcode::POP_JUMP_IF_GE: {
                     ObjNumber b = state.pop();
                     ObjNumber a = state.pop();
                     auto offset = state.readShort();
-                    if ((a >= b)->truth())state.adjust(offset);
+                    if ((a >= b)->truth()) state.adjust(offset);
                     break;
                 }
                 case Opcode::POP_JUMP_IF_GT: {
                     ObjNumber b = state.pop();
                     ObjNumber a = state.pop();
                     auto offset = state.readShort();
-                    if ((a > b)->truth())state.adjust(offset);
+                    if ((a > b)->truth()) state.adjust(offset);
                     break;
                 }
                 case Opcode::NOT:
@@ -675,13 +676,13 @@ void VM::run(Thread *thread) {
                 case Opcode::IS: {
                     auto b = state.pop();
                     auto a = state.pop();
-                    state.push(new(this)ObjBool(a == b));
+                    state.push(new(this) ObjBool(a == b));
                     break;
                 }
                 case Opcode::IS_NOT: {
                     auto b = state.pop();
                     auto a = state.pop();
-                    state.push(new(this)ObjBool(a != b));
+                    state.push(new(this) ObjBool(a != b));
                     break;
                 }
                 case Opcode::IS_NULL:
@@ -714,10 +715,10 @@ void VM::run(Thread *thread) {
                     for (uint16 i = locals.getClosureStart(); i < locals.count(); i++) {
                         TableNode *node;
                         switch (state.readByte()) {
-                            case 0x01: // Arg as closure
+                            case 0x01:  // Arg as closure
                                 node = &frame->getArgs().getArg(state.readByte());
                                 break;
-                            case 0x02: // Local as closure
+                            case 0x02:  // Local as closure
                                 node = &frame->getLocals().getLocal(state.readShort());
                                 break;
                             default:
@@ -735,21 +736,22 @@ void VM::run(Thread *thread) {
                     auto args = frame->sp;
                     auto obj = state.pop();
                     if (is<ObjMethod *>(obj)) {
-                        auto method = cast<ObjMethod *>(obj);
+                        // Always make a copy of the object when reifying
+                        auto method = cast<ObjMethod *>(cast<ObjMethod *>(obj)->copy());
                         for (int i = 0; i < count; i++) method->reifyTypeParam(i, *cast<Type *>(args[i]));
                         state.push(method);
                     } else if (is<Type *>(obj)) {
-                        auto type = cast<Type *>(obj);
+                        // Always make a copy of the object when reifying
+                        auto type = cast<Type *>(cast<Type *>(obj)->copy());
                         for (int i = 0; i < count; i++) type->reifyTypeParam(i, *cast<Type *>(args[i]));
                         state.push(type);
                     } else
-                        throw runtimeError(format("cannot reify value: type %s", obj->getType()->toString().c_str()));
+                        throw runtimeError(format("cannot reify value of type %s", obj->getType()->toString().c_str()));
                     break;
                 }
                 case Opcode::THROW: {
                     auto value = state.pop();
                     throw ThrowSignal(value);
-                    break;
                 }
                 case Opcode::RETURN: {
                     // Pop the return value
@@ -786,7 +788,8 @@ void VM::run(Thread *thread) {
             while (state.getCallStackSize() > 0) {
                 frame = state.getFrame();
                 auto info = frame->getExceptions().getTarget(state.getPc(), value->getType());
-                if (Exception::IS_NO_EXCEPTION(info)) state.popFrame();
+                if (Exception::IS_NO_EXCEPTION(info))
+                    state.popFrame();
                 else {
                     state.setPc(info.getTarget());
                     state.push(value);
@@ -794,7 +797,7 @@ void VM::run(Thread *thread) {
                 }
             }
             if (state.getCallStackSize() == 0) {
-                // todo: show stack trace
+                // TODO: show stack trace
             }
         } catch (const FatalError &error) {
             std::cerr << "fatal error: " << error.what() << "\n";
@@ -804,7 +807,7 @@ void VM::run(Thread *thread) {
 }
 
 bool VM::checkCast(const Type *type1, const Type *type2) {
-    // todo implement this
+    // TODO implement this
     return false;
 }
 

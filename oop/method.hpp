@@ -29,7 +29,7 @@ public:
 
     const vector<Type *> &getTypeParams() const { return typeParams; }
 
-    void reifyTypeParam(uint8 i, Type &type) { typeParams[i]->recognize(type); }
+    void reifyTypeParam(uint8 i, Type &type) { *typeParams[i] = type; }
 
     Obj *copy() const override;
 

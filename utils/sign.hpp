@@ -2,21 +2,22 @@
 #define UTILS_SIGN_HPP_
 
 #include "common.hpp"
+#include "format.hpp"
 
 class Sign {
 private:
-    string library;
+    intptr libraryId;
     string pkg;
     string name;
     string signature;
     bool argsPresent = false;
     uint8 argsCount = -1;
 public:
-    Sign(string signature) : signature(signature) { set(); }
+    Sign(string signature, intptr libraryId = 0) : signature(signature), libraryId(libraryId) { set(); }
 
     void set();
 
-    string getLibrary() const { return library; }
+    intptr getLibraryId() const { return libraryId; }
 
     string getName() const { return name; }
 
@@ -28,7 +29,7 @@ public:
 
     bool isArgsPresent() const { return argsPresent; }
 
-    string toString() const { return signature; }
+    string toString() const { return format("%ld!%s", (int64) libraryId, signature.c_str()); }
 };
 
 #endif /* UTILS_SIGN_HPP_ */

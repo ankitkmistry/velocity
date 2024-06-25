@@ -1,4 +1,5 @@
 #include <iostream>
+
 #include "ee/vm.hpp"
 
 void runVM();
@@ -8,18 +9,18 @@ void signTest();
 int main() {
     std::ios_base::sync_with_stdio(false);
     cout << std::boolalpha;
-    signTest();
-//    runVM();
+    // signTest();
+    runVM();
 }
 
 void signTest() {
-    Sign sign{".list.set<T>(rt!spade::lang.int, T)"};
+    Sign sign{".list.set<T>(rt!spade::lang.int, T)", 0};
     cout << "signature:  " << sign.getSignature() << "\n";
-    cout << "library:    " << sign.getLibrary() << "\n";
+    cout << "library:    " << sign.getLibraryId() << "\n";
     cout << "package:    " << sign.getPkg() << "\n";
     cout << "name:       " << sign.getName() << "\n";
     cout << "args count: " << (int) sign.getArgsCount() << "\n";
-    cout << "has args:   " << (bool) sign.isArgsPresent() << "\n";
+    cout << "has args:   " << sign.isArgsPresent() << "\n";
 }
 
 void runVM() {

@@ -85,6 +85,11 @@ public:
      */
     MemoryManager &getMemoryManager() { return memoryManager; }
 
+    /**
+     * @return whatever written to the output
+     */
+    string getOutput() { return out.str(); }
+
 private:
     /**
      * The vm execution loop
@@ -125,11 +130,6 @@ private:
      * @param str
      */
     void write(const string &str) { out << str; }
-
-    /**
-     * @return whatever written to the output
-     */
-    string getOutput() { return out.str(); }
 };
 
 

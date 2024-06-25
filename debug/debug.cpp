@@ -24,7 +24,7 @@ void DebugOp::printVMState(VMState *state) {
     // Print the current frame
     printFrame(state->getFrame());
     // Print the output
-    cout << "Output\n" << state->getOutput() << "\n";
+    cout << "Output\n" << state->getVM()->getOutput() << "\n";
     // Wait for input
     std::getline(cin, dummy);
 }
@@ -76,7 +76,7 @@ void DebugOp::printExceptions(ExceptionTable exceptions) {
     if (exceptions.count() == 0)return;
     ExcTable table;
     for (int i = 0; i < exceptions.count(); ++i) {
-        auto exception = exceptions.get(i);
+        auto const& exception = exceptions.get(i);
         table.add(exception.getFrom(), exception.getTo(), exception.getTarget(), exception.getType());
     }
     cout << table;
@@ -127,12 +127,12 @@ void DebugOp::printLocals(LocalsTable locals) {
     if (locals.count() == 0)return;
     LocalVarTable table{locals.getClosureStart()};
     ClosureTable closure;
-    int i;
+    uint8 i;
     for (i = 0; i < locals.getClosureStart(); ++i) {
-        auto local = locals.getLocal(i);
+        auto const& local = locals.getLocal(i);
         table.add(i, local.getName(), local.getValue());
     }
-    for (int j = 0; i < locals.count(); i++, j++) {
+    for (uint8 j = 0; i < locals.count(); i++, j++) {
         auto node = locals.getClosure(i);
         if (is<Local *>(node)) {
             auto local = cast<Local *>(node);
@@ -150,8 +150,8 @@ void DebugOp::printLocals(LocalsTable locals) {
 void DebugOp::printArgs(ArgsTable args) {
     if (args.count() == 0)return;
     ArgumentTable table;
-    for (int i = 0; i < args.count(); ++i) {
-        auto arg = args.getArg(i);
+    for (uint8 i = 0; i < args.count(); ++i) {
+        auto const& arg = args.getArg(i);
         table.add(i, arg.getName(), arg.getValue());
     }
     cout << table;
@@ -169,7 +169,7 @@ void DebugOp::printConstPool(const vector<Obj *> &pool) {
     }
 }
 
-void DebugOp::printMemory(Space &space) {
+void DebugOp::printMemory(const Space &space) {
     if (space.getTotalSpace() == 0)return;
     switch (space.getType()) {
         case SpaceType::EDEN:
