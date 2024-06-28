@@ -4,8 +4,8 @@
 #include "../utils/common.hpp"
 #include "../utils/exceptions.hpp"
 #include "../utils/utils.hpp"
-#include "../oop/method.hpp"
-#include "../oop/type.hpp"
+#include "../objects/method.hpp"
+#include "../objects/type.hpp"
 #include "../frame/table.hpp"
 
 class DataTable {

@@ -3,8 +3,8 @@
 
 #include "../utils/common.hpp"
 #include "thread.hpp"
-#include "../oop/obj.hpp"
-#include "../oop/objects.hpp"
+#include "../objects/obj.hpp"
+#include "../objects/inbuilt_types.hpp"
 #include "../loader/loader.hpp"
 #include "../memory/memory.hpp"
 #include "settings.hpp"
@@ -20,7 +20,7 @@ private:
     /// The loader
     Loader loader{this};
     /// The memory manager
-    MemoryManager memoryManager{this};
+    MemoryManager *manager = new MemoryManager{this};
     /// The actions to be performed when the vm terminates
     vector<function<void()>> onExitList;
     /// The vm settings
@@ -64,7 +64,7 @@ public:
      * to the signature <i>sign</i>, ObjNull if the global cannot be found
      * @param sign the signature of the global
      */
-    Obj *getGlobal(const string &sign);
+    Obj *getGlobal(const string &sign) const;
 
     /**
      * Set the value of the global corresponding to the signature <i>sign</i>.
@@ -81,14 +81,24 @@ public:
     Settings &getSettings() { return settings; }
 
     /**
+     * @return the vm settings
+     */
+    const Settings &getSettings() const { return settings; }
+
+    /**
      * @return the memory manager
      */
-    MemoryManager &getMemoryManager() { return memoryManager; }
+    MemoryManager *getMemoryManager() { return manager; }
+
+    /**
+     * @return the memory manager
+     */
+    const MemoryManager *getMemoryManager() const { return manager; }
 
     /**
      * @return whatever written to the output
      */
-    string getOutput() { return out.str(); }
+    string getOutput() const { return out.str(); }
 
 private:
     /**

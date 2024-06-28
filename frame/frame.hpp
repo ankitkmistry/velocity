@@ -2,7 +2,7 @@
 #define VELOCITY_FRAME_HPP
 
 #include "../utils/common.hpp"
-#include "../oop/obj.hpp"
+#include "../objects/obj.hpp"
 #include "table.hpp"
 
 class ObjMethod;
@@ -11,7 +11,6 @@ class Frame {
     friend class VMState;
 
 private:
-    vector<Obj *> constPool;
     uint32 codeCount;
 public:
     uint8 *code;
@@ -28,15 +27,14 @@ private:
     ObjMethod *method;
 
     Frame()
-            : constPool(), codeCount(0), code(null), ip(null),
+            : codeCount(0), code(null), ip(null),
               stack(null), sp(null),
               args(), locals(0), exceptions(),
               lines(0),
               method(null) {}
 
 public:
-    Frame(vector<Obj *> &constPool,
-          uint32 codeCount,
+    Frame(uint32 codeCount,
           uint8 *code,
           uint32 maxStack,
           ArgsTable &args,
@@ -44,8 +42,7 @@ public:
           ExceptionTable &exceptions,
           LineNumberTable &lines,
           ObjMethod *method)
-            : constPool(constPool),
-              codeCount(codeCount), code(code), ip(null),
+            : codeCount(codeCount), code(code), ip(null),
               stack(new Obj *[maxStack]), sp(null),
               args(args), locals(locals), exceptions(exceptions),
               lines(lines),
@@ -78,7 +75,7 @@ public:
     /**
      * @return The constant pool
      */
-    const vector<Obj *> &getConstPool() const { return constPool; }
+    const vector<Obj *> &getConstPool() const;
 
     /**
      * @return The arguments table

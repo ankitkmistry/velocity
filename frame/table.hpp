@@ -4,8 +4,8 @@
 #include <utility>
 
 #include "../utils/utils.hpp"
-#include "../oop/obj.hpp"
-#include "../oop/objects.hpp"
+#include "../objects/obj.hpp"
+#include "../objects/inbuilt_types.hpp"
 
 /**
  * Represents the base class for nodes used in arg tables, local tables, etc.

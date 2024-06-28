@@ -29,7 +29,7 @@ public:
 
     bool isArgsPresent() const { return argsPresent; }
 
-    string toString() const { return format("%ld!%s", (int64) libraryId, signature.c_str()); }
+    string toString() const;
 };
 
 #endif /* UTILS_SIGN_HPP_ */

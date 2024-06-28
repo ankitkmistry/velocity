@@ -24,6 +24,38 @@ int32 longToInt(int64 num) {
     return static_cast<int32>(sign * (sign * num & 0xffffffff));
 }
 
+double rawToDouble(uint64 digits) {
+    union Converter {
+        uint64 digits;
+        double number;
+    } converter{.digits=digits};
+    return converter.number;
+}
+
+uint64 doubleToRaw(double number) {
+    union Converter {
+        uint64 digits;
+        double number;
+    } converter{.number=number};
+    return converter.digits;
+}
+
+int64 unsignedToSigned(uint64 number) {
+    union Converter {
+        uint64 number1;
+        int64 number2;
+    } converter{.number1=number};
+    return converter.number2;
+}
+
+uint64 signedToUnsigned(int64 number) {
+    union Converter {
+        uint64 number1;
+        int64 number2;
+    } converter{.number2=number};
+    return converter.number1;
+}
+
 int find(string text, char c, int start, int end) {
     for (int i = start; i < end; ++i) {
         if (text[i] == c)return i;
@@ -36,14 +68,7 @@ int find(string text, char c) {
 }
 
 string getAbsolutePath(string path) {
-    std::filesystem::path p(path);
-    if (!p.is_absolute()) {
-        p = std::filesystem::current_path() / p;
-    }
+    fs::path p(path);
+    if (!p.is_absolute()) p = fs::current_path() / p;
     return p.string();
-}
-
-string getFilenameFromPath(string path) {
-    std::filesystem::path p(path);
-    return p.filename().string();
 }

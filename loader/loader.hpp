@@ -3,13 +3,14 @@
 
 #include "elpops/elpdef.hpp"
 #include "../utils/common.hpp"
-#include "../oop/obj.hpp"
-#include "../oop/method.hpp"
+#include "../objects/obj.hpp"
+#include "../objects/method.hpp"
+#include "../objects/module.hpp"
 #include "../frame/table.hpp"
 
 class VM;
 
-class Library {
+class Library_ {
 public:
     enum class State {
         /// Library has started to load but is resolving its dependencies
@@ -28,7 +29,7 @@ private:
     vector<string> dependencies;
 
 public:
-    Library(const string &name, const string &path, const ElpInfo &elp, const vector<string> &dependencies)
+    Library_(const string &name, const string &path, const ElpInfo &elp, const vector<string> &dependencies)
             : name(name), dependencies(dependencies), path(path), elp(elp), id((intptr) &elp) {}
 
     const string &getName() const { return name; }
@@ -53,14 +54,16 @@ class Loader {
 private:
     /// Reference to the vm
     VM *vm;
-    /// List of all libraries in the form of [path, library]
-    std::map<string, Library *> libraries;
-    /// The library stack used for resolving dependencies
-    std::stack<Library *> libStack = {};
+    /// The memory manager
+    MemoryManager *manager;
+    /// List of all modules in the form of [path, module]
+    std::map<string, ObjModule *> modules = {};
+    /// The module stack used for resolving dependencies
+    std::stack<ObjModule *> modStack = {};
     /// Pool of unresolved references
     Table<Type *> referencePool = {};
 public:
-    explicit Loader(VM *vm) : vm(vm) {}
+    explicit Loader(VM *vm);
 
     /**
      * This function loads the bytecode file at <i>path</i> and
@@ -71,25 +74,25 @@ public:
     ObjMethod *load(const string &path);
 
 private:
-    Obj *readGlobal(vector<Obj *> &constPool, GlobalInfo &global);
+    Obj *readGlobal(GlobalInfo &global);
 
-    Obj *readObj(vector<Obj *> &constPool, ObjInfo &obj);
+    Obj *readObj(ObjInfo &obj);
 
-    Obj *readClass(vector<Obj *> &typeParam, ClassInfo klass);
+    Obj *readClass(ClassInfo klass);
 
-    Obj *readField(vector<Obj *> &constPool, FieldInfo &field);
+    Obj *readField(FieldInfo &field);
 
-    Obj *readMethod(vector<Obj *> &constPool, const string &klassSign, MethodInfo &method);
+    Obj *readMethod(const string &klassSign, MethodInfo &method);
 
-    Obj *readMethod(vector<Obj *> &constPool, MethodInfo &method);
+    Obj *readMethod(MethodInfo &method);
 
-    Exception readException(vector<Obj *> &constPool, MethodInfo::ExceptionTableInfo &exception);
+    Exception readException(MethodInfo::ExceptionTableInfo &exception);
 
-    MatchTable readMatch(vector<Obj *> constPool, MethodInfo::MatchInfo match);
+    MatchTable readMatch(MethodInfo::MatchInfo match);
 
-    Local readLocal(vector<Obj *> &constPool, MethodInfo::LocalInfo &local);
+    Local readLocal(MethodInfo::LocalInfo &local);
 
-    Arg readArg(vector<Obj *> &constPool, MethodInfo::ArgInfo &arg);
+    Arg readArg(MethodInfo::ArgInfo &arg);
 
     vector<Obj *> readConstPool(CpInfo *constantPool, uint16 count);
 
@@ -99,17 +102,21 @@ private:
 
     static Table<string> readMeta(MetaInfo &meta);
 
-    Sign getSign(vector<Obj *> &constPool, cpidx index);
+    Sign getSign(cpidx index);
 
     Type *resolveType(const string &sign, Type type);
 
     Type *findType(const string &sign);
 
-    Library *readLibrary(const string &path);
+    ObjModule *readModule(const string &path);
+
+    void loadModule(ObjModule *library);
+
+    ObjModule *getCurrentModule() { return modStack.top(); }
+
+    const vector<Obj *> &getConstantPool() { return getCurrentModule()->getConstantPool(); }
 
     CorruptFileError corrupt();
-
-    void loadLibrary(Library *library);
 };
 
 #endif //VELOCITY_LOADER_HPP

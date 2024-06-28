@@ -1,12 +1,12 @@
-#include "oop.hpp"
+#include "object.hpp"
 #include "type.hpp"
-#include "objects.hpp"
+#include "inbuilt_types.hpp"
 
 Obj *Object::getMember(const string &name) const {
     try {
         return members.at(name);
     } catch (std::out_of_range &) {
-        return new (info.space->getManager()->getVM()) ObjNull;
+        return new(info.space->getManager()) ObjNull;
     }
 }
 
@@ -15,7 +15,7 @@ Obj *Object::copy() const {
     for (auto [key, value]: members) {
         mems[key] = value->copy();
     }
-    return new (info.space->getManager()->getVM()) Object(sign, type, meta, mems);
+    return new(info.space->getManager()) Object(sign, type, mems, module, meta);
 }
 
 bool Object::truth() const {

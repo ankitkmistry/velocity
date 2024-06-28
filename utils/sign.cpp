@@ -45,3 +45,8 @@ void Sign::set() {
         }
     }
 }
+
+string Sign::toString() const {
+//    return format("%ld!%s", (int64) libraryId, signature.c_str());
+    return signature;
+}

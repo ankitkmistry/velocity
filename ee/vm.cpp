@@ -2,6 +2,7 @@
 
 #include "../debug/debug.hpp"
 #include "opcode.hpp"
+#include "../objects/typeparam.hpp"
 
 void VM::onExit(const function<void()> &fun) { onExitList.push_back(fun); }
 
@@ -17,9 +18,9 @@ int VM::start(const string &filename, const vector<string> &args) {
 }
 
 ObjArray *VM::argsRepr(const vector<string> &args) {
-    auto array = new(this) ObjArray(args.size());
+    auto array = new(manager) ObjArray(args.size());
     for (int i = 0; i < args.size(); ++i) {
-        array->set(i, new(this) ObjString(args[i]));
+        array->set(i, new(manager) ObjString(args[i]));
     }
     return array;
 }
@@ -45,13 +46,13 @@ int VM::start(ObjMethod *entry, ObjArray *args) {
 }
 
 ThrowSignal VM::runtimeError(const string &str) {
-    return {new(this) ObjString(str)};
+    return {new(manager) ObjString(str)};
 }
 
-Obj *VM::getGlobal(const string &sign) {
+Obj *VM::getGlobal(const string &sign) const {
     auto it = globals.find(sign);
     if (it == globals.end())
-        return new(this) ObjNull;
+        return new(manager) ObjNull;
     return it->second;
 }
 
@@ -266,13 +267,13 @@ void VM::run(Thread *thread) {
                 }
                 case Opcode::BUILD_ARRAY: {
                     auto count = state.readShort();
-                    auto array = new(this) ObjArray(count);
+                    auto array = new(manager) ObjArray(count);
                     state.push(array);
                     break;
                 }
                 case Opcode::BUILD_ARRAY_FAST: {
                     auto count = state.readByte();
-                    auto array = new(this) ObjArray(count);
+                    auto array = new(manager) ObjArray(count);
                     state.push(array);
                     break;
                 }
@@ -298,7 +299,7 @@ void VM::run(Thread *thread) {
                 }
                 case Opcode::LOAD_LENGTH: {
                     auto array = cast<ObjArray *>(state.pop());
-                    state.push(new(this) ObjInt(array->count()));
+                    state.push(new(manager) ObjInt(array->count()));
                     break;
                 }
                 case Opcode::INVOKE: {
@@ -444,7 +445,7 @@ void VM::run(Thread *thread) {
                     break;
                 }
                 case Opcode::SUB_CALL: {
-                    auto address = new(this) ObjInt(frame->ip - frame->code);
+                    auto address = new(manager) ObjInt(frame->ip - frame->code);
                     state.push(address);
                     auto offset = state.readShort();
                     state.adjust(offset);
@@ -490,45 +491,45 @@ void VM::run(Thread *thread) {
                     break;
                 }
                 case Opcode::POP_JUMP_IF_LT: {
-                    ObjNumber b = state.pop();
-                    ObjNumber a = state.pop();
+                    auto b = cast<ComparableObj *>(state.pop());
+                    auto a = cast<ComparableObj *>(state.pop());
                     auto offset = state.readShort();
-                    if ((a < b)->truth()) state.adjust(offset);
+                    if ((*a < b)->truth()) state.adjust(offset);
                     break;
                 }
                 case Opcode::POP_JUMP_IF_LE: {
-                    ObjNumber b = state.pop();
-                    ObjNumber a = state.pop();
+                    auto b = cast<ComparableObj *>(state.pop());
+                    auto a = cast<ComparableObj *>(state.pop());
                     auto offset = state.readShort();
-                    if ((a <= b)->truth()) state.adjust(offset);
+                    if ((*a <= b)->truth()) state.adjust(offset);
                     break;
                 }
                 case Opcode::POP_JUMP_IF_EQ: {
-                    ObjNumber b = state.pop();
-                    ObjNumber a = state.pop();
+                    auto b = cast<ComparableObj *>(state.pop());
+                    auto a = cast<ComparableObj *>(state.pop());
                     auto offset = state.readShort();
-                    if ((a == b)->truth()) state.adjust(offset);
+                    if ((*a == b)->truth()) state.adjust(offset);
                     break;
                 }
                 case Opcode::POP_JUMP_IF_NE: {
-                    ObjNumber b = state.pop();
-                    ObjNumber a = state.pop();
+                    auto b = cast<ComparableObj *>(state.pop());
+                    auto a = cast<ComparableObj *>(state.pop());
                     auto offset = state.readShort();
-                    if ((a != b)->truth()) state.adjust(offset);
+                    if ((*a != b)->truth()) state.adjust(offset);
                     break;
                 }
                 case Opcode::POP_JUMP_IF_GE: {
-                    ObjNumber b = state.pop();
-                    ObjNumber a = state.pop();
+                    auto b = cast<ComparableObj *>(state.pop());
+                    auto a = cast<ComparableObj *>(state.pop());
                     auto offset = state.readShort();
-                    if ((a >= b)->truth()) state.adjust(offset);
+                    if ((*a >= b)->truth()) state.adjust(offset);
                     break;
                 }
                 case Opcode::POP_JUMP_IF_GT: {
-                    ObjNumber b = state.pop();
-                    ObjNumber a = state.pop();
+                    auto b = cast<ComparableObj *>(state.pop());
+                    auto a = cast<ComparableObj *>(state.pop());
                     auto offset = state.readShort();
-                    if ((a > b)->truth()) state.adjust(offset);
+                    if ((*a > b)->truth()) state.adjust(offset);
                     break;
                 }
                 case Opcode::NOT:
@@ -550,7 +551,7 @@ void VM::run(Thread *thread) {
                         obj->setType(type);
                         state.push(obj);
                     } else
-                        state.push(new(this) ObjNull);
+                        state.push(new(manager) ObjNull);
                     break;
                 }
                 case Opcode::CHECKED_CAST: {
@@ -566,21 +567,21 @@ void VM::run(Thread *thread) {
                     break;
                 }
                 case Opcode::POWER: {
-                    ObjNumber b = state.pop();
-                    ObjNumber a = state.pop();
-                    state.push(a.power(b));
+                    auto b = cast<ObjNumber *>(state.pop());
+                    auto a = cast<ObjNumber *>(state.pop());
+                    state.push(a->power(b));
                     break;
                 }
                 case Opcode::MULTIPLY: {
-                    ObjNumber b = state.pop();
-                    ObjNumber a = state.pop();
-                    state.push(a * b);
+                    auto b = cast<ObjNumber *>(state.pop());
+                    auto a = cast<ObjNumber *>(state.pop());
+                    state.push(*a * b);
                     break;
                 }
                 case Opcode::DIVIDE: {
-                    ObjNumber b = state.pop();
-                    ObjNumber a = state.pop();
-                    state.push(a / b);
+                    auto b = cast<ObjNumber *>(state.pop());
+                    auto a = cast<ObjNumber *>(state.pop());
+                    state.push(*a / b);
                     break;
                 }
                 case Opcode::REMAINDER: {
@@ -590,15 +591,15 @@ void VM::run(Thread *thread) {
                     break;
                 }
                 case Opcode::ADD: {
-                    ObjNumber b = state.pop();
-                    ObjNumber a = state.pop();
-                    state.push(a + b);
+                    auto b = cast<ObjNumber *>(state.pop());
+                    auto a = cast<ObjNumber *>(state.pop());
+                    state.push(*a + b);
                     break;
                 }
                 case Opcode::SUBTRACT: {
-                    ObjNumber b = state.pop();
-                    ObjNumber a = state.pop();
-                    state.push(a - b);
+                    auto b = cast<ObjNumber *>(state.pop());
+                    auto a = cast<ObjNumber *>(state.pop());
+                    state.push(*a - b);
                     break;
                 }
                 case Opcode::LSHIFT: {
@@ -638,58 +639,58 @@ void VM::run(Thread *thread) {
                     break;
                 }
                 case Opcode::LT: {
-                    ObjNumber b = state.pop();
-                    ObjNumber a = state.pop();
-                    state.push(a < b);
+                    auto b = cast<ComparableObj *>(state.pop());
+                    auto a = cast<ComparableObj *>(state.pop());
+                    state.push(*a < b);
                     break;
                 }
                 case Opcode::LE: {
-                    ObjNumber b = state.pop();
-                    ObjNumber a = state.pop();
-                    state.push(a <= b);
+                    auto b = cast<ComparableObj *>(state.pop());
+                    auto a = cast<ComparableObj *>(state.pop());
+                    state.push(*a <= b);
                     break;
                 }
                 case Opcode::EQ: {
-                    ObjNumber b = state.pop();
-                    ObjNumber a = state.pop();
-                    state.push(a == b);
+                    auto b = cast<ComparableObj *>(state.pop());
+                    auto a = cast<ComparableObj *>(state.pop());
+                    state.push(*a == b);
                     break;
                 }
                 case Opcode::NE: {
-                    ObjNumber b = state.pop();
-                    ObjNumber a = state.pop();
-                    state.push(a != b);
+                    auto b = cast<ComparableObj *>(state.pop());
+                    auto a = cast<ComparableObj *>(state.pop());
+                    state.push(*a != b);
                     break;
                 }
                 case Opcode::GE: {
-                    ObjNumber b = state.pop();
-                    ObjNumber a = state.pop();
-                    state.push(a >= b);
+                    auto b = cast<ComparableObj *>(state.pop());
+                    auto a = cast<ComparableObj *>(state.pop());
+                    state.push(*a >= b);
                     break;
                 }
                 case Opcode::GT: {
-                    ObjNumber b = state.pop();
-                    ObjNumber a = state.pop();
-                    state.push(a > b);
+                    auto b = cast<ComparableObj *>(state.pop());
+                    auto a = cast<ComparableObj *>(state.pop());
+                    state.push(*a > b);
                     break;
                 }
                 case Opcode::IS: {
                     auto b = state.pop();
                     auto a = state.pop();
-                    state.push(new(this) ObjBool(a == b));
+                    state.push(new(manager) ObjBool(a == b));
                     break;
                 }
                 case Opcode::IS_NOT: {
                     auto b = state.pop();
                     auto a = state.pop();
-                    state.push(new(this) ObjBool(a != b));
+                    state.push(new(manager) ObjBool(a != b));
                     break;
                 }
                 case Opcode::IS_NULL:
-                    state.push(new(this) ObjBool(is<ObjNull *>(state.pop())));
+                    state.push(new(manager) ObjBool(is<ObjNull *>(state.pop())));
                     break;
                 case Opcode::IS_NON_NULL:
-                    state.push(new(this) ObjBool(!is<ObjNull *>(state.pop())));
+                    state.push(new(manager) ObjBool(!is<ObjNull *>(state.pop())));
                     break;
                 case Opcode::MONITOR_ENTER:
                     // todo: implement
@@ -738,12 +739,20 @@ void VM::run(Thread *thread) {
                     if (is<ObjMethod *>(obj)) {
                         // Always make a copy of the object when reifying
                         auto method = cast<ObjMethod *>(cast<ObjMethod *>(obj)->copy());
-                        for (int i = 0; i < count; i++) method->reifyTypeParam(i, *cast<Type *>(args[i]));
+                        auto typeParams = method->getTypeParams();
+                        for (int i = 0; i < count; i++) {
+                            auto typeParam = typeParams[i];
+                            typeParam->reify(cast<Type *>(args[i]));
+                        }
                         state.push(method);
                     } else if (is<Type *>(obj)) {
                         // Always make a copy of the object when reifying
                         auto type = cast<Type *>(cast<Type *>(obj)->copy());
-                        for (int i = 0; i < count; i++) type->reifyTypeParam(i, *cast<Type *>(args[i]));
+                        auto typeParams = type->getTypeParams();
+                        for (int i = 0; i < count; i++) {
+                            auto typeParam = typeParams[i];
+                            typeParam->reify(cast<Type *>(args[i]));
+                        }
                         state.push(type);
                     } else
                         throw runtimeError(format("cannot reify value of type %s", obj->getType()->toString().c_str()));

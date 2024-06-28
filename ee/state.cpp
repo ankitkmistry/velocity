@@ -1,4 +1,6 @@
 #include "state.hpp"
+#include "../objects/method.hpp"
+#include "../objects/module.hpp"
 
 VMState::VMState(VM *vm, Frame *frame) : vm(vm) {
     callStack = new Frame[FRAMES_MAX];

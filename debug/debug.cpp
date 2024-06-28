@@ -16,9 +16,9 @@ void DebugOp::printVMState(VMState *state) {
     // Clear the console
     clearConsole();
     // Print eden space
-    printMemory(state->getVM()->getMemoryManager().getEden());
+    printMemory(state->getVM()->getMemoryManager()->getEden());
     // Print survivor space
-    printMemory(state->getVM()->getMemoryManager().getSurvivor());
+    printMemory(state->getVM()->getMemoryManager()->getSurvivor());
     // Print the call stack
     printCallStack(state);
     // Print the current frame

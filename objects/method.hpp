@@ -16,20 +16,18 @@ public:
     };
 private:
     Kind kind;
-    vector<Type *> typeParams;
+    vector<TypeParam *> typeParams;
     Frame *frame;
 public:
-    ObjMethod(const Sign &sign, Kind kind, Frame *frame, Type *type, const vector<Type *> &typeParams,
-              const Table<string> &meta)
-            : Obj(sign, type, meta), kind(kind), frame(frame), typeParams(typeParams) {}
+    ObjMethod(const Sign &sign, Kind kind, Frame *frame, Type *type, const vector<TypeParam *> &typeParams,
+              ObjModule *module = null, const Table<string> &meta = {})
+            : Obj(sign, type, module, meta), kind(kind), frame(frame), typeParams(typeParams) {}
 
     Kind getKind() const { return kind; }
 
     Frame *getFrame() const { return frame; }
 
-    const vector<Type *> &getTypeParams() const { return typeParams; }
-
-    void reifyTypeParam(uint8 i, Type &type) { *typeParams[i] = type; }
+    const vector<TypeParam *> &getTypeParams() const { return typeParams; }
 
     Obj *copy() const override;
 

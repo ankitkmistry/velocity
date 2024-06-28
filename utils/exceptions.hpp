@@ -91,5 +91,11 @@ public:
             : FatalError(format("cannot find entry point in '%s'", sign.c_str())) {}
 };
 
+class IllegalTypeParamAccessError : public FatalError {
+public:
+    explicit IllegalTypeParamAccessError(const string &sign)
+            : FatalError(format("tried to access empty type parameter: '%s'", sign.c_str())) {}
+};
+
 
 #endif /* SOURCE_UTILS_EXCEPTIONS_HPP_ */

@@ -122,7 +122,7 @@ void GarbageCollector::sweep() {
                 case SpaceType::EDEN:
                     if (info.life++ > settings.MAX_LIFE_IN_EDEN) {
                         auto next = current->header.next;
-                        vm->getMemoryManager().getSurvivor().take(current);
+                        vm->getMemoryManager()->getSurvivor().take(current);
                         previous->header.next = next;
                         current = next;
                     } else {

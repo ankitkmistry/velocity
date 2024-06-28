@@ -3,6 +3,7 @@
 
 #include "common.hpp"
 #include "exceptions.hpp"
+#include "../objects/inbuilt_types.hpp"
 
 /**
  * Casts a value of type From to a value of type To.
@@ -98,18 +99,48 @@ int find(string text, char c, int start, int end);
  */
 int find(string text, char c);
 
+/**
+ * Checks if the string is a number
+ * @param s the string
+ * @return true if s represents a number, false otherwise
+ */
 bool isNumber(const std::string &s);
+
+/**
+ * Converts raw IEEE floating point 64 bit representation to a double
+ * @param digits the representation
+ * @return the converted double
+ */
+double rawToDouble(uint64 digits);
+
+/**
+ * Converts a double to its IEEE floating point 64 bit representation
+ * @param number the double
+ * @return the raw representation
+ */
+uint64 doubleToRaw(double number);
+
+/**
+ * Converts an unsigned uint64 to signed int64.
+ * This does not change any bits of the original number.
+ * The raw bit representation remains unchanged
+ * @param number the unsigned number
+ * @return the signed number
+ */
+int64 unsignedToSigned(uint64 number);
+
+/**
+ * Converts an signed int64 to unsigned int64.
+ * This does not change any bits of the original number.
+ * The raw bit representation remains unchanged
+ * @param number the signed number
+ * @return the unsigned number
+ */
+uint64 signedToUnsigned(int64 number);
 
 int32 longToInt(int64 num);
 
 string getAbsolutePath(string path);
-
-string getFilenameFromPath(string path);
-
-template<class T>
-class Table final : public map<string, T> {
-
-};
 
 template<class ResultType, class CompareType>
 ResultType match(CompareType value,
@@ -131,11 +162,5 @@ ResultType match(CompareType value,
         return defaultCase();
     }
 }
-
-template<class T>
-class Iterable {
-public:
-    virtual void foreach(function<void(T)> func) const = 0;
-};
 
 #endif /* UTILS_UTILS_HPP_ */

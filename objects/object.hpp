@@ -1,17 +1,17 @@
-#ifndef VELOCITY_OOP_HPP
-#define VELOCITY_OOP_HPP
+#ifndef VELOCITY_OBJECT_HPP
+#define VELOCITY_OBJECT_HPP
 
 #include "../utils/utils.hpp"
 #include "obj.hpp"
 
 class Type;
 
-class Object final : public Obj {
+class Object : public Obj {
 private:
     Table<Obj *> members;
 public:
-    Object(Sign sign, Type *type, Table<string> meta, Table<Obj *> members)
-            : Obj(sign, type, meta), members(members) {}
+    Object(Sign sign, Type *type, Table<Obj *> members, ObjModule *module = null, Table<string> meta = {})
+            : Obj(sign, type, module, meta), members(members) {}
 
     Table<Obj *> getMembers() { return members; }
 
@@ -22,7 +22,6 @@ public:
     bool truth() const;
 
     string toString() const;
-
 };
 
-#endif //VELOCITY_OOP_HPP
+#endif //VELOCITY_OBJECT_HPP

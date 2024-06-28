@@ -14,15 +14,17 @@ private:
 public:
     explicit MemoryManager(VM *vm) : vm(vm) {}
 
+    const VM *getVM() const { return vm; }
+
+    const Space &getEden() const { return eden; }
+
+    const Space &getSurvivor() const { return survivor; }
+
     VM *getVM() { return vm; }
 
     Space &getEden() { return eden; }
 
     Space &getSurvivor() { return survivor; }
 };
-
-void *operator new(size_t size, VM *vm);
-
-void operator delete(void *p, VM *vm);
 
 #endif //VELOCITY_MEMORY_HPP

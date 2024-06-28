@@ -23,6 +23,8 @@
 
 #define null (nullptr)
 
+namespace fs = std::filesystem;
+
 using std::string,
         std::vector,
         std::map,
@@ -41,5 +43,8 @@ using int8 = std::int8_t;
 using int16 = std::int16_t;
 using int32 = std::int32_t;
 using int64 = std::int64_t;
+
+template<class T>
+using Table = map<string, T>;
 
 #endif /* SOURCE_UTILS_COMMON_HPP_ */

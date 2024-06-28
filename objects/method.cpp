@@ -9,7 +9,7 @@ static string kindNames[] = {
 };
 
 Obj *ObjMethod::copy() const {
-    return new(info.space->getManager()->getVM()) ObjMethod(sign, kind, new Frame(*frame), type, typeParams, meta);
+    return new(info.space->getManager()) ObjMethod(sign, kind, new Frame(*frame), type, typeParams, module, meta);
 }
 
 bool ObjMethod::truth() const {
