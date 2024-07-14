@@ -403,7 +403,25 @@ Table<string> Loader::readMeta(MetaInfo &meta) {
     return table;
 }
 
-CorruptFileError Loader::corrupt() { return CorruptFileError(getCurrentModule()->getAbsolutePath()); }
+Type *Loader::findType(const string &sign) {
+    if (vm->getSettings().inbuiltTypes.contains(sign))return null;
+
+    Type *type;
+
+    if (auto find1 = vm->getGlobal(sign); is<Type *>(find1)) { // Try to find in vm globals
+        // Get it
+        type = cast<Type *>(find1);
+    } else if (auto find2 = referencePool.find(sign);
+            find2 != referencePool.end()) { // Try to find the type if it is already present in the ref pool
+        type = find2->second;
+    } else { // Build an unresolved type in the ref pool and return it
+        // Get a sentinel with the name attached to it
+        type = Type::SENTINEL_(sign, manager);
+        // Put the type
+        referencePool[sign] = type;
+    }
+    return type;
+}
 
 Type *Loader::resolveType(const string &sign, Type type) {
     // Get the object
@@ -420,26 +438,6 @@ Type *Loader::resolveType(const string &sign, Type type) {
     }
 }
 
-Type *Loader::findType(const string &sign) {
-    if (vm->getSettings().inbuiltTypes.contains(sign))return null;
-
-    Type *type;
-
-    if (auto find1 = vm->getGlobal(sign); is<Type *>(find1)) { // Try to find in vm globals
-        // Get it
-        type = cast<Type *>(find1);
-    } else if (auto find2 = referencePool.find(sign); find2 !=
-                                                      referencePool.end()) { // Try to find the type if it is already present in the ref pool
-        type = find2->second;
-    } else { // Build an unresolved type in the ref pool and return it
-        // Get a sentinel with the name attached to it
-        type = Type::SENTINEL_(sign, manager);
-        // Put the type
-        referencePool[sign] = type;
-    }
-    return type;
-}
-
 Sign Loader::getSign(cpidx index) {
     return Sign{getConstantPool()[index]->toString()};
 }
@@ -452,4 +450,6 @@ const vector<Obj *> &Loader::getConstantPool() {
 ObjModule *Loader::getCurrentModule() {
     return modStack[modStack.size() - 1];
 }
+
+CorruptFileError Loader::corrupt() { return CorruptFileError(getCurrentModule()->getAbsolutePath()); }
 

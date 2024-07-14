@@ -103,5 +103,15 @@ public:
             : FatalError(format("cannot find global: '%s'", sign.c_str())) {}
 };
 
+class NativeLibraryError : public FatalError {
+public:
+    explicit NativeLibraryError(string library, string msg)
+            : FatalError(format("in '%s': %s", library.c_str(), msg.c_str())) {}
+
+    explicit NativeLibraryError(string library, string function, string msg)
+            : FatalError(format("function %s in '%s': %s", function.c_str(), library.c_str(), msg.c_str())) {}
+
+};
+
 
 #endif /* SOURCE_UTILS_EXCEPTIONS_HPP_ */
