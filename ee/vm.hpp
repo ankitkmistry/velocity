@@ -20,7 +20,7 @@ private:
     /// The loader
     Loader loader{this};
     /// The memory manager
-    MemoryManager *manager = new MemoryManager{this};
+    MemoryManager *manager;
     /// The actions to be performed when the vm terminates
     vector<function<void()>> onExitList;
     /// The vm settings
@@ -29,7 +29,7 @@ private:
     std::stringstream out;
 
 public:
-    explicit VM(Settings settings = {}) : settings(std::move(settings)) {}
+    explicit VM(Settings settings = {});
 
     /**
      * This function registers the action which will be executed
@@ -60,9 +60,9 @@ public:
     ThrowSignal runtimeError(const string &str);
 
     /**
-     * @return The value of the global corresponding
-     * to the signature <i>sign</i>, ObjNull if the global cannot be found
      * @param sign the signature of the global
+     * @return The value of the global corresponding
+     * to the signature <i>sign</i>, raises GlobalError if the global cannot be found
      */
     Obj *getGlobal(const string &sign) const;
 

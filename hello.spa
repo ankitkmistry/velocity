@@ -1,0 +1,21 @@
+# A simple hello world program in spade assembly
+
+entry method "main(array)":
+    args:
+        "args": "array"
+    ;
+    maxstack: 4;
+    code:
+        INVOKE_GLOBAL "foo()"
+        CONSTANT "hello, world"
+        PRINTLN
+        RETURN_VOID
+    ;
+;
+
+method "foo()":
+    maxstack: 1;
+    code:
+        RETURN_VOID
+    ;
+;

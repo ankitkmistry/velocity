@@ -7,7 +7,7 @@
 class Type;
 
 class Object : public Obj {
-private:
+protected:
     Table<Obj *> members;
 public:
     Object(Sign sign, Type *type, Table<Obj *> members, ObjModule *module = null, Table<string> meta = {})

@@ -20,11 +20,12 @@ public:
         TERMINATED,
     };
 private:
-    int exitCode = 0;
     std::thread thread;
+    // TODO Fix program representation
     Object *value = null; // Program representation
     VMState &state;
     Status status = NOT_STARTED;
+    int exitCode = 0;
 public:
     Thread(VMState &state, function<void(Thread *)> fun)
             : state(state), thread(fun, this) {}

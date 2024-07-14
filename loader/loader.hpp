@@ -10,43 +10,6 @@
 
 class VM;
 
-class Library_ {
-public:
-    enum class State {
-        /// Library has started to load but is resolving its dependencies
-        MARKED,
-        /// Library has already been loaded
-        LOADED,
-        /// Library is not yet loaded
-        NOT_LOADED
-    };
-private:
-    State state = State::NOT_LOADED;
-    intptr id;
-    string name;
-    string path;
-    const ElpInfo &elp;
-    vector<string> dependencies;
-
-public:
-    Library_(const string &name, const string &path, const ElpInfo &elp, const vector<string> &dependencies)
-            : name(name), dependencies(dependencies), path(path), elp(elp), id((intptr) &elp) {}
-
-    const string &getName() const { return name; }
-
-    const vector<string> &getDependencies() const { return dependencies; }
-
-    intptr getId() const { return id; }
-
-    const string &getPath() const { return path; }
-
-    const ElpInfo &getElp() const { return elp; }
-
-    State getState() const { return state; }
-
-    void setState(State state_) { this->state = state_; }
-};
-
 /**
  * Represents the loader of the vm
  */
@@ -59,7 +22,7 @@ private:
     /// List of all modules in the form of [path, module]
     std::map<string, ObjModule *> modules = {};
     /// The module stack used for resolving dependencies
-    std::stack<ObjModule *> modStack = {};
+    std::vector<ObjModule *> modStack = {};
     /// Pool of unresolved references
     Table<Type *> referencePool = {};
 public:
@@ -112,9 +75,9 @@ private:
 
     void loadModule(ObjModule *library);
 
-    ObjModule *getCurrentModule() { return modStack.top(); }
+    ObjModule *getCurrentModule();
 
-    const vector<Obj *> &getConstantPool() { return getCurrentModule()->getConstantPool(); }
+    const vector<Obj *> &getConstantPool();
 
     CorruptFileError corrupt();
 };

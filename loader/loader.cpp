@@ -8,20 +8,20 @@ Loader::Loader(VM *vm) : vm(vm), manager(vm->getMemoryManager()) {}
 
 ObjMethod *Loader::load(const string &path) {
     auto module = readModule(path);
-    modStack.push(module);
+    modStack.push_back(module);
     while (!modStack.empty()) {
-        module = modStack.top();
+        module = modStack.back();
         module->setState(ObjModule::State::MARKED);
         for (auto &dep: module->getDependencies()) {
             auto depLib = readModule(dep);
             if (depLib->getState() == ObjModule::State::NOT_LOADED) {
-                modStack.push(depLib);
+                modStack.push_back(depLib);
                 break;
             }
         }
-        if (modStack.top() == module) {
+        if (modStack.back() == module) {
             loadModule(module);
-            modStack.pop();
+            modStack.pop_back();
         }
     }
 
@@ -36,9 +36,9 @@ ObjMethod *Loader::load(const string &path) {
     // Finish up...
     auto elp = module->getElp();
     // If this is an executable one, get the entry point
-    if (elp.type == 0x00) {
+    if (elp.type == 0x01) {
         // Load the constant pool
-        vector<Obj *> constPool = getConstantPool();
+        vector<Obj *> constPool = module->getConstantPool();
         // Get the sign of the entry point
         auto entrySign = constPool[elp.entry]->toString();
         // Return the entry point
@@ -64,8 +64,12 @@ ObjModule *Loader::readModule(const string &path) {
     // Close the reader
     reader.close();
     // Load the constant pool
-    vector<Obj *> constPool = readConstPool(elp.constantPool, elp.constantPoolCount);
-    auto module = new(manager) ObjModule{path, elp, constPool, readMeta(elp.meta)};
+    auto module = new(manager) ObjModule{path, elp, readMeta(elp.meta)};
+    modStack.push_back(module);
+    auto constPool = readConstPool(elp.constantPool, elp.constantPoolCount);
+    module->setConstantPool(constPool);
+    modStack.pop_back();
+    // Insert the module to the module table
     modules[absolutePath] = module;
     return module;
 }
@@ -82,6 +86,10 @@ void Loader::loadModule(ObjModule *module) {
         auto global = readGlobal(elp.globals[i]);
         vm->setGlobal(global->getSign().toString(), global);
     }
+    // Add the module to the globals
+    vm->setGlobal(module->getSign().toString(), module);
+    // To prevent an error for some kind of awkward reason
+//    module->setElp(elp);
     // Set the state to loaded
     module->setState(ObjModule::State::LOADED);
 }
@@ -395,7 +403,7 @@ Table<string> Loader::readMeta(MetaInfo &meta) {
     return table;
 }
 
-CorruptFileError Loader::corrupt() { return CorruptFileError(modStack.top()->getAbsolutePath()); }
+CorruptFileError Loader::corrupt() { return CorruptFileError(getCurrentModule()->getAbsolutePath()); }
 
 Type *Loader::resolveType(const string &sign, Type type) {
     // Get the object
@@ -433,6 +441,15 @@ Type *Loader::findType(const string &sign) {
 }
 
 Sign Loader::getSign(cpidx index) {
-    return Sign{getConstantPool()[index]->toString(), getCurrentModule()->getId()};
+    return Sign{getConstantPool()[index]->toString()};
+}
+
+const vector<Obj *> &Loader::getConstantPool() {
+    auto module = getCurrentModule();
+    return module->getConstantPool();
+}
+
+ObjModule *Loader::getCurrentModule() {
+    return modStack[modStack.size() - 1];
 }
 

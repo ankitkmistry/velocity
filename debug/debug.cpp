@@ -1,6 +1,6 @@
 #include "debug.hpp"
 #include "table.hpp"
-#include "../ee/opcode.hpp"
+#include "elpops/opcode.hpp"
 #include "../ee/vm.hpp"
 
 void DebugOp::clearConsole() {

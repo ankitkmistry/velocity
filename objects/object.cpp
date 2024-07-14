@@ -23,5 +23,5 @@ bool Object::truth() const {
 }
 
 string Object::toString() const {
-    return format("<object %s '%s'>", type->getSign().toString().c_str(), sign.toString().c_str());
+    return format("<object %s : '%s'>", type->getSign().toString().c_str(), sign.toString().c_str());
 }

@@ -97,5 +97,11 @@ public:
             : FatalError(format("tried to access empty type parameter: '%s'", sign.c_str())) {}
 };
 
+class GlobalError : public FatalError {
+public:
+    explicit GlobalError(const string &sign)
+            : FatalError(format("cannot find global: '%s'", sign.c_str())) {}
+};
+
 
 #endif /* SOURCE_UTILS_EXCEPTIONS_HPP_ */

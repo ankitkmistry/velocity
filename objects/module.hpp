@@ -17,37 +17,50 @@ public:
 private:
     /// State of the module
     State state = State::NOT_LOADED;
-    /// Module id
-    intptr id;
     /// Path of the module
     fs::path path;
-    /// The information in the module
-    const ElpInfo &elp;
     /// The constant pool of the module
-    const vector<Obj *> constantPool;
+    vector<Obj *> constantPool;
     /// The dependencies of the module
     vector<string> dependencies;
+    /// The information in the module
+    const ElpInfo elp;
+
+    ObjModule(const Sign sign, const Table<Obj *> members, const Table<string> meta, State state,
+              const fs::path path, const vector<Obj *> constantPool, const vector<string> dependencies,
+              ElpInfo elp)
+            : Object(sign, null, members, null, meta),
+              state(state), path(path),
+              constantPool(constantPool),
+              dependencies(dependencies), elp(elp) {}
+
 public:
-    ObjModule(const fs::path &path, const ElpInfo &elp, const vector<Obj *> &constantPool,
-              const Table<string> &meta);
+    ObjModule(const fs::path &path, ElpInfo &elp, const Table<string> &meta);
 
     string getAbsolutePath();
 
-    string getModuleName();
+    string getModuleName() const;
 
     State getState() const { return state; }
 
     void setState(State state_) { state = state_; }
 
-    intptr getId() const { return id; }
-
     const fs::path &getPath() const { return path; }
 
-    const ElpInfo &getElp() const { return elp; }
+    ElpInfo getElp() const { return elp; }
 
     const vector<Obj *> &getConstantPool() const { return constantPool; }
 
+    void setConstantPool(const vector<Obj *> &constantPool_);
+
     const vector<string> &getDependencies() const { return dependencies; }
+
+    /// Returns a shallow copy of the module
+    Obj *copy() const override;
+
+    bool truth() const override;
+
+    string toString() const override;
 };
 
 

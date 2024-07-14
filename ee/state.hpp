@@ -74,8 +74,9 @@ public:
      * @return the short
      */
     uint16 readShort() {
-        getFrame()->ip += 2;
-        return (getFrame()->ip[-2] << 8) | getFrame()->ip[-1];
+        auto frame = getFrame();
+        frame->ip += 2;
+        return (frame->ip[-2] << 8) | frame->ip[-1];
     }
 
     /**

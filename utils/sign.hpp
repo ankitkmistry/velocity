@@ -6,18 +6,15 @@
 
 class Sign {
 private:
-    intptr libraryId;
     string pkg;
     string name;
     string signature;
     bool argsPresent = false;
     uint8 argsCount = -1;
 public:
-    Sign(string signature, intptr libraryId = 0) : signature(signature), libraryId(libraryId) { set(); }
+    Sign(string signature) : signature(signature) { set(); }
 
     void set();
-
-    intptr getLibraryId() const { return libraryId; }
 
     string getName() const { return name; }
 

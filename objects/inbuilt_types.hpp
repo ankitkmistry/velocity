@@ -59,8 +59,9 @@ public:
 
 class ObjNull : public ComparableObj {
 public:
-    ObjNull(ObjModule *module = null, const Table<string> &meta = Table<string>()) : ComparableObj(Sign("null"), null, module,
-                                                                                            meta) {}
+    ObjNull(ObjModule *module = null, const Table<string> &meta = Table<string>()) : ComparableObj(Sign("null"), null,
+                                                                                                   module,
+                                                                                                   meta) {}
 
     bool truth() const override {
         return false;
@@ -84,7 +85,7 @@ public:
     ObjString(string str, ObjModule *module = null, const Table<string> &meta = Table<string>())
             : ComparableObj(Sign("string"), null, module, meta), str(str) {}
 
-    ObjString(uint8 *bytes, uint16 len,ObjModule *module = null,  const Table<string> &meta = Table<string>());
+    ObjString(uint8 *bytes, uint16 len, ObjModule *module = null, const Table<string> &meta = Table<string>());
 
     bool truth() const override {
         return !str.empty();
@@ -107,11 +108,7 @@ private:
     uint16 length;
 public:
     explicit ObjArray(uint16 length, ObjModule *module = null, const Table<string> &meta = Table<string>())
-            : ComparableObj(Sign("array"), null, module, meta),
-              array(new(info.space->getManager()) Obj *[length]), length(length) {
-        for (int i = 0; i < length; ++i)
-            array[i] = new(info.space->getManager()) ObjNull;
-    }
+            : ComparableObj(Sign("array"), null, module, meta), length(length) {}
 
     void foreach(function<void(Obj *)> func) const;
 

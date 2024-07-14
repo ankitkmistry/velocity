@@ -1,8 +1,12 @@
 #include "vm.hpp"
 
 #include "../debug/debug.hpp"
-#include "opcode.hpp"
+#include "elpops/opcode.hpp"
 #include "../objects/typeparam.hpp"
+
+VM::VM(Settings settings) : settings(std::move(settings)) {
+    manager = new MemoryManager{this};
+}
 
 void VM::onExit(const function<void()> &fun) { onExitList.push_back(fun); }
 
@@ -50,10 +54,11 @@ ThrowSignal VM::runtimeError(const string &str) {
 }
 
 Obj *VM::getGlobal(const string &sign) const {
-    auto it = globals.find(sign);
-    if (it == globals.end())
-        return new(manager) ObjNull;
-    return it->second;
+    try {
+        return globals.at(sign);
+    } catch (std::out_of_range &) {
+        throw GlobalError(sign);
+    }
 }
 
 void VM::setGlobal(const string &sign, Obj *val) {
