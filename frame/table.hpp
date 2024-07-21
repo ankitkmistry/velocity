@@ -123,7 +123,7 @@ public:
 };
 
 /**
- * Represents a case in a match statement
+ * Represents a case in a check statement
  */
 class Case {
 private:
@@ -171,7 +171,7 @@ public:
      * @return The value of the argument at index i
      * @param i the argument index
      */
-    Obj *get(uint8 i) { return args[i].value; }
+    Obj *get(uint8 i) const { return args[i].value; }
 
     /**
      * Adds a new argument at the end of the table
@@ -183,12 +183,12 @@ public:
      * @return The argument at index i
      * @param i the argument index
      */
-    Arg &getArg(uint8 i) { return args[i]; }
+    const Arg &getArg(uint8 i) const { return args[i]; }
 
     /**
      * @return The total number of arguments present
      */
-    uint8 count() { return args.size(); }
+    uint8 count() const { return args.size(); }
 
     /**
      * @return The string representation of the table
@@ -230,7 +230,7 @@ public:
      * @return The value of the local at index i
      * @param i the local index
      */
-    Obj *get(uint16 i);
+    Obj *get(uint16 i) const;
 
     /**
      * Adds a new local at the end of the table
@@ -248,18 +248,18 @@ public:
      * @return The local at index i
      * @param i the local index
      */
-    Local &getLocal(uint16 i);
+    const Local & getLocal(uint16 i) const;
 
     /**
      * @return The closure at index i
      * @param i the closure index
      */
-    TableNode *getClosure(uint16 i);
+    TableNode *getClosure(uint16 i) const;
 
     /**
      * @return The total number of locals and closures present
      */
-    uint16 count() { return locals.size() + closures.size(); }
+    uint16 count() const { return locals.size() + closures.size(); }
 
     /**
      * @return The string representation of the table
@@ -289,19 +289,19 @@ public:
      * @return The exception at index i
      * @param i the exception index
      */
-    Exception &get(int i) { return exceptions[i]; }
+    const Exception &get(int i) const { return exceptions[i]; }
 
     /**
      * @return The total number of exceptions
      */
-    uint8 count() { return exceptions.size(); }
+    uint8 count() const { return exceptions.size(); }
 
     /**
      * @return The exception that catches the program execution at pc and a throwable of type
      * @param pc the program counter
      * @param type the type of the throwable
      */
-    Exception getTarget(uint32 pc, Type *type);
+    Exception getTarget(uint32 pc, Type *type) const;
 };
 
 /**
@@ -333,7 +333,7 @@ public:
      * @return The corresponding line number in the source code
      * @param byteLine the line number in the bytecode
      */
-    uint64 getSourceLine(uint32 byteLine);
+    uint64 getSourceLine(uint32 byteLine) const;
 
     /**
      * @return The bytecode line numbers
@@ -352,7 +352,7 @@ public:
 };
 
 /**
- * Represents a match table
+ * Represents a check table
  */
 class MatchTable {
     friend class GarbageCollector;
@@ -364,19 +364,19 @@ public:
     MatchTable(const vector<Case> &cases, uint32 defaultLocation) : cases(cases), defaultLocation(defaultLocation) {}
 
     /**
-     * @return The array of match cases
+     * @return The array of check cases
      */
     const vector<Case> &getCases() const { return cases; }
 
     /**
-     * @return The default location of the match table <i>(starting of the default block)</i>
+     * @return The default location of the check table <i>(starting of the default block)</i>
      */
     uint32 getDefaultLocation() const { return defaultLocation; }
 
     /**
-     * @return The number of the match cases
+     * @return The number of the check cases
      */
-    size_t count() { return cases.size(); }
+    size_t count() const { return cases.size(); }
 
     /**
      * This function takes value and serially checks all the cases

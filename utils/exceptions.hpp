@@ -22,7 +22,7 @@ class ThrowSignal : public RuntimeError {
 private:
     Obj *value;
 public:
-    ThrowSignal(Obj *value) : RuntimeError("value is thrown in the vm"), value(value) {}
+    explicit ThrowSignal(Obj *value) : RuntimeError("value is thrown in the vm"), value(value) {}
 
     Obj *getValue() const { return value; }
 };
@@ -82,7 +82,7 @@ public:
 
 class Unreachable : public FatalError {
 public:
-    explicit Unreachable() : FatalError("unreachable code reached") {}
+    Unreachable() : FatalError("unreachable code reached") {}
 };
 
 class EntryPointNotFoundError : public FatalError {
@@ -105,12 +105,31 @@ public:
 
 class NativeLibraryError : public FatalError {
 public:
-    explicit NativeLibraryError(string library, string msg)
+    NativeLibraryError(string library, string msg)
             : FatalError(format("in '%s': %s", library.c_str(), msg.c_str())) {}
 
-    explicit NativeLibraryError(string library, string function, string msg)
+    NativeLibraryError(string library, string function, string msg)
             : FatalError(format("function %s in '%s': %s", function.c_str(), library.c_str(), msg.c_str())) {}
+};
 
+class StackOverflowError : public FatalError {
+public:
+    explicit StackOverflowError()
+            : FatalError("bad state: stack overflow") {}
+};
+
+class ArgumentError : public FatalError {
+public:
+    ArgumentError(string sign, string msg)
+            : FatalError(format("%s: %s", sign.c_str(), msg.c_str())) {}
+};
+
+class SignatureError : public FatalError {
+public:
+    SignatureError(string sign, string msg)
+            : FatalError(format("invalid signature: %s: '%s'", msg.c_str(), sign.c_str())) {}
+    SignatureError(string sign)
+            : FatalError(format("invalid signature: '%s'", sign.c_str())) {}
 };
 
 

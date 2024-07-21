@@ -5,7 +5,7 @@ void LineNumberTable::addLine(uint32 byteLine, uint64 sourceLine) {
     sourcecode.push_back(sourceLine);
 }
 
-uint64 LineNumberTable::getSourceLine(uint32 byteLine) {
+uint64 LineNumberTable::getSourceLine(uint32 byteLine) const {
     int i, j;
     i = j = 0;
     for (int line: bytecode) {
@@ -17,7 +17,7 @@ uint64 LineNumberTable::getSourceLine(uint32 byteLine) {
     return i;
 }
 
-Exception ExceptionTable::getTarget(uint32 pc, Type *type) {
+Exception ExceptionTable::getTarget(uint32 pc, Type *type) const {
     for (auto &exception: exceptions) {
         if (exception.getFrom() <= pc && pc < exception.getTo()
             && exception.getType() == type) {
@@ -34,19 +34,19 @@ void LocalsTable::set(uint16 i, Obj *val) {
         locals[i].value = val;
 }
 
-Obj *LocalsTable::get(uint16 i) {
+Obj *LocalsTable::get(uint16 i) const {
     if (i >= closureStart)
         return closures[i - closureStart]->getValue();
     return locals[i].value;
 }
 
-Local &LocalsTable::getLocal(uint16 i) {
+const Local & LocalsTable::getLocal(uint16 i) const {
     // TODO: FATAL ERROR
     // if (i >= closureStart) FATAL_ERROR();
     return locals[i];
 }
 
-TableNode *LocalsTable::getClosure(uint16 i) {
+TableNode *LocalsTable::getClosure(uint16 i) const {
     // TODO: FATAL ERROR
     // if (i-closureStart >= closures.size()) FATAL_ERROR();
     return closures[i - closureStart];

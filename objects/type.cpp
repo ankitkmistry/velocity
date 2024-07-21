@@ -12,7 +12,7 @@ static string kindNames[] = {
 
 Obj *Type::copy() const {
     Table<Obj *> membersCopy{};
-    for (auto [key, value]: membersCopy) {
+    for (auto [key, value]: members) {
         membersCopy[key] = value->copy();
     }
     return new(info.space->getManager()) Type(sign, kind, typeParams, supers, membersCopy, module, meta);

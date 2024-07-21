@@ -8,10 +8,11 @@ class Type;
 
 class Object : public Obj {
 protected:
-    Table<Obj *> members;
+    Table<Obj *> members = {};
 public:
-    Object(Sign sign, Type *type, Table<Obj *> members, ObjModule *module = null, Table<string> meta = {})
-            : Obj(sign, type, module, meta), members(members) {}
+    Object(Sign sign, Type *type, Table<Obj *> members, ObjModule *module = null, Table<string> meta = {});
+
+    Object(Sign sign, Type *type, ObjModule *module = null, Table<string> meta = {});
 
     Table<Obj *> getMembers() { return members; }
 

@@ -39,7 +39,7 @@ ObjMethod *Loader::load(const string &path) {
     if (elp.type == 0x01) {
         // Load the constant pool
         vector<Obj *> constPool = module->getConstantPool();
-        // Get the sign of the entry point
+        // Get the param of the entry point
         auto entrySign = constPool[elp.entry]->toString();
         // Return the entry point
         return cast<ObjMethod *>(vm->getGlobal(entrySign));
@@ -88,8 +88,6 @@ void Loader::loadModule(ObjModule *module) {
     }
     // Add the module to the globals
     vm->setGlobal(module->getSign().toString(), module);
-    // To prevent an error for some kind of awkward reason
-//    module->setElp(elp);
     // Set the state to loaded
     module->setState(ObjModule::State::LOADED);
 }
@@ -108,7 +106,7 @@ Obj *Loader::readGlobal(GlobalInfo &global) {
             {"int",    [&] { return new(manager) ObjInt(0, getCurrentModule()); }},
             {"string", [&] { return new(manager) ObjString("", getCurrentModule()); }}
     }, [&] {
-        return new(manager) Object(sign, type, type->getMembers(), getCurrentModule(), meta);
+        return new(manager) Object(sign, type, getCurrentModule(), meta);
     });
 }
 
@@ -151,7 +149,7 @@ Obj *Loader::readClass(ClassInfo klass) {
             // Get the signature of the type parameter
             auto paramSign = typeParam->toString();
             // Make it an unresolved reference
-            auto type = new(manager) TypeParam(paramSign, getCurrentModule());
+            auto type = new(manager) TypeParam(Sign{paramSign}, getCurrentModule());
             // Remember the type params
             typeParams.push_back(type);
             // Put it in the ref pool
@@ -205,7 +203,7 @@ Obj *Loader::readField(FieldInfo &field) {
             {"int",    [&] { return new(manager) ObjInt(0, getCurrentModule()); }},
             {"string", [&] { return new(manager) ObjString("", getCurrentModule()); }}
     }, [&] {
-        return new(manager) Object(sign, type, type->getMembers(), getCurrentModule(), meta);
+        return new(manager) Object(sign, type, getCurrentModule(), meta);
     });
 }
 
@@ -241,7 +239,7 @@ Obj *Loader::readMethod(MethodInfo &method) {
             // Get the signature of the type parameter
             auto paramSign = typeParam->toString();
             // Make it an unresolved reference
-            auto type = new(manager) TypeParam(paramSign, getCurrentModule());
+            auto type = new(manager) TypeParam(Sign{paramSign}, getCurrentModule());
             // Remember the type params
             typeParams.push_back(type);
             // Put it in the ref pool
@@ -282,12 +280,11 @@ Obj *Loader::readMethod(MethodInfo &method) {
         referencePool.erase(key->getSign().toString());
     }
     // Create the frame
-    auto *frame = new Frame{method.codeCount, method.code,
-                            method.maxStack,
-                            args, locals, exceptions,
-                            lines, null};
+    Frame frame{method.codeCount, method.code,
+                method.maxStack,
+                args, locals, exceptions,
+                lines, null};
     auto methodObj = new(manager) ObjMethod(sign, kind, frame, null, typeParams, getCurrentModule(), meta);
-    frame->setMethod(methodObj);
     if (kind == ObjMethod::CONSTRUCTOR)
         vm->setGlobal(sign.toString(), methodObj);
     return methodObj;
@@ -329,7 +326,7 @@ Local Loader::readLocal(MethodInfo::LocalInfo &local) {
             {"int",    [&] { return new(manager) ObjInt(0, getCurrentModule()); }},
             {"string", [&] { return new(manager) ObjString("", getCurrentModule()); }}
     }, [&] {
-        return new(manager) Object(sign, type, type->getMembers(), getCurrentModule(), meta);
+        return new(manager) Object(sign, type, getCurrentModule(), meta);
     });
     return {sign.toString(), obj, meta};
 }
@@ -347,7 +344,7 @@ Arg Loader::readArg(MethodInfo::ArgInfo &arg) {
             {"int",    [&] { return new(manager) ObjInt(0, getCurrentModule()); }},
             {"string", [&] { return new(manager) ObjString("", getCurrentModule()); }}
     }, [&] {
-        return new(manager) Object(sign, type, type->getMembers(), getCurrentModule(), meta);
+        return new(manager) Object(sign, type, getCurrentModule(), meta);
     });
     return {sign.toString(), obj, meta};
 }

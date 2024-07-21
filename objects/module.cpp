@@ -10,12 +10,12 @@ string ObjModule::getModuleName() const {
 }
 
 ObjModule::ObjModule(const fs::path &path, ElpInfo &elp, const Table<string> &meta)
-        : Object(Sign(""), null, {}, null, meta), path(path), elp(elp) {
+        : Object(Sign(""), null, null, meta), path(path), elp(elp) {
 }
 
 void ObjModule::setConstantPool(const vector<Obj *> &constantPool_) {
     constantPool = constantPool_;
-    // Set the sign
+    // Set the param
     sign = Sign{constantPool[elp.thisModule]->toString()};
     // Get the imports
     auto imports = cast<ObjArray *>(constantPool[elp.imports]);
@@ -26,7 +26,7 @@ void ObjModule::setConstantPool(const vector<Obj *> &constantPool_) {
 }
 
 Obj *ObjModule::copy() const {
-    return new(info.space->getManager()) ObjModule(sign, members, meta, state, path, constantPool, dependencies, elp);
+    return new(info.space->getManager()) ObjModule(sign, meta, state, path, constantPool, dependencies, elp);
 }
 
 bool ObjModule::truth() const {

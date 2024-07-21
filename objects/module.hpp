@@ -26,10 +26,10 @@ private:
     /// The information in the module
     const ElpInfo elp;
 
-    ObjModule(const Sign sign, const Table<Obj *> members, const Table<string> meta, State state,
+    ObjModule(const Sign sign, const Table<string> meta, State state,
               const fs::path path, const vector<Obj *> constantPool, const vector<string> dependencies,
               ElpInfo elp)
-            : Object(sign, null, members, null, meta),
+            : Object(sign, null, null, meta),
               state(state), path(path),
               constantPool(constantPool),
               dependencies(dependencies), elp(elp) {}
@@ -55,7 +55,6 @@ public:
 
     const vector<string> &getDependencies() const { return dependencies; }
 
-    /// Returns a shallow copy of the module
     Obj *copy() const override;
 
     bool truth() const override;

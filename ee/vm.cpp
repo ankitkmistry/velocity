@@ -15,7 +15,7 @@ int VM::start(const string &filename, const vector<string> &args) {
     auto entry = loader.load(filename);
     // Complain if there is no entry point
     if (entry == null) throw EntryPointNotFoundError(filename);
-    if (entry->getFrame()->getArgs().count() != 1)
+    if (entry->getFrame().getArgs().count() != 1)
         throw runtimeError("entry point must have one argument (string[]): " + entry->getSign().toString());
     // Execute from the entry
     return start(entry, argsRepr(args));
@@ -30,10 +30,10 @@ ObjArray *VM::argsRepr(const vector<string> &args) {
 }
 
 int VM::start(ObjMethod *entry, ObjArray *args) {
-    entry->getFrame()->getArgs().set(0, cast<Obj *>(args));
-    VMState state{this, entry->getFrame()};
-    Thread thread{state, [this](auto thr) {
+    VMState state{this};
+    Thread thread{state, [&](auto thr) {
         thr->setStatus(Thread::RUNNING);
+        entry->call(&thread, {args});
         run(thr);
     }};
     threads.insert(&thread);
@@ -50,7 +50,7 @@ int VM::start(ObjMethod *entry, ObjArray *args) {
 }
 
 ThrowSignal VM::runtimeError(const string &str) {
-    return {new(manager) ObjString(str)};
+    return ThrowSignal{new(manager) ObjString(str)};
 }
 
 Obj *VM::getGlobal(const string &sign) const {
@@ -145,7 +145,6 @@ void VM::run(Thread *thread) {
                     Obj *member = object->getMember(name);
                     if (is<ObjMethod *>(member)) {
                         auto method = cast<ObjMethod *>(member);
-                        method->getFrame()->getLocals().set(0, object);
                     }
                     state.push(member);
                     break;
@@ -176,7 +175,6 @@ void VM::run(Thread *thread) {
                     Obj *member = object->getMember(name);
                     if (is<ObjMethod *>(member)) {
                         auto method = dynamic_cast<ObjMethod *>(member);
-                        method->getFrame()->getLocals().set(0, object);
                     }
                     state.push(member);
                     break;
@@ -230,37 +228,10 @@ void VM::run(Thread *thread) {
                     break;
                 }
                 case Opcode::LOAD_OBJECT: {
-                    // Get the sign
-                    auto sign = state.loadConst(state.readShort())->toString();
-                    // Retrieve the method
-                    auto method = cast<ObjMethod *>(getGlobal(sign));
-                    // Check if it is a constructor
-                    if (method->getKind() != ObjMethod::CONSTRUCTOR) {
-                        throw runtimeError(format("'%s' not a constructor", sign.c_str()));
-                    }
-                    // Get the count
-                    auto count = method->getFrame()->getArgs().count();
-                    // Pop the arguments
-                    for (int i = 0; i < count; i++) state.pop();
-                    // Call the method
-                    call(thread, method, frame->sp);
-                    break;
-                }
-                case Opcode::LOAD_OBJECT_FAST: {
-                    // Get the sign
-                    auto sign = state.loadConst(state.readByte())->toString();
-                    // Retrieve the method
-                    auto method = cast<ObjMethod *>(getGlobal(sign));
-                    // Check if it is a constructor
-                    if (method->getKind() != ObjMethod::CONSTRUCTOR) {
-                        throw runtimeError(format("'%s' not a constructor", sign.c_str()));
-                    }
-                    // Get the count
-                    auto count = method->getFrame()->getArgs().count();
-                    // Pop the arguments
-                    for (int i = 0; i < count; i++) state.pop();
-                    // Call the method
-                    call(thread, method, frame->sp);
+                    // TODO: Fix object initialization
+                    auto type = cast<Type *>(state.pop());
+                    auto object = new(manager) Object(Sign(""), type, frame->getMethod()->getModule());
+                    state.push(object);
                     break;
                 }
                 case Opcode::UNPACK_ARRAY: {
@@ -315,16 +286,16 @@ void VM::run(Thread *thread) {
                     // Get the method
                     auto method = cast<ObjMethod *>(state.pop());
                     // Call it
-                    call(thread, method, frame->sp + 1);
+                    method->call(thread, frame->sp + 1);
                     break;
                 }
                 case Opcode::INVOKE_VIRTUAL: {
-                    // Get the sign
+                    // Get the param
                     Sign sign{state.loadConst(state.readShort())->toString()};
                     // Get name of the method
                     auto name = sign.getName();
                     // Get the arg count
-                    auto count = sign.getArgsCount();
+                    auto count = sign.getParams().size();
 
                     // Pop the arguments
                     for (int i = 0; i < count; i++) state.pop();
@@ -333,18 +304,18 @@ void VM::run(Thread *thread) {
                     // Get the method
                     auto method = cast<ObjMethod *>(object->getMember(name));
                     // Call it
-                    call(thread, method, frame->sp + 1);
+                    method->call(thread, frame->sp + 1);
                     // Set 'this' (by convention slot 0 of locals)
                     state.getFrame()->getLocals().set(0, object);
                     break;
                 }
                 case Opcode::INVOKE_STATIC: {
-                    // Get the sign
+                    // Get the param
                     Sign sign{state.loadConst(state.readShort())->toString()};
                     // Get name of the method
                     auto name = sign.getName();
                     // Get the arg count
-                    auto count = sign.getArgsCount();
+                    auto count = sign.getParams().size();
 
                     // Pop the arguments
                     for (int i = 0; i < count; i++) state.pop();
@@ -353,38 +324,38 @@ void VM::run(Thread *thread) {
                     // Get the method
                     auto method = cast<ObjMethod *>(type->getMember(name));
                     // Call it
-                    call(thread, method, frame->sp + 1);
+                    method->call(thread, frame->sp + 1);
                     break;
                 }
                 case Opcode::INVOKE_LOCAL: {
                     // Get the method
                     auto method = cast<ObjMethod *>(frame->getLocals().get(state.readShort()));
                     // Get the arg count
-                    auto count = method->getFrame()->getArgs().count();
+                    auto count = method->getFrame().getArgs().count();
                     // Pop the arguments
                     for (int i = 0; i < count; i++) state.pop();
                     // Call it
-                    call(thread, method, frame->sp);
+                    method->call(thread, frame->sp);
                     break;
                 }
                 case Opcode::INVOKE_GLOBAL: {
                     // Get the method
                     auto method = cast<ObjMethod *>(getGlobal(state.loadConst(state.readShort())->toString()));
                     // Get the arg count
-                    auto count = method->getFrame()->getArgs().count();
+                    auto count = method->getFrame().getArgs().count();
                     // Pop the arguments
                     for (int i = 0; i < count; i++) state.pop();
                     // Call it
-                    call(thread, method, frame->sp);
+                    method->call(thread, frame->sp);
                     break;
                 }
                 case Opcode::INVOKE_VIRTUAL_FAST: {
-                    // Get the sign
+                    // Get the param
                     Sign sign{state.loadConst(state.readByte())->toString()};
                     // Get name of the method
                     auto name = sign.getName();
                     // Get the arg count
-                    auto count = sign.getArgsCount();
+                    auto count = sign.getParams().size();
 
                     // Pop the arguments
                     for (int i = 0; i < count; i++) state.pop();
@@ -393,18 +364,18 @@ void VM::run(Thread *thread) {
                     // Get the method
                     auto method = cast<ObjMethod *>(object->getMember(name));
                     // Call it
-                    call(thread, method, frame->sp + 1);
+                    method->call(thread, frame->sp + 1);
                     // Set 'this' (by convention slot 0 of locals)
                     state.getFrame()->getLocals().set(0, object);
                     break;
                 }
                 case Opcode::INVOKE_STATIC_FAST: {
-                    // Get the sign
+                    // Get the param
                     Sign sign{state.loadConst(state.readByte())->toString()};
                     // Get name of the method
                     auto name = sign.getName();
                     // Get the arg count
-                    auto count = sign.getArgsCount();
+                    auto count = sign.getParams().size();
 
                     // Pop the arguments
                     for (int i = 0; i < count; i++) state.pop();
@@ -413,40 +384,40 @@ void VM::run(Thread *thread) {
                     // Get the method
                     auto method = cast<ObjMethod *>(type->getMember(name));
                     // Call it
-                    call(thread, method, frame->sp + 1);
+                    method->call(thread, frame->sp + 1);
                     break;
                 }
                 case Opcode::INVOKE_LOCAL_FAST: {
                     // Get the method
                     auto method = cast<ObjMethod *>(frame->getLocals().get(state.readByte()));
                     // Get the arg count
-                    auto count = method->getFrame()->getArgs().count();
+                    auto count = method->getFrame().getArgs().count();
                     // Pop the arguments
                     for (int i = 0; i < count; i++) state.pop();
                     // Call it
-                    call(thread, method, frame->sp);
+                    method->call(thread, frame->sp);
                     break;
                 }
                 case Opcode::INVOKE_GLOBAL_FAST: {
                     // Get the method
                     auto method = cast<ObjMethod *>(getGlobal(state.loadConst(state.readByte())->toString()));
                     // Get the arg count
-                    auto count = method->getFrame()->getArgs().count();
+                    auto count = method->getFrame().getArgs().count();
                     // Pop the arguments
                     for (int i = 0; i < count; i++) state.pop();
                     // Call it
-                    call(thread, method, frame->sp);
+                    method->call(thread, frame->sp);
                     break;
                 }
                 case Opcode::INVOKE_ARG: {
                     // Get the method
                     auto method = cast<ObjMethod *>(frame->getArgs().get(state.readByte()));
                     // Get the arg count
-                    auto count = method->getFrame()->getArgs().count();
+                    auto count = method->getFrame().getArgs().count();
                     // Pop the arguments
                     for (int i = 0; i < count; i++) state.pop();
                     // Call it
-                    call(thread, method, frame->sp);
+                    method->call(thread, frame->sp);
                     break;
                 }
                 case Opcode::SUB_CALL: {
@@ -717,9 +688,9 @@ void VM::run(Thread *thread) {
                 }
                 case Opcode::LOAD_CLOSURE: {
                     auto method = cast<ObjMethod *>(state.pop());
-                    auto &locals = method->getFrame()->getLocals();
+                    auto &locals = method->getFrame().getLocals();
                     for (uint16 i = locals.getClosureStart(); i < locals.count(); i++) {
-                        TableNode *node;
+                        const TableNode *node;
                         switch (state.readByte()) {
                             case 0x01:  // Arg as closure
                                 node = &frame->getArgs().getArg(state.readByte());
@@ -728,10 +699,9 @@ void VM::run(Thread *thread) {
                                 node = &frame->getLocals().getLocal(state.readShort());
                                 break;
                             default:
-                                throw runtimeError(
-                                        format("code is corrupted: %s", frame->getMethod()->toString().c_str()));
+                                throw Unreachable();
                         }
-                        locals.addClosure(node);
+                        locals.addClosure(const_cast<TableNode *>(node));
                     }
                     break;
                 }
@@ -824,11 +794,11 @@ bool VM::checkCast(const Type *type1, const Type *type2) {
     // TODO implement this
     return false;
 }
-
+/*
 void VM::call(Thread *thread, ObjMethod *method, Obj **args) {
     auto frame = new Frame(*method->getFrame());
     for (int i = 0; i < frame->getArgs().count(); i++) {
         frame->getArgs().set(i, args[i]);
     }
     thread->getState().pushFrame(frame);
-}
+}*/

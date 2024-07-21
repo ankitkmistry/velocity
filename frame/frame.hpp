@@ -80,22 +80,37 @@ public:
     /**
      * @return The arguments table
      */
-    ArgsTable &getArgs() const { return const_cast<ArgsTable &>(args); }
+    ArgsTable &getArgs() { return args;}
 
     /**
      * @return The locals table
      */
-    LocalsTable &getLocals() const { return const_cast<LocalsTable &>(locals); }
+    LocalsTable &getLocals() { return locals; }
 
     /**
      * @return The exceptions table
      */
-    ExceptionTable &getExceptions() const { return const_cast<ExceptionTable &>(exceptions); }
+    ExceptionTable &getExceptions() { return exceptions; }
+
+    /**
+     * @return The arguments table
+     */
+    const ArgsTable &getArgs() const { return args;}
+
+    /**
+     * @return The locals table
+     */
+    const LocalsTable &getLocals() const { return locals; }
+
+    /**
+     * @return The exceptions table
+     */
+    const ExceptionTable &getExceptions() const { return exceptions; }
 
     /**
      * @return The line number table
      */
-    LineNumberTable &getLines() const { return const_cast<LineNumberTable &>(lines); }
+    const LineNumberTable &getLines() const { return lines; }
 
     /**
      * @return The array of lambda functions
@@ -103,7 +118,7 @@ public:
     const vector<ObjMethod *> &getLambdas() const { return lambdas; }
 
     /**
-     * @return The array of match statements
+     * @return The array of check statements
      */
     const vector<MatchTable> &getMatches() const { return matches; }
 

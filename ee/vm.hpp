@@ -62,14 +62,14 @@ public:
     /**
      * @param sign the signature of the global
      * @return The value of the global corresponding
-     * to the signature <i>sign</i>, raises GlobalError if the global cannot be found
+     * to the signature <i>param</i>, raises GlobalError if the global cannot be found
      */
     Obj *getGlobal(const string &sign) const;
 
     /**
-     * Set the value of the global corresponding to the signature <i>sign</i>.
+     * Set the value of the global corresponding to the signature <i>param</i>.
      * Creates a new global and sets the value to <i>val</i> if there is no
-     * existing global with signature <i>sign</i>.
+     * existing global with signature <i>param</i>.
      * @param sign the signature of the global
      * @param val the value
      */
@@ -119,14 +119,6 @@ private:
      * @return true if casting can be done, false otherwise
      */
     static bool checkCast(const Type *type1, const Type *type2);
-
-    /**
-     * Calls the <i>method</i> with <i>args</i> on <i>thread</i>
-     * @param thread the thread
-     * @param method the method to be called
-     * @param args the args of the method
-     */
-    static void call(Thread *thread, ObjMethod *method, Obj **args);
 
     /**
      * Converts a c++ vector to ObjArray

@@ -1,7 +1,6 @@
-#include "native_loader.hpp"
+#include "foreign_loader.hpp"
 
 #if defined OS_WINDOWS
-
 string getErrorMessage(DWORD errorCode) {
     LPVOID errMsgBuf;
     FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | // Allocates a buffer for the message
@@ -55,7 +54,7 @@ void Library::unload() {
     FreeLibrary(module);
 }
 
-Library *NativeLoader::loadSimpleLibrary(string path) {
+Library *ForeignLoader::loadSimpleLibrary(string path) {
     // TODO: Add advanced lookup
     HMODULE module = LoadLibraryA(path.c_str());
     if (module == null) {
@@ -67,14 +66,12 @@ Library *NativeLoader::loadSimpleLibrary(string path) {
     libraries[path] = library;
     return library;
 }
-
 #elif defined OS_LINUX
-
 void Library::unload() {
     dlclose(module);
 }
 
-Library *NativeLoader::loadSimpleLibrary(string path) {
+Library *ForeignLoader::loadSimpleLibrary(string path) {
     // TODO: Add advanced lookup
     void *module = dlopen(path.c_str(), RTLD_LAZY);
     if (module == null) {
@@ -84,10 +81,9 @@ Library *NativeLoader::loadSimpleLibrary(string path) {
     libraries[path] = library;
     return library;
 }
-
 #endif
 
-void NativeLoader::unloadLibraries() {
+void ForeignLoader::unloadLibraries() {
     for (auto [_, library]: libraries) {
         library->unload();
     }

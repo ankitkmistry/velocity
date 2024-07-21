@@ -103,17 +103,17 @@ private:
     Sign getSign(cpidx index);
 
     /**
-     * Searches the type specified by \p sign in the globals table.
+     * Searches the type specified by \p param in the globals table.
      * If found it returns that type otherwise it checks the unresolved references pool.
      * If it is found in referencePool it returns that type otherwise it creates
-     * a unresolved type of sign and returns it.
-     * @param sign the sign of the type
-     * @return the type associated with \p sign
+     * a unresolved type of param and returns it.
+     * @param sign the param of the type
+     * @return the type associated with \p param
      */
     Type *findType(const string &sign);
 
     /**
-     * Resolves the type associated with \p sign .
+     * Resolves the type associated with \p param .
      * Searches for the type in the reference pool.
      * If found then it copies the info from \p type to the unresolved type
      * and returns the unresolved type as resolved. Otherwise it returns a

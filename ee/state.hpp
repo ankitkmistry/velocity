@@ -12,7 +12,7 @@ private:
     VM *vm;
     Frame *callStack = null, *fp = null;
 public:
-    VMState(VM *vm, Frame *frame);
+    VMState(VM *vm);
 
     ~VMState() {
         callStack = fp = null;

@@ -56,7 +56,7 @@ void GarbageCollector::markFrame(Frame *frame) {
         mark((Obj *) obj);
     }
     for (const auto &match: frame->getMatches()) {
-        // mark every match
+        // mark every check
         for (const auto &kase: match.cases) {
             // mark every case value
             auto obj = kase.getValue();

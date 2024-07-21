@@ -10,8 +10,12 @@ endif ()
 add_executable(velocity main.cpp loader/verifier.cpp objects/object.cpp objects/type.cpp objects/method.cpp frame/table.cpp objects/inbuilt_types.cpp frame/frame.cpp ee/vm.cpp ee/state.cpp loader/loader.cpp debug/debug.cpp debug/table.cpp utils/utils.cpp objects/obj.cpp memory/collector.cpp memory/space.cpp utils/sign.cpp utils/sign.cpp
         objects/module.cpp
         objects/typeparam.cpp
-        loader/native_loader.hpp
-        loader/native_loader.cpp)
+        loader/foreign_loader.hpp
+        loader/foreign_loader.cpp
+        objects/callable.cpp
+        objects/callable.hpp
+        objects/foreign.hpp
+        objects/foreign.cpp)
 
 include_directories("../elpops")
 target_include_directories(velocity PRIVATE "../elpops")
