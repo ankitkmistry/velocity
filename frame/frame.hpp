@@ -7,50 +7,33 @@
 
 class ObjMethod;
 
+class FrameTemplate;
+
 class Frame {
     friend class VMState;
 
+    friend class FrameTemplate;
+
 private:
-    uint32 codeCount;
+    uint32 codeCount = 0;
 public:
-    uint8 *code;
-    uint8 *ip;
-    Obj **stack;
-    Obj **sp;
+    uint8 *code = null;
+    uint8 *ip = null;
+    Obj **stack = null;
+    Obj **sp = null;
 private:
     ArgsTable args;
-    LocalsTable locals;
+    LocalsTable locals{0};
     ExceptionTable exceptions;
-    LineNumberTable lines;
+    LineNumberTable lines{0};
     vector<ObjMethod *> lambdas;
     vector<MatchTable> matches;
-    ObjMethod *method;
+    ObjMethod *method = null;
+    FrameTemplate *frameTemplate = null;
 
-    Frame()
-            : codeCount(0), code(null), ip(null),
-              stack(null), sp(null),
-              args(), locals(0), exceptions(),
-              lines(0),
-              method(null) {}
+    Frame() = default;
 
 public:
-    Frame(uint32 codeCount,
-          uint8 *code,
-          uint32 maxStack,
-          ArgsTable &args,
-          LocalsTable &locals,
-          ExceptionTable &exceptions,
-          LineNumberTable &lines,
-          ObjMethod *method)
-            : codeCount(codeCount), code(code), ip(null),
-              stack(new Obj *[maxStack]), sp(null),
-              args(args), locals(locals), exceptions(exceptions),
-              lines(lines),
-              method(method) {
-        ip = code;
-        sp = stack;
-    }
-
     Frame(const Frame &frame) = default;
 
     Frame &operator=(const Frame &frame) = default;
@@ -80,7 +63,7 @@ public:
     /**
      * @return The arguments table
      */
-    ArgsTable &getArgs() { return args;}
+    ArgsTable &getArgs() { return args; }
 
     /**
      * @return The locals table
@@ -95,7 +78,7 @@ public:
     /**
      * @return The arguments table
      */
-    const ArgsTable &getArgs() const { return args;}
+    const ArgsTable &getArgs() const { return args; }
 
     /**
      * @return The locals table
@@ -123,18 +106,18 @@ public:
     const vector<MatchTable> &getMatches() const { return matches; }
 
     /**
-     * @return The method associated with the this frame
+     * @return The method associated with the this frameTemplate
      */
     ObjMethod *getMethod() const { return method; }
 
     /**
-     * Sets the ip of this frame to ip
+     * Sets the ip of this frameTemplate to ip
      * @param newIp the new ip value
      */
     void setIp(uint8 *newIp) { ip = newIp; }
 
     /**
-     * Sets the method associated with this frame
+     * Sets the method associated with this frameTemplate
      * @param met the method value
      */
     void setMethod(ObjMethod *met) { method = met; }

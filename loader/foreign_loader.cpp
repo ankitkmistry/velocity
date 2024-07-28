@@ -1,6 +1,7 @@
 #include "foreign_loader.hpp"
 
 #if defined OS_WINDOWS
+
 string getErrorMessage(DWORD errorCode) {
     LPVOID errMsgBuf;
     FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | // Allocates a buffer for the message
@@ -60,12 +61,13 @@ Library *ForeignLoader::loadSimpleLibrary(string path) {
     if (module == null) {
         DWORD errorCode = GetLastError();
         auto errMsg = getErrorMessage(errorCode);
-        throw NativeLibraryError(path, format("error code %d: %s", errorCode, errMsg.c_str()));
+        throw NativeLibraryError(path, format("%s (0x%X)", errMsg.c_str(), errorCode));
     }
     auto library = new Library(Library::Kind::SIMPLE, path, module);
     libraries[path] = library;
     return library;
 }
+
 #elif defined OS_LINUX
 void Library::unload() {
     dlclose(module);

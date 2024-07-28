@@ -39,8 +39,6 @@ public:
     Kind getKind() const { return kind; }
 
     bool truth() const override { return true; }
-
-    string toString() const override;
 };
 
 

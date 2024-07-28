@@ -42,8 +42,9 @@ Type *TypeParam::getType() const {
 }
 
 Obj *TypeParam::copy() const {
-    checkPlaceholder();
-    return placeholder->copy();
+    auto newTypeParam = new(info.space->getManager()) TypeParam(sign, module, meta);
+    newTypeParam->reify(placeholder);
+    return newTypeParam;
 }
 
 void TypeParam::checkPlaceholder() const {

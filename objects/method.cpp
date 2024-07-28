@@ -1,21 +1,28 @@
 #include "method.hpp"
-#include "../frame/frame.hpp"
-#include "../memory/memory.hpp"
+#include "typeparam.hpp"
 
 
-ObjMethod::ObjMethod(const Sign &sign, ObjMethod::Kind kind, Frame frame, Type *type,
-                     const vector<TypeParam *> &typeParams, ObjModule *module, const Table<string> &meta)
-        : ObjCallable(sign, kind, type, module, meta), frame(frame), typeParams(typeParams) {
-    frame.setMethod(this);
+ObjMethod::ObjMethod(const Sign &sign, Kind kind, FrameTemplate *frame, Type *type,
+                     vector<TypeParam *> typeParams, ObjModule *module, const Table<string> &meta)
+        : ObjCallable(sign, kind, type, module, meta), typeParams(typeParams),
+          frameTemplate(frame) {
+    frameTemplate->setMethod(this);
 }
 
 Obj *ObjMethod::copy() const {
-    // TODO: Improve the copying
-    return new(info.space->getManager()) ObjMethod(sign, kind, frame, type, typeParams, module, meta);
+    vector<TypeParam *> newTypeParams;
+    for (auto typeParam: typeParams) {
+        newTypeParams.push_back(cast<TypeParam *>(typeParam->copy()));
+    }
+    Obj *newMethod = new(info.space->getManager()) ObjMethod(
+            sign, kind, frameTemplate->copy(),
+            type, newTypeParams, module, meta);
+    Obj::reify(&newMethod, typeParams, newTypeParams);
+    return newMethod;
 }
 
 void ObjMethod::call(Thread *thread, vector<Obj *> args) {
-    auto newFrame = new Frame(frame);
+    auto newFrame = frameTemplate->initialize();
     if (newFrame->getArgs().count() < args.size()) {
         throw ArgumentError(sign.toString(),
                             format("too less arguments, expected %d got %d", newFrame->getArgs().count(), args.size()));
@@ -31,9 +38,18 @@ void ObjMethod::call(Thread *thread, vector<Obj *> args) {
 }
 
 void ObjMethod::call(Thread *thread, Obj **args) {
-    auto newFrame = new Frame(frame);
+    auto newFrame = frameTemplate->initialize();
     for (int i = 0; i < newFrame->getArgs().count(); i++) {
         newFrame->getArgs().set(i, args[i]);
     }
     thread->getState().pushFrame(newFrame);
+}
+
+string ObjMethod::toString() const {
+    static string kindNames[] = {
+            "function",
+            "method",
+            "constructor"
+    };
+    return format("<%s '%s'>", kindNames[kind].c_str(), sign.toString().c_str());
 }

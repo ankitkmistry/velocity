@@ -81,6 +81,11 @@ public:
     Settings &getSettings() { return settings; }
 
     /**
+     * @return the globals table
+     */
+    Table<Obj *> getGlobals() const { return globals; }
+
+    /**
      * @return the vm settings
      */
     const Settings &getSettings() const { return settings; }
@@ -101,16 +106,12 @@ public:
     string getOutput() const { return out.str(); }
 
 private:
+
     /**
      * The vm execution loop
      * @param thread the execution thread
      */
     void run(Thread *thread);
-
-    /**
-     * @return the globals table
-     */
-    Table<Obj *> getGlobals() const { return globals; }
 
     /**
      * Checks the casting compatibility between two types
@@ -121,7 +122,7 @@ private:
     static bool checkCast(const Type *type1, const Type *type2);
 
     /**
-     * Converts a c++ vector to ObjArray
+     * Converts a C++ vector to ObjArray
      * @param args the vector
      * @return an array object containing the contents of args
      */

@@ -21,7 +21,7 @@ void DebugOp::printVMState(VMState *state) {
     printMemory(state->getVM()->getMemoryManager()->getSurvivor());
     // Print the call stack
     printCallStack(state);
-    // Print the current frame
+    // Print the current frameTemplate
     printFrame(state->getFrame());
     // Print the output
     cout << "Output\n" << state->getVM()->getOutput() << "\n";

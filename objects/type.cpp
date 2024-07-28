@@ -1,5 +1,6 @@
 #include "type.hpp"
 #include "inbuilt_types.hpp"
+#include "typeparam.hpp"
 
 static string kindNames[] = {
         "class",
@@ -11,11 +12,16 @@ static string kindNames[] = {
 };
 
 Obj *Type::copy() const {
-    Table<Obj *> membersCopy{};
-    for (auto [key, value]: members) {
-        membersCopy[key] = value->copy();
+    // Copy type params
+    vector<TypeParam *> newTypeParams;
+    for (auto typeParam: typeParams) {
+        newTypeParams.push_back(cast<TypeParam *>(typeParam->copy()));
     }
-    return new(info.space->getManager()) Type(sign, kind, typeParams, supers, membersCopy, module, meta);
+    // Create new type object
+    Obj *newType = new(info.space->getManager()) Type(sign, kind, typeParams, supers, members, module, meta);
+    // Reify the type params
+    Obj::reify(&newType, typeParams, newTypeParams);
+    return newType;
 }
 
 bool Type::truth() const {
@@ -23,7 +29,7 @@ bool Type::truth() const {
 }
 
 string Type::toString() const {
-    return format("<%s '%s'>", kindNames[kind].c_str(), sign.toString().c_str());
+    return format("<%s '%s'>", kindNames[static_cast<int>(kind)].c_str(), sign.toString().c_str());
 }
 
 Obj *Type::getMember(string name) const {
@@ -48,7 +54,7 @@ Type *Type::SENTINEL_(const string &sign, MemoryManager *manager) {
     return new(manager) Type(Sign(sign), Kind::UNRESOLVED, {}, {}, {}, {});
 }
 
-Type::Type(Type &type) : Obj(type.sign, null, nullptr, type.meta) {
+Type::Type(Type &type) : Obj(type.sign, null, type.module, type.meta) {
     kind = type.kind;
     typeParams = type.typeParams;
     supers = type.supers;

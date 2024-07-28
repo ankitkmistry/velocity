@@ -12,10 +12,12 @@ add_executable(velocity main.cpp loader/verifier.cpp objects/object.cpp objects/
         objects/typeparam.cpp
         loader/foreign_loader.hpp
         loader/foreign_loader.cpp
-        objects/callable.cpp
         objects/callable.hpp
         objects/foreign.hpp
-        objects/foreign.cpp)
+        objects/foreign.cpp
+        frame/frame_template.cpp
+        frame/frame_template.hpp
+        ee/run.cpp)
 
 include_directories("../elpops")
 target_include_directories(velocity PRIVATE "../elpops")

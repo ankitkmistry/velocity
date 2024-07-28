@@ -51,12 +51,10 @@ public:
  * Represents a function argument
  */
 class Arg : public TableNode {
-    friend class ArgsTable;
-
     friend class VM;
 
 public:
-    Arg(string name, Obj *value, Table<string> &meta)
+    Arg(string name, Obj *value, Table<string> meta)
             : TableNode(name, value, meta) {}
 
     Arg &operator=(const Arg &arg) = default;
@@ -66,10 +64,8 @@ public:
  * Represents a local
  */
 class Local : public TableNode {
-    friend class LocalsTable;
-
 public:
-    Local(string name, Obj *value, Table<string> &meta)
+    Local(string name, Obj *value, Table<string> meta)
             : TableNode(name, value, meta) {}
 
     Local &operator=(const Local &local) = default;
@@ -113,6 +109,12 @@ public:
     Type *getType() const { return type; }
 
     /**
+     * Sets the exception object of the exception handle
+     * @param type_ the exception type object
+     */
+    void setType(Type *type_) { type = type_; }
+
+    /**
      * @return The meta data associated to the node
      */
     Table<string> getMeta() const { return meta; }
@@ -151,6 +153,8 @@ public:
 class ArgsTable {
     friend class GarbageCollector;
 
+    friend class FrameTemplate;
+
 private:
     vector<Arg> args;
 public:
@@ -165,13 +169,13 @@ public:
      * @param i the argument index
      * @param val value to be changed
      */
-    void set(uint8 i, Obj *val) { args[i].value = val; }
+    void set(uint8 i, Obj *val);
 
     /**
      * @return The value of the argument at index i
      * @param i the argument index
      */
-    Obj *get(uint8 i) const { return args[i].value; }
+    Obj *get(uint8 i) const;
 
     /**
      * Adds a new argument at the end of the table
@@ -184,6 +188,8 @@ public:
      * @param i the argument index
      */
     const Arg &getArg(uint8 i) const { return args[i]; }
+
+    ArgsTable copy() const;
 
     /**
      * @return The total number of arguments present
@@ -201,6 +207,8 @@ public:
  */
 class LocalsTable {
     friend class GarbageCollector;
+
+    friend class FrameTemplate;
 
 private:
     uint16 closureStart;
@@ -248,13 +256,21 @@ public:
      * @return The local at index i
      * @param i the local index
      */
-    const Local & getLocal(uint16 i) const;
+    const Local &getLocal(uint16 i) const;
+
+    /**
+     * @return The local at index i
+     * @param i the local index
+     */
+    Local &getLocal(uint16 i);
 
     /**
      * @return The closure at index i
      * @param i the closure index
      */
     TableNode *getClosure(uint16 i) const;
+
+    LocalsTable copy() const;
 
     /**
      * @return The total number of locals and closures present
@@ -269,6 +285,8 @@ public:
 
 class ExceptionTable {
     friend class GarbageCollector;
+
+    friend class FrameTemplate;
 
 private:
     vector<Exception> exceptions;

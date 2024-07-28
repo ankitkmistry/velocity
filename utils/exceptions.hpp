@@ -57,6 +57,9 @@ class IndexError : public FatalError {
 public:
     explicit IndexError(size_t index)
             : FatalError(format("index out of bounds: %d", index)) {}
+
+    explicit IndexError(string index_of, size_t index)
+            : FatalError(format("index out of bounds: %d (%s)", index, index_of.c_str())) {}
 };
 
 class FileNotFoundError : public FatalError {
@@ -128,6 +131,7 @@ class SignatureError : public FatalError {
 public:
     SignatureError(string sign, string msg)
             : FatalError(format("invalid signature: %s: '%s'", msg.c_str(), sign.c_str())) {}
+
     SignatureError(string sign)
             : FatalError(format("invalid signature: '%s'", sign.c_str())) {}
 };

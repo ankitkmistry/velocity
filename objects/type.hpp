@@ -7,37 +7,43 @@ class TypeParam;
 
 class Type : public Obj {
 public:
-    enum Kind {
+    enum class Kind {
+        /// Represents a class
         CLASS,
+        /// Represents an interface
         INTERFACE,
+        /// Represents an enumeration class
         ENUM,
+        /// Represents an annotation
         ANNOTATION,
+        /// Represents an type param
         TYPE_PARAM,
+        /// Represents an unresolved type
         UNRESOLVED
     };
 private:
     Kind kind;
-    vector<TypeParam *> typeParams;
     Table<Type *> supers;
     Table<Obj *> members;
+    vector<TypeParam *> typeParams;
 public:
-    Type(const Sign &sign, Kind kind, const vector<TypeParam *> &typeParams, const Table<Type *> &supers,
+    Type(const Sign &sign, Kind kind, vector<TypeParam *> typeParams, const Table<Type *> &supers,
          const Table<Obj *> &members, ObjModule *module = null, const Table<string> &meta = {})
             : Obj(sign, null, module, meta),
               kind(kind),
-              typeParams(typeParams),
               supers(supers),
-              members(members) {}
+              members(members),
+              typeParams(typeParams) {}
 
     Type(Type &type);
 
     virtual Kind getKind() const { return kind; }
 
-    virtual vector<TypeParam *> getTypeParams() const { return typeParams; }
-
     virtual Table<Type *> getSupers() const { return supers; }
 
     virtual Table<Obj *> getMembers() const { return members; }
+
+    virtual vector<TypeParam *> getTypeParams() const { return typeParams; }
 
     Obj *getMember(string name) const;
 

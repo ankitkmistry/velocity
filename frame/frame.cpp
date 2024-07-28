@@ -14,3 +14,4 @@ uint32 Frame::getCodeCount() const { return codeCount; }
 
 const vector<Obj *> &Frame::getConstPool() const { return method->getModule()->getConstantPool(); }
 
+

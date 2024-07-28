@@ -9,7 +9,7 @@ class TypeParam : public Type {
     void checkPlaceholder() const;
 public:
     TypeParam(Sign sign, ObjModule *module = null, const Table<string> &meta = {})
-            : Type(sign, TYPE_PARAM, {}, {}, {}, module, meta) {}
+            : Type(sign, Kind::TYPE_PARAM, {}, {}, {}, module, meta) {}
 
     void reify(Type *type) { placeholder = type; }
 

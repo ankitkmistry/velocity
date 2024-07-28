@@ -5,13 +5,15 @@
 #include "../utils/sign.hpp"
 #include "../memory/space.hpp"
 
-class Type;
-
 struct MemoryInfo {
     bool marked = false;
     uint32 life = 0;
     Space *space = null;
 };
+
+class Type;
+
+class TypeParam;
 
 class ObjModule;
 
@@ -21,13 +23,19 @@ class ObjModule;
 class Obj {
     inline static map<Obj *, Space *> spaces{};
 protected:
+    /// Memory header of the object
     MemoryInfo info{};
+    /// Module where this object belongs to
     ObjModule *module;
+    /// Signature of the object
     Sign sign;
+    /// Type of the object
     Type *type;
+    /// Meta info of the object
     Table<string> meta;
 
 public:
+
     Obj(Sign sign, Type *type, ObjModule *module, const Table<string> &meta = Table<string>());
 
     void *operator new(size_t size, MemoryManager *manager);
@@ -35,7 +43,27 @@ public:
     void operator delete(void *p);
 
     /**
-     * Performs a complete deep copy on the object
+     * Changes pointer to type params @p pObj specified in @p old_ to pointers specified in @p new_.
+     * This function reifies type parameters recursively.
+     * @param pObj pointer to the object
+     * @param old_ old type parameters
+     * @param new_ new type parameters
+     */
+    static void reify(Obj **pObj, vector<TypeParam *> old_, vector<TypeParam *> new_);
+
+    /**
+     * Creates a deep copy of \p obj.
+     * This function is more safe than Obj::copy as this prevents
+     * unnecessary copies of types, modules and callable objects.
+     * The user must always use this function to create safe copies of objects.
+     * @param obj
+     * @return
+     */
+    static Obj *createCopy(Obj *obj);
+
+    /**
+     * Performs a complete deep copy on the object.
+     * @warning The user should not use this function except in exceptional cases
      * @return a copy of the object
      */
     virtual Obj *copy() const = 0;
@@ -76,7 +104,7 @@ public:
     virtual Type *getType() const { return type; }
 
     /**
-     * Sets the type of the object (generally, in case of a cast)
+     * Sets the type of the object
      * @param destType the destination type
      */
     void setType(Type *destType) { this->type = destType; }

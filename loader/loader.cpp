@@ -2,7 +2,6 @@
 #include "elpops/reader.hpp"
 #include "verifier.hpp"
 #include "../ee/vm.hpp"
-#include "../objects/typeparam.hpp"
 
 Loader::Loader(VM *vm) : vm(vm), manager(vm->getMemoryManager()) {}
 
@@ -127,16 +126,16 @@ Obj *Loader::readClass(ClassInfo klass) {
     Type::Kind kind;
     switch (klass.type) {
         case 0x01:
-            kind = Type::CLASS;
+            kind = Type::Kind::CLASS;
             break;
         case 0x02:
-            kind = Type::INTERFACE;
+            kind = Type::Kind::INTERFACE;
             break;
         case 0x03:
-            kind = Type::ENUM;
+            kind = Type::Kind::ENUM;
             break;
         case 0x04:
-            kind = Type::ANNOTATION;
+            kind = Type::Kind::ANNOTATION;
             break;
         default:
             throw Unreachable();
@@ -279,12 +278,13 @@ Obj *Loader::readMethod(MethodInfo &method) {
         // Remove the unresolved types from ref pool
         referencePool.erase(key->getSign().toString());
     }
-    // Create the frame
-    Frame frame{method.codeCount, method.code,
-                method.maxStack,
-                args, locals, exceptions,
-                lines, null};
-    auto methodObj = new(manager) ObjMethod(sign, kind, frame, null, typeParams, getCurrentModule(), meta);
+    // Create the frame template
+    auto frameTemplate = new FrameTemplate{
+            method.codeCount, method.code, method.maxStack,
+            args, locals, exceptions,
+            lines, lambdas, matches
+    };
+    auto methodObj = new(manager) ObjMethod(sign, kind, frameTemplate, null, typeParams, getCurrentModule(), meta);
     if (kind == ObjMethod::CONSTRUCTOR)
         vm->setGlobal(sign.toString(), methodObj);
     return methodObj;

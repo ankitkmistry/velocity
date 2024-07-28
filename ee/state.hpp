@@ -25,13 +25,13 @@ public:
 
     // Frame operations
     /**
-     * Pushes a call frame on top of the call stack
-     * @param frame the frame to be pushed
+     * Pushes a call frameTemplate on top of the call stack
+     * @param frame the frameTemplate to be pushed
      */
     void pushFrame(Frame *frame);
 
     /**
-     * Pops the active call frame and reloads the state
+     * Pops the active call frameTemplate and reloads the state
      * @return true if the call stack is not empty, false otherwise
      */
     bool popFrame();
@@ -97,7 +97,7 @@ public:
     Frame *getCallStack() const { return callStack; }
 
     /**
-     * @return The active frame
+     * @return The active frameTemplate
      */
     Frame *getFrame() const { return fp - 1; }
 

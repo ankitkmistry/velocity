@@ -143,7 +143,7 @@ Obj *ObjInt::operator/(const ObjNumber *n) const {
 Obj *ObjArray::copy() const {
     auto arr = new(info.space->getManager()) ObjArray(length);
     for (uint16 i = 0; i < length; ++i)
-        arr->set(i, array[i]->copy());
+        arr->set(i, Obj::createCopy(array[i]));
     return arr;
 }
 
@@ -155,7 +155,7 @@ string ObjArray::toString() const {
 }
 
 Obj *ObjArray::get(int64 i) const {
-    if (i >= length) throw IndexError(i);
+    if (i >= length) throw IndexError("array", i);
     if (array == null)return new(info.space->getManager()) ObjNull(module);
     return array[i >= 0 ? i : length + i];
 }
@@ -165,7 +165,7 @@ void ObjArray::set(int64 i, Obj *value) {
     if (array == null) {
         array = new(info.space->getManager()) Obj *[length]{new(info.space->getManager()) ObjNull};
     }
-    if (i >= length) throw IndexError(i);
+    if (i >= length) throw IndexError("array", i);
     array[i >= 0 ? i : length + i] = value;
 }
 
