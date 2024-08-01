@@ -20,7 +20,7 @@ void GarbageCollector::markThread(Thread *thread) {
     // mark the value of the thread
     mark((Obj *) thread->getValue());
     auto state = thread->getState();
-    for (auto frame = state.getCallStack(); frame <= state.getFrame(); frame++) {
+    for (auto frame = state->getCallStack(); frame <= state->getFrame(); frame++) {
         // mark every frameTemplate
         markFrame(frame);
     }

@@ -14,27 +14,22 @@ private:
 public:
     VMState(VM *vm);
 
-    ~VMState() {
-        callStack = fp = null;
-        while (popFrame());
-    }
-
     VMState(const VMState &state)
             : vm(state.vm),
               callStack(state.callStack), fp(state.fp) {}
 
     // Frame operations
     /**
-     * Pushes a call frameTemplate on top of the call stack
-     * @param frame the frameTemplate to be pushed
+     * Pushes a call frame on top of the call stack
+     * @param frame the frame to be pushed
      */
     void pushFrame(Frame *frame);
 
     /**
-     * Pops the active call frameTemplate and reloads the state
-     * @return true if the call stack is not empty, false otherwise
+     * Pops the active call frame and reloads the state
+     * @return the popped frame
      */
-    bool popFrame();
+    Frame *popFrame();
 
     // Stack operations
     /**
@@ -97,7 +92,7 @@ public:
     Frame *getCallStack() const { return callStack; }
 
     /**
-     * @return The active frameTemplate
+     * @return The active frame
      */
     Frame *getFrame() const { return fp - 1; }
 

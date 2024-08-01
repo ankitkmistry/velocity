@@ -26,7 +26,7 @@ ObjArray *VM::argsRepr(const vector<string> &args) {
 }
 
 int VM::start(ObjMethod *entry, ObjArray *args) {
-    VMState state{this};
+    auto state = new VMState(this);
     Thread thread{state, [&](auto thr) {
         thr->setStatus(Thread::RUNNING);
         entry->call(&thread, {args});

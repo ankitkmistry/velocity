@@ -23,11 +23,11 @@ private:
     std::thread thread;
     // TODO Fix program representation
     Object *value = null; // Program representation
-    VMState &state;
+    VMState *state;
     Status status = NOT_STARTED;
     int exitCode = 0;
 public:
-    Thread(VMState &state, function<void(Thread *)> fun)
+    Thread(VMState *state, function<void(Thread *)> fun)
             : state(state), thread(fun, this) {}
 
     /**
@@ -43,7 +43,7 @@ public:
     /**
      * @return The vm state
      */
-    VMState &getState() const { return state; }
+    VMState *getState() const { return state; }
 
     /**
      * @return The status of the thread

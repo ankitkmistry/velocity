@@ -5,6 +5,7 @@
 #include "../utils/exceptions.hpp"
 
 #if defined OS_WINDOWS
+
 #include <windows.h>
 
 string getErrorMessage(DWORD errorCode);
@@ -43,6 +44,7 @@ public:
 
     void unload();
 };
+
 #elif defined OS_LINUX
 #include <dlfcn.h>
 

@@ -14,11 +14,9 @@ void VMState::pushFrame(Frame *frame) {
     *fp++ = *frame;
 }
 
-bool VMState::popFrame() {
+Frame *VMState::popFrame() {
     if (fp > callStack) {
-        fp--;
-        return fp != callStack;
+        return fp--;
     }
-    fp = null;
-    return false;
+    return fp = null;
 }

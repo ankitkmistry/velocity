@@ -33,7 +33,7 @@ void ObjMethod::call(Thread *thread, vector<Obj *> args) {
         for (int i = 0; i < newFrame->getArgs().count(); i++) {
             newFrame->getArgs().set(i, args[i]);
         }
-        thread->getState().pushFrame(newFrame);
+        thread->getState()->pushFrame(newFrame);
     }
 }
 
@@ -42,7 +42,7 @@ void ObjMethod::call(Thread *thread, Obj **args) {
     for (int i = 0; i < newFrame->getArgs().count(); i++) {
         newFrame->getArgs().set(i, args[i]);
     }
-    thread->getState().pushFrame(newFrame);
+    thread->getState()->pushFrame(newFrame);
 }
 
 string ObjMethod::toString() const {
