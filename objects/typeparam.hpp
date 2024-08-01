@@ -11,6 +11,10 @@ public:
     TypeParam(Sign sign, ObjModule *module = null, const Table<string> &meta = {})
             : Type(sign, Kind::TYPE_PARAM, {}, {}, {}, module, meta) {}
 
+    /**
+     * Reifies the type parameter to the specified \p type
+     * @param type the final type
+     */
     void reify(Type *type) { placeholder = type; }
 
     Kind getKind() const override;

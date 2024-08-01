@@ -21,6 +21,8 @@ public:
 
     const vector<TypeParam *> &getTypeParams() const { return typeParams; }
 
+    vector<TypeParam *> &getTypeParams() { return typeParams; }
+
     void call(Thread *thread, vector<Obj *> args) override;
 
     void call(Thread *thread, Obj **args) override;

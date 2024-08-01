@@ -77,6 +77,15 @@ void VM::run(Thread *thread) {
                 case Opcode::POP_STORE_ARG:
                     frame->getArgs().set(state.readByte(), state.pop());
                     break;
+                case Opcode::LOAD_TYPE_ARG:
+                    state.push(frame->getMethod()->getTypeParams()[state.readByte()]);
+                    break;
+                case Opcode::STORE_TYPE_ARG:
+                    frame->getMethod()->getTypeParams()[state.readByte()]->reify(cast<Type *>(state.peek()));
+                    break;
+                case Opcode::POP_STORE_TYPE_ARG:
+                    frame->getMethod()->getTypeParams()[state.readByte()]->reify(cast<Type *>(state.pop()));
+                    break;
                 case Opcode::LOAD_MEMBER: {
                     auto object = cast<Object *>(state.pop());
                     auto name = Sign(state.loadConst(state.readShort())->toString()).getName();
