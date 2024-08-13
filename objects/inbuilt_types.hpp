@@ -2,14 +2,12 @@
 #define OOP_OBJECTS_HPP_
 
 #include "../utils/common.hpp"
-#include "../utils/utils.hpp"
-#include "../utils/exceptions.hpp"
 #include "../objects/obj.hpp"
 #include "../memory/memory.hpp"
 
 class ObjBool : public ComparableObj {
 private:
-    const bool value;
+    bool value;
 
 public:
     ObjBool(bool value, ObjModule *module = null, const Table<string> &meta = Table<string>())
@@ -30,13 +28,13 @@ public:
     int32 compare(const Obj *rhs) const override;
 
     ObjBool *operator!() const {
-        return new(info.space->getManager()) ObjBool(!value, module);
+        return Obj::alloc<ObjBool>(info.manager, !value, module);
     }
 };
 
 class ObjChar : public ComparableObj {
 private:
-    const char c;
+    char c;
 
 public:
     ObjChar(const char c, ObjModule *module = null, const Table<string> &meta = Table<string>())
@@ -59,9 +57,8 @@ public:
 
 class ObjNull : public ComparableObj {
 public:
-    ObjNull(ObjModule *module = null, const Table<string> &meta = Table<string>()) : ComparableObj(Sign("null"), null,
-                                                                                                   module,
-                                                                                                   meta) {}
+    ObjNull(ObjModule *module = null, const Table<string> &meta = Table<string>())
+            : ComparableObj(Sign("null"), null, module, meta) {}
 
     bool truth() const override {
         return false;
@@ -134,7 +131,7 @@ class ObjInt;
 
 class ObjNumber : public ComparableObj {
 public:
-    ObjNumber(Sign sign, ObjModule *module = null, const Table<string> &meta = Table<string>())
+    ObjNumber(Sign sign, ObjModule *module = null, Table<string> meta = {})
             : ComparableObj(sign, null, module, meta) {}
 
     virtual Obj *operator-() const = 0;
@@ -154,7 +151,8 @@ class ObjInt final : public ObjNumber {
 private:
     int64 val;
 public:
-    ObjInt(int64 val, ObjModule *module = null) : ObjNumber(Sign("int"), module), val(val) {}
+    ObjInt(int64 val, ObjModule *module = null, Table<string> meta = {})
+            : ObjNumber(Sign("int"), module, meta), val(val) {}
 
     Obj *copy() const override;
 
@@ -199,7 +197,8 @@ class ObjFloat final : public ObjNumber {
 private:
     double val;
 public:
-    ObjFloat(double val, ObjModule *module = null) : ObjNumber(Sign("float"), module), val(val) {}
+    ObjFloat(double val, ObjModule *module = null, Table<string> meta = {})
+            : ObjNumber(Sign("float"), module, meta), val(val) {}
 
     Obj *copy() const override;
 

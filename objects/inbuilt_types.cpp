@@ -1,4 +1,5 @@
 #include "inbuilt_types.hpp"
+#include "../utils/utils.hpp"
 #include "cmath"
 
 int32 ObjBool::compare(const Obj *rhs) const {
@@ -44,27 +45,27 @@ int32 ObjFloat::compare(const Obj *rhs) const {
 }
 
 Obj *ObjFloat::operator-() const {
-    return new(info.space->getManager()) ObjFloat(-val);
+    return Obj::alloc<ObjFloat>(info.manager, -val);
 }
 
 Obj *ObjFloat::power(const ObjNumber *n) const {
-    return new(info.space->getManager()) ObjFloat(pow(val, cast<const ObjFloat *>(n)->val));
+    return Obj::alloc<ObjFloat>(info.manager, pow(val, cast<const ObjFloat *>(n)->val));
 }
 
 Obj *ObjFloat::operator+(const ObjNumber *n) const {
-    return new(info.space->getManager()) ObjFloat(val + cast<const ObjFloat *>(n)->val);
+    return Obj::alloc<ObjFloat>(info.manager, val + cast<const ObjFloat *>(n)->val);
 }
 
 Obj *ObjFloat::operator-(const ObjNumber *n) const {
-    return new(info.space->getManager()) ObjFloat(val - cast<const ObjFloat *>(n)->val);
+    return Obj::alloc<ObjFloat>(info.manager, val - cast<const ObjFloat *>(n)->val);
 }
 
 Obj *ObjFloat::operator*(const ObjNumber *n) const {
-    return new(info.space->getManager()) ObjFloat(val * cast<const ObjFloat *>(n)->val);
+    return Obj::alloc<ObjFloat>(info.manager, val * cast<const ObjFloat *>(n)->val);
 }
 
 Obj *ObjFloat::operator/(const ObjNumber *n) const {
-    return new(info.space->getManager()) ObjFloat(val / cast<const ObjFloat *>(n)->val);
+    return Obj::alloc<ObjFloat>(info.manager, val / cast<const ObjFloat *>(n)->val);
 }
 
 Obj *ObjInt::copy() const {
@@ -80,35 +81,35 @@ string ObjInt::toString() const {
 }
 
 ObjInt *ObjInt::operator~() const {
-    return new(info.space->getManager()) ObjInt(~val);
+    return Obj::alloc<ObjInt>(info.manager, ~val);
 }
 
 ObjInt *ObjInt::operator<<(const ObjInt &n) const {
-    return new(info.space->getManager()) ObjInt(val << n.val);
+    return Obj::alloc<ObjInt>(info.manager, val << n.val);
 }
 
 ObjInt *ObjInt::operator>>(const ObjInt &n) const {
-    return new(info.space->getManager()) ObjInt(val >> n.val);
+    return Obj::alloc<ObjInt>(info.manager, val >> n.val);
 }
 
 ObjInt *ObjInt::unsignedRightShift(const ObjInt &n) const {
-    return new(info.space->getManager()) ObjInt(val & 0x7fffffff >> n.val);
+    return Obj::alloc<ObjInt>(info.manager, val & 0x7fffffff >> n.val);
 }
 
 ObjInt *ObjInt::operator%(const ObjInt &n) const {
-    return new(info.space->getManager()) ObjInt(val % n.val);
+    return Obj::alloc<ObjInt>(info.manager, val % n.val);
 }
 
 ObjInt *ObjInt::operator&(const ObjInt &n) const {
-    return new(info.space->getManager()) ObjInt(val & n.val);
+    return Obj::alloc<ObjInt>(info.manager, val & n.val);
 }
 
 ObjInt *ObjInt::operator|(const ObjInt &n) const {
-    return new(info.space->getManager()) ObjInt(val | n.val);
+    return Obj::alloc<ObjInt>(info.manager, val | n.val);
 }
 
 ObjInt *ObjInt::operator^(const ObjInt &n) const {
-    return new(info.space->getManager()) ObjInt(val ^ n.val);
+    return Obj::alloc<ObjInt>(info.manager, val ^ n.val);
 }
 
 int32 ObjInt::compare(const Obj *rhs) const {
@@ -117,31 +118,31 @@ int32 ObjInt::compare(const Obj *rhs) const {
 }
 
 Obj *ObjInt::operator-() const {
-    return new(info.space->getManager()) ObjInt(-val);
+    return Obj::alloc<ObjInt>(info.manager, -val);
 }
 
 Obj *ObjInt::power(const ObjNumber *n) const {
-    return new(info.space->getManager()) ObjFloat(pow(val, cast<const ObjInt *>(n)->val));
+    return Obj::alloc<ObjFloat>(info.manager, pow(val, cast<const ObjInt *>(n)->val));
 }
 
 Obj *ObjInt::operator+(const ObjNumber *n) const {
-    return new(info.space->getManager()) ObjInt(val + cast<const ObjInt *>(n)->val);
+    return Obj::alloc<ObjInt>(info.manager, val + cast<const ObjInt *>(n)->val);
 }
 
 Obj *ObjInt::operator-(const ObjNumber *n) const {
-    return new(info.space->getManager()) ObjInt(val - cast<const ObjInt *>(n)->val);
+    return Obj::alloc<ObjInt>(info.manager, val - cast<const ObjInt *>(n)->val);
 }
 
 Obj *ObjInt::operator*(const ObjNumber *n) const {
-    return new(info.space->getManager()) ObjInt(val * cast<const ObjInt *>(n)->val);
+    return Obj::alloc<ObjInt>(info.manager, val * cast<const ObjInt *>(n)->val);
 }
 
 Obj *ObjInt::operator/(const ObjNumber *n) const {
-    return new(info.space->getManager()) ObjInt(val / cast<const ObjInt *>(n)->val);
+    return Obj::alloc<ObjInt>(info.manager, val / cast<const ObjInt *>(n)->val);
 }
 
 Obj *ObjArray::copy() const {
-    auto arr = new(info.space->getManager()) ObjArray(length);
+    auto arr = Obj::alloc<ObjArray>(info.manager, length);
     for (uint16 i = 0; i < length; ++i)
         arr->set(i, Obj::createCopy(array[i]));
     return arr;
@@ -156,14 +157,14 @@ string ObjArray::toString() const {
 
 Obj *ObjArray::get(int64 i) const {
     if (i >= length) throw IndexError("array", i);
-    if (array == null)return new(info.space->getManager()) ObjNull(module);
+    if (array == null)return Obj::alloc<ObjNull>(info.manager, module);
     return array[i >= 0 ? i : length + i];
 }
 
 void ObjArray::set(int64 i, Obj *value) {
     // Initialize the array if it is not initialized yet
     if (array == null) {
-        array = new(info.space->getManager()) Obj *[length]{new(info.space->getManager()) ObjNull};
+        array = new Obj *[length]{Obj::alloc<ObjNull>(info.manager)};
     }
     if (i >= length) throw IndexError("array", i);
     array[i >= 0 ? i : length + i] = value;

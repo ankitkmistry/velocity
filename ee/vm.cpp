@@ -1,7 +1,9 @@
 #include "vm.hpp"
 
-VM::VM(Settings settings) : settings(std::move(settings)) {
-    manager = new MemoryManager{this};
+VM::VM(MemoryManager *manager_, Settings settings)
+        : settings(std::move(settings)) {
+    manager = manager_;
+    manager->setVM(this);
 }
 
 void VM::onExit(const function<void()> &fun) { onExitList.push_back(fun); }
@@ -18,9 +20,9 @@ int VM::start(const string &filename, const vector<string> &args) {
 }
 
 ObjArray *VM::argsRepr(const vector<string> &args) {
-    auto array = new(manager) ObjArray(args.size());
+    auto array = Obj::alloc<ObjArray>(manager, args.size());
     for (int i = 0; i < args.size(); ++i) {
-        array->set(i, new(manager) ObjString(args[i]));
+        array->set(i, Obj::alloc<ObjString>(manager, args[i]));
     }
     return array;
 }
@@ -46,7 +48,7 @@ int VM::start(ObjMethod *entry, ObjArray *args) {
 }
 
 ThrowSignal VM::runtimeError(const string &str) {
-    return ThrowSignal{new(manager) ObjString(str)};
+    return ThrowSignal{Obj::alloc<ObjString>(manager, str)};
 }
 
 Obj *VM::getGlobal(const string &sign) const {
@@ -64,4 +66,8 @@ void VM::setGlobal(const string &sign, Obj *val) {
 bool VM::checkCast(const Type *type1, const Type *type2) {
     // TODO implement this
     return false;
+}
+
+VM *VM::current() {
+    return Thread::current()->getState()->getVM();
 }

@@ -36,6 +36,17 @@ public:
      */
     virtual void call(Thread *thread, Obj **args) = 0;
 
+    /**
+     * Calls this method with \p args on \p thread.
+     * Invokes the VM, completes the execution of
+     * the function and returns the return value.
+     * In case the function returns void, \c ObjNull is returned
+     * @param thread the thread
+     * @param args the method to be called
+     * @return the return value of the function
+     */
+    Obj *invoke(Thread *thread, vector<Obj *> args);
+
     Kind getKind() const { return kind; }
 
     bool truth() const override { return true; }

@@ -10,7 +10,6 @@
 #include "settings.hpp"
 
 class VM {
-    friend class GarbageCollector;
 
 private:
     /// The globals
@@ -29,7 +28,7 @@ private:
     std::stringstream out;
 
 public:
-    explicit VM(Settings settings = {});
+    explicit VM(MemoryManager *manager, Settings settings = {});
 
     /**
      * This function registers the action which will be executed
@@ -57,6 +56,12 @@ public:
      */
     int start(ObjMethod *entry, ObjArray *args);
 
+    /**
+     * The vm execution loop
+     * @param thread the execution thread
+     */
+    Obj *run(Thread *thread);
+
     ThrowSignal runtimeError(const string &str);
 
     /**
@@ -75,15 +80,19 @@ public:
      */
     void setGlobal(const string &sign, Obj *val);
 
-    /**
-     * @return the vm settings
-     */
-    Settings &getSettings() { return settings; }
+    std::set<Thread *> &getThreads() { return threads; }
+
+    const std::set<Thread *> &getThreads() const { return threads; }
 
     /**
      * @return the globals table
      */
     Table<Obj *> getGlobals() const { return globals; }
+
+    /**
+     * @return the vm settings
+     */
+    Settings &getSettings() { return settings; }
 
     /**
      * @return the vm settings
@@ -105,13 +114,12 @@ public:
      */
     string getOutput() const { return out.str(); }
 
-private:
-
     /**
-     * The vm execution loop
-     * @param thread the execution thread
+     * @return the current vm respective to the current thread
      */
-    void run(Thread *thread);
+    static VM *current();
+
+private:
 
     /**
      * Checks the casting compatibility between two types

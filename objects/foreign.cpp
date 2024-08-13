@@ -529,7 +529,7 @@ void ObjForeign::call(Thread *thread, Obj **args) {
         WRITE_CASE(255);
         WRITE_CASE(256);
         default:
-            result = new(thread->getState()->getVM()->getMemoryManager()) ObjNull;
+            result = Obj::alloc<ObjNull>(thread->getState()->getVM()->getMemoryManager());
             break;
     }
     thread->getState()->push(result);

@@ -151,7 +151,7 @@ public:
  * Represents the argument table
  */
 class ArgsTable {
-    friend class GarbageCollector;
+    friend class BasicCollector;
 
     friend class FrameTemplate;
 
@@ -206,7 +206,7 @@ public:
  * Represents the locals table
  */
 class LocalsTable {
-    friend class GarbageCollector;
+    friend class BasicCollector;
 
     friend class FrameTemplate;
 
@@ -284,7 +284,7 @@ public:
 };
 
 class ExceptionTable {
-    friend class GarbageCollector;
+    friend class BasicCollector;
 
     friend class FrameTemplate;
 
@@ -373,7 +373,7 @@ public:
  * Represents a check table
  */
 class MatchTable {
-    friend class GarbageCollector;
+    friend class BasicCollector;
 
 private:
     vector<Case> cases;

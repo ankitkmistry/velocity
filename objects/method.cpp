@@ -14,9 +14,9 @@ Obj *ObjMethod::copy() const {
     for (auto typeParam: typeParams) {
         newTypeParams.push_back(cast<TypeParam *>(typeParam->copy()));
     }
-    Obj *newMethod = new(info.space->getManager()) ObjMethod(
-            sign, kind, frameTemplate->copy(),
-            type, newTypeParams, module, meta);
+    Obj *newMethod = Obj::alloc<ObjMethod>(info.manager,
+                                           sign, kind, frameTemplate->copy(),
+                                           type, newTypeParams, module, meta);
     Obj::reify(&newMethod, typeParams, newTypeParams);
     return newMethod;
 }

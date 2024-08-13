@@ -1,6 +1,7 @@
 #include "type.hpp"
 #include "inbuilt_types.hpp"
 #include "typeparam.hpp"
+#include "../utils/utils.hpp"
 
 static string kindNames[] = {
         "class",
@@ -18,7 +19,7 @@ Obj *Type::copy() const {
         newTypeParams.push_back(cast<TypeParam *>(typeParam->copy()));
     }
     // Create new type object
-    Obj *newType = new(info.space->getManager()) Type(sign, kind, typeParams, supers, members, module, meta);
+    Obj *newType = Obj::alloc<Type>(info.manager, sign, kind, newTypeParams, supers, members, module, meta);
     // Reify the type params
     Obj::reify(&newType, typeParams, newTypeParams);
     return newType;
@@ -46,12 +47,13 @@ Obj *Type::getStaticMember(string &name) const {
         }
     }
     if (obj == null)
-        obj = new(info.space->getManager()) ObjNull;
+        obj = Obj::alloc<ObjNull>(info.manager);
     return obj;
 }
 
 Type *Type::SENTINEL_(const string &sign, MemoryManager *manager) {
-    return new(manager) Type(Sign(sign), Kind::UNRESOLVED, {}, {}, {}, {});
+    return Obj::alloc<Type>(manager, Sign(sign), Kind::UNRESOLVED,
+                            vector<TypeParam *>{}, Table<Type *>{}, Table<Obj *>{}, null, Table<string>{});
 }
 
 Type::Type(Type &type) : Obj(type.sign, null, type.module, type.meta) {

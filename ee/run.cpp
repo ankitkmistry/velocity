@@ -3,7 +3,7 @@
 #include "../debug/debug.hpp"
 #include "elpops/opcode.hpp"
 
-void VM::run(Thread *thread) {
+Obj *VM::run(Thread *thread) {
     auto state = thread->getState();
     auto topFrame = state->getFrame();
     while (thread->isRunning()) {
@@ -171,7 +171,7 @@ void VM::run(Thread *thread) {
                 }
                 case Opcode::LOAD_OBJECT: {
                     auto type = cast<Type *>(state->pop());
-                    auto object = new(manager) Object(Sign(""), type, frame->getMethod()->getModule());
+                    auto object = Obj::alloc<Object>(manager, Sign(""), type, frame->getMethod()->getModule());
                     state->push(object);
                     break;
                 }
@@ -184,13 +184,13 @@ void VM::run(Thread *thread) {
                 }
                 case Opcode::BUILD_ARRAY: {
                     auto count = state->readShort();
-                    auto array = new(manager) ObjArray(count);
+                    auto array = Obj::alloc<ObjArray>(manager, count);
                     state->push(array);
                     break;
                 }
                 case Opcode::BUILD_ARRAY_FAST: {
                     auto count = state->readByte();
-                    auto array = new(manager) ObjArray(count);
+                    auto array = Obj::alloc<ObjArray>(manager, count);
                     state->push(array);
                     break;
                 }
@@ -216,7 +216,7 @@ void VM::run(Thread *thread) {
                 }
                 case Opcode::LOAD_LENGTH: {
                     auto array = cast<ObjArray *>(state->pop());
-                    state->push(new(manager) ObjInt(array->count()));
+                    state->push(Obj::alloc<ObjInt>(manager, array->count()));
                     break;
                 }
                 case Opcode::INVOKE: {
@@ -358,7 +358,7 @@ void VM::run(Thread *thread) {
                     break;
                 }
                 case Opcode::SUB_CALL: {
-                    auto address = new(manager) ObjInt(frame->ip - frame->code);
+                    auto address = Obj::alloc<ObjInt>(manager, frame->ip - frame->code);
                     state->push(address);
                     auto offset = state->readShort();
                     state->adjust(offset);
@@ -464,7 +464,7 @@ void VM::run(Thread *thread) {
                         obj->setType(type);
                         state->push(obj);
                     } else
-                        state->push(new(manager) ObjNull);
+                        state->push(Obj::alloc<ObjNull>(manager));
                     break;
                 }
                 case Opcode::CHECKED_CAST: {
@@ -590,20 +590,20 @@ void VM::run(Thread *thread) {
                 case Opcode::IS: {
                     auto b = state->pop();
                     auto a = state->pop();
-                    state->push(new(manager) ObjBool(a == b));
+                    state->push(Obj::alloc<ObjBool>(manager, a == b));
                     break;
                 }
                 case Opcode::IS_NOT: {
                     auto b = state->pop();
                     auto a = state->pop();
-                    state->push(new(manager) ObjBool(a != b));
+                    state->push(Obj::alloc<ObjBool>(manager, a != b));
                     break;
                 }
                 case Opcode::IS_NULL:
-                    state->push(new(manager) ObjBool(is<ObjNull *>(state->pop())));
+                    state->push(Obj::alloc<ObjBool>(manager, is<ObjNull *>(state->pop())));
                     break;
                 case Opcode::IS_NON_NULL:
-                    state->push(new(manager) ObjBool(!is<ObjNull *>(state->pop())));
+                    state->push(Obj::alloc<ObjBool>(manager, !is<ObjNull *>(state->pop())));
                     break;
                 case Opcode::MONITOR_ENTER:
                     // todo: implement
@@ -682,7 +682,7 @@ void VM::run(Thread *thread) {
                     state->popFrame();
                     // Return if encountered end of execution
                     if (topFrame == currentFrame) {
-                        return;
+                        return val;
                     }
                     // Push the return value
                     state->getFrame()->push(val);
@@ -694,7 +694,7 @@ void VM::run(Thread *thread) {
                     state->popFrame();
                     // Return if encountered end of execution
                     if (topFrame == currentFrame) {
-                        return;
+                        return Obj::alloc<ObjNull>(getMemoryManager());
                     }
                     break;
                 }
@@ -727,4 +727,5 @@ void VM::run(Thread *thread) {
             abort();
         }
     }
+    return Obj::alloc<ObjNull>(getMemoryManager());
 }

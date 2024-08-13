@@ -1,22 +1,28 @@
 #include "collector.hpp"
+#include "../../ee/vm.hpp"
 
-#define GET_OBJ(block) ((Obj *) (block + 1))
-
-void GarbageCollector::markRoots() {
-    // mark the globals
-    markTable(vm->globals);
-    // mark the threads
-    for (auto thread: vm->threads) markThread(thread);
+void BasicCollector::gc() {
+    markRoots();
+    traceReferences();
+    sweep();
 }
 
-void GarbageCollector::markTable(const Table<Obj *> &table) {
+void BasicCollector::markRoots() {
+    auto vm = manager->getVM();
+    // mark the globals
+    markTable(vm->getGlobals());
+    // mark the threads
+    for (auto thread: vm->getThreads()) markThread(thread);
+}
+
+void BasicCollector::markTable(const Table<Obj *> &table) {
     for (auto [key, object]: table) {
         // mark every value in the table
         mark(object);
     }
 }
 
-void GarbageCollector::markThread(Thread *thread) {
+void BasicCollector::markThread(Thread *thread) {
     // mark the value of the thread
     mark((Obj *) thread->getValue());
     auto state = thread->getState();
@@ -26,7 +32,7 @@ void GarbageCollector::markThread(Thread *thread) {
     }
 }
 
-void GarbageCollector::markFrame(Frame *frame) {
+void BasicCollector::markFrame(Frame *frame) {
     for (auto constant: frame->getConstPool()) {
         // mark every constant of the constant pool
         mark(constant);
@@ -70,15 +76,16 @@ void GarbageCollector::markFrame(Frame *frame) {
     }
 }
 
-void GarbageCollector::mark(Obj *obj) {
+void BasicCollector::mark(Obj *obj) {
     if (obj == null)return;
     if (obj->getInfo().marked)return;
     obj->getInfo().marked = true;
     grayMaterial.push_back(obj);
+    mark(obj->getModule());
     mark((Obj *) obj->getType());
 }
 
-void GarbageCollector::traceReferences() {
+void BasicCollector::traceReferences() {
     for (auto obj: grayMaterial) {
         if (is<ObjArray *>(obj)) {
             auto array = cast<ObjArray *>(obj);
@@ -110,17 +117,36 @@ void GarbageCollector::traceReferences() {
     }
 }
 
-void GarbageCollector::sweep() {
-    auto settings = vm->settings;
-    Block *previous = null;
-    Block *current = space->base;
-    while (true) {
-        auto &info = GET_OBJ(current)->getInfo();
+void BasicCollector::sweep() {
+    LNode *previous = null;
+    LNode *current = manager->head;
+    while (current != null) {
+        auto &info = current->data->getInfo();
         if (info.marked) {
             info.marked = false;
-            switch (space->type) {
-                case SpaceType::EDEN:
-                    if (info.life++ > settings.MAX_LIFE_IN_EDEN) {
+            info.life++;
+            previous = current;
+            current = current->next;
+        } else {
+            auto unreached = current;
+            current = current->next;
+            if (previous != null) previous->next = current;
+            Obj::free(unreached->data);
+            manager->deallocate(unreached);
+        }
+    }
+}
+/*auto settings = vm->settings;
+Block *previous = null;
+Block *current = space->base;
+while (true) {
+    auto &info = GET_OBJ(current)->getInfo();
+    if (info.marked) {
+        info.marked = false;
+        switch (space->type) {
+            case SpaceType::EDEN:
+                // TODO Change this
+                *//*if (info.life++ > settings.MAX_LIFE_IN_EDEN) {
                         auto next = current->header.next;
                         vm->getMemoryManager()->getSurvivor().take(current);
                         previous->header.next = next;
@@ -128,7 +154,10 @@ void GarbageCollector::sweep() {
                     } else {
                         previous = current;
                         current = current->header.next;
-                    }
+                    }*//*
+                    info.life++;
+                    previous = current;
+                    current = current->header.next;
                     break;
                 case SpaceType::SURVIVOR:
                     info.life++;
@@ -144,5 +173,5 @@ void GarbageCollector::sweep() {
             space->deallocate(unreached);
         }
         if (current == space->base) break;
-    }
-}
+    }*/
+

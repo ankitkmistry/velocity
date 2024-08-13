@@ -2,6 +2,7 @@
 
 #include "ee/vm.hpp"
 #include "loader/foreign_loader.hpp"
+#include "memory/basic/manager.hpp"
 
 void signTest() {
     Sign sign1{"A::B"};
@@ -24,7 +25,7 @@ void signTest() {
 
 void runVM() {
     try {
-//        VM vm;
+        VM vm{new BasicMemoryManager};
         ForeignLoader foreignLoader;
         auto lib = foreignLoader.loadSimpleLibrary("mscvrt.dll");
         cout << (intptr) lib->call<void *>("malloc", 64) << '\n';

@@ -21,6 +21,9 @@ struct Settings {
             "string",
     };
 
+    string libPath;
+    string modPath;
+
     uint16 MAX_LIFE_IN_EDEN = 10;
     /// MAX_EDEN_GC must be > MAX_LIFE_IN_EDEN
     uint16 MAX_EDEN_GC = 20;

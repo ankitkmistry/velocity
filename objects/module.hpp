@@ -24,7 +24,7 @@ private:
     /// The dependencies of the module
     vector<string> dependencies;
     /// The information in the module
-    const ElpInfo elp;
+    ElpInfo elp;
 
     ObjModule(const Sign sign, const Table<string> meta, State state,
               const fs::path path, const vector<Obj *> constantPool, const vector<string> dependencies,

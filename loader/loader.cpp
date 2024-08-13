@@ -63,7 +63,7 @@ ObjModule *Loader::readModule(const string &path) {
     // Close the reader
     reader.close();
     // Load the constant pool
-    auto module = new(manager) ObjModule{path, elp, readMeta(elp.meta)};
+    auto module = Obj::alloc<ObjModule>(manager, path, elp, readMeta(elp.meta));
     modStack.push_back(module);
     auto constPool = readConstPool(elp.constantPool, elp.constantPoolCount);
     module->setConstantPool(constPool);
@@ -98,14 +98,14 @@ Obj *Loader::readGlobal(GlobalInfo &global) {
     auto meta = readMeta(global.meta);
 
     return match<Obj *>(constPool[global.type]->toString(), {
-            {"array",  [&] { return new(manager) ObjArray(0, getCurrentModule()); }},
-            {"bool",   [&] { return new(manager) ObjBool(false, getCurrentModule()); }},
-            {"char",   [&] { return new(manager) ObjChar('\0', getCurrentModule()); }},
-            {"float",  [&] { return new(manager) ObjFloat(0, getCurrentModule()); }},
-            {"int",    [&] { return new(manager) ObjInt(0, getCurrentModule()); }},
-            {"string", [&] { return new(manager) ObjString("", getCurrentModule()); }}
+            {"array",  [&] { return Obj::alloc<ObjArray>(manager, 0, getCurrentModule(), meta); }},
+            {"bool",   [&] { return Obj::alloc<ObjBool>(manager, false, getCurrentModule(), meta); }},
+            {"char",   [&] { return Obj::alloc<ObjChar>(manager, '\0', getCurrentModule(), meta); }},
+            {"float",  [&] { return Obj::alloc<ObjFloat>(manager, 0, getCurrentModule(), meta); }},
+            {"int",    [&] { return Obj::alloc<ObjInt>(manager, 0, getCurrentModule(), meta); }},
+            {"string", [&] { return Obj::alloc<ObjString>(manager, "", getCurrentModule(), meta); }}
     }, [&] {
-        return new(manager) Object(sign, type, getCurrentModule(), meta);
+        return Obj::alloc<Object>(manager, sign, type, getCurrentModule(), meta);
     });
 }
 
@@ -148,7 +148,7 @@ Obj *Loader::readClass(ClassInfo klass) {
             // Get the signature of the type parameter
             auto paramSign = typeParam->toString();
             // Make it an unresolved reference
-            auto type = new(manager) TypeParam(Sign{paramSign}, getCurrentModule());
+            auto type = Obj::alloc<TypeParam>(manager, Sign{paramSign}, getCurrentModule());
             // Remember the type params
             typeParams.push_back(type);
             // Put it in the ref pool
@@ -195,14 +195,14 @@ Obj *Loader::readField(FieldInfo &field) {
     auto meta = readMeta(field.meta);
 
     return match<Obj *>(constPool[field.type]->toString(), {
-            {"array",  [&] { return new(manager) ObjArray(0, getCurrentModule()); }},
-            {"bool",   [&] { return new(manager) ObjBool(false, getCurrentModule()); }},
-            {"char",   [&] { return new(manager) ObjChar('\0'); }},
-            {"float",  [&] { return new(manager) ObjFloat(0, getCurrentModule()); }},
-            {"int",    [&] { return new(manager) ObjInt(0, getCurrentModule()); }},
-            {"string", [&] { return new(manager) ObjString("", getCurrentModule()); }}
+            {"array",  [&] { return Obj::alloc<ObjArray>(manager, 0, getCurrentModule(), meta); }},
+            {"bool",   [&] { return Obj::alloc<ObjBool>(manager, false, getCurrentModule(), meta); }},
+            {"char",   [&] { return Obj::alloc<ObjChar>(manager, '\0', getCurrentModule(), meta); }},
+            {"float",  [&] { return Obj::alloc<ObjFloat>(manager, 0, getCurrentModule(), meta); }},
+            {"int",    [&] { return Obj::alloc<ObjInt>(manager, 0, getCurrentModule(), meta); }},
+            {"string", [&] { return Obj::alloc<ObjString>(manager, "", getCurrentModule(), meta); }}
     }, [&] {
-        return new(manager) Object(sign, type, getCurrentModule(), meta);
+        return Obj::alloc<Object>(manager, sign, type, getCurrentModule(), meta);
     });
 }
 
@@ -238,7 +238,7 @@ Obj *Loader::readMethod(MethodInfo &method) {
             // Get the signature of the type parameter
             auto paramSign = typeParam->toString();
             // Make it an unresolved reference
-            auto type = new(manager) TypeParam(Sign{paramSign}, getCurrentModule());
+            auto type = Obj::alloc<TypeParam>(manager, Sign{paramSign}, getCurrentModule());
             // Remember the type params
             typeParams.push_back(type);
             // Put it in the ref pool
@@ -284,7 +284,9 @@ Obj *Loader::readMethod(MethodInfo &method) {
             args, locals, exceptions,
             lines, lambdas, matches
     };
-    auto methodObj = new(manager) ObjMethod(sign, kind, frameTemplate, null, typeParams, getCurrentModule(), meta);
+    auto methodObj = Obj::alloc<ObjMethod>(
+            manager, sign, kind, frameTemplate, null, typeParams, getCurrentModule(), meta
+    );
     if (kind == ObjMethod::CONSTRUCTOR)
         vm->setGlobal(sign.toString(), methodObj);
     return methodObj;
@@ -319,14 +321,14 @@ Local Loader::readLocal(MethodInfo::LocalInfo &local) {
     auto type = findType(constPool[local.type]->toString());
     auto meta = readMeta(local.meta);
     auto obj = match<Obj *>(constPool[local.type]->toString(), {
-            {"array",  [&] { return new(manager) ObjArray(0, getCurrentModule()); }},
-            {"bool",   [&] { return new(manager) ObjBool(false, getCurrentModule()); }},
-            {"char",   [&] { return new(manager) ObjChar('\0', getCurrentModule()); }},
-            {"float",  [&] { return new(manager) ObjFloat(0, getCurrentModule()); }},
-            {"int",    [&] { return new(manager) ObjInt(0, getCurrentModule()); }},
-            {"string", [&] { return new(manager) ObjString("", getCurrentModule()); }}
+            {"array",  [&] { return Obj::alloc<ObjArray>(manager, 0, getCurrentModule(), meta); }},
+            {"bool",   [&] { return Obj::alloc<ObjBool>(manager, false, getCurrentModule(), meta); }},
+            {"char",   [&] { return Obj::alloc<ObjChar>(manager, '\0', getCurrentModule(), meta); }},
+            {"float",  [&] { return Obj::alloc<ObjFloat>(manager, 0, getCurrentModule(), meta); }},
+            {"int",    [&] { return Obj::alloc<ObjInt>(manager, 0, getCurrentModule(), meta); }},
+            {"string", [&] { return Obj::alloc<ObjString>(manager, "", getCurrentModule(), meta); }}
     }, [&] {
-        return new(manager) Object(sign, type, getCurrentModule(), meta);
+        return Obj::alloc<Object>(manager, sign, type, getCurrentModule(), meta);
     });
     return {sign.toString(), obj, meta};
 }
@@ -337,14 +339,14 @@ Arg Loader::readArg(MethodInfo::ArgInfo &arg) {
     auto type = findType(constPool[arg.type]->toString());
     auto meta = readMeta(arg.meta);
     auto obj = match<Obj *>(constPool[arg.type]->toString(), {
-            {"array",  [&] { return new(manager) ObjArray(0, getCurrentModule()); }},
-            {"bool",   [&] { return new(manager) ObjBool(false, getCurrentModule()); }},
-            {"char",   [&] { return new(manager) ObjChar('\0', getCurrentModule()); }},
-            {"float",  [&] { return new(manager) ObjFloat(0, getCurrentModule()); }},
-            {"int",    [&] { return new(manager) ObjInt(0, getCurrentModule()); }},
-            {"string", [&] { return new(manager) ObjString("", getCurrentModule()); }}
+            {"array",  [&] { return Obj::alloc<ObjArray>(manager, 0, getCurrentModule(), meta); }},
+            {"bool",   [&] { return Obj::alloc<ObjBool>(manager, false, getCurrentModule(), meta); }},
+            {"char",   [&] { return Obj::alloc<ObjChar>(manager, '\0', getCurrentModule(), meta); }},
+            {"float",  [&] { return Obj::alloc<ObjFloat>(manager, 0, getCurrentModule(), meta); }},
+            {"int",    [&] { return Obj::alloc<ObjInt>(manager, 0, getCurrentModule(), meta); }},
+            {"string", [&] { return Obj::alloc<ObjString>(manager, "", getCurrentModule(), meta); }}
     }, [&] {
-        return new(manager) Object(sign, type, getCurrentModule(), meta);
+        return Obj::alloc<Object>(manager, sign, type, getCurrentModule(), meta);
     });
     return {sign.toString(), obj, meta};
 }
@@ -361,22 +363,22 @@ vector<Obj *> Loader::readConstPool(CpInfo *constantPool, uint16 count) {
 Obj *Loader::readCp(CpInfo &cpInfo) {
     switch (cpInfo.tag) {
         case 0x00:
-            return new(manager) ObjNull(getCurrentModule());
+            return Obj::alloc<ObjNull>(manager, getCurrentModule());
         case 0x01:
-            return new(manager) ObjBool(true, getCurrentModule());
+            return Obj::alloc<ObjBool>(manager, true, getCurrentModule());
         case 0x02:
-            return new(manager) ObjBool(false, getCurrentModule());
+            return Obj::alloc<ObjBool>(manager, false, getCurrentModule());
         case 0x03:
-            return new(manager) ObjChar((char) cpInfo._char, getCurrentModule());
+            return Obj::alloc<ObjChar>(manager, (char) cpInfo._char, getCurrentModule());
         case 0x04:
-            return new(manager) ObjInt(unsignedToSigned(cpInfo._int), getCurrentModule());
+            return Obj::alloc<ObjInt>(manager, unsignedToSigned(cpInfo._int), getCurrentModule());
         case 0x05:
-            return new(manager) ObjFloat(rawToDouble(cpInfo._float), getCurrentModule());
+            return Obj::alloc<ObjFloat>(manager, rawToDouble(cpInfo._float), getCurrentModule());
         case 0x06:
-            return new(manager) ObjString(cpInfo._string.bytes, cpInfo._string.len, getCurrentModule());
+            return Obj::alloc<ObjString>(manager, cpInfo._string.bytes, cpInfo._string.len, getCurrentModule());
         case 0x07: {
             auto con = cpInfo._array;
-            auto array = new(manager) ObjArray(con.len, getCurrentModule());
+            auto array = Obj::alloc<ObjArray>(manager, con.len, getCurrentModule());
             for (int i = 0; i < con.len; ++i) {
                 array->set(i, readCp(con.items[i]));
             }
@@ -431,7 +433,7 @@ Type *Loader::resolveType(const string &sign, Type type) {
         *unresolved = type;
         return unresolved;
     } else {
-        return new(manager) Type(type);
+        return Obj::alloc<Type>(manager, type);
     }
 }
 

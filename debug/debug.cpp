@@ -15,10 +15,7 @@ void DebugOp::printVMState(VMState *state) {
     string dummy;
     // Clear the console
     clearConsole();
-    // Print eden space
-    printMemory(state->getVM()->getMemoryManager()->getEden());
-    // Print survivor space
-    printMemory(state->getVM()->getMemoryManager()->getSurvivor());
+    // TODO Print memory
     // Print the call stack
     printCallStack(state);
     // Print the current frameTemplate
@@ -169,7 +166,7 @@ void DebugOp::printConstPool(const vector<Obj *> &pool) {
     }
 }
 
-void DebugOp::printMemory(const Space &space) {
+/*void DebugOp::printMemory(const Space &space) {
     if (space.getTotalSpace() == 0)return;
     switch (space.getType()) {
         case SpaceType::EDEN:
@@ -186,7 +183,7 @@ void DebugOp::printMemory(const Space &space) {
     cout << "free space:      " << space.getFreeSpace() << " bytes\n";
     cout << "total space:     " << space.getTotalSpace() << " bytes\n";
     cout << "\n";
-}
+}*/
 
 
 

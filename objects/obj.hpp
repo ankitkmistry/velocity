@@ -3,12 +3,14 @@
 
 #include "../utils/common.hpp"
 #include "../utils/sign.hpp"
-#include "../memory/space.hpp"
+#include "../memory/memory.hpp"
+#include "../utils/exceptions.hpp"
+#include "../utils/utils.hpp"
 
 struct MemoryInfo {
     bool marked = false;
     uint32 life = 0;
-    Space *space = null;
+    MemoryManager *manager = null;
 };
 
 class Type;
@@ -21,7 +23,6 @@ class ObjModule;
  * The abstract description of an object in the virtual machine
  */
 class Obj {
-    inline static map<Obj *, Space *> spaces{};
 protected:
     /// Memory header of the object
     MemoryInfo info{};
@@ -35,12 +36,15 @@ protected:
     Table<string> meta;
 
 public:
-
     Obj(Sign sign, Type *type, ObjModule *module, const Table<string> &meta = Table<string>());
 
-    void *operator new(size_t size, MemoryManager *manager);
+    template<typename T, typename ...Args>
+    static T *alloc(MemoryManager *manager, Args ...args);
 
-    void operator delete(void *p);
+    static void free(Obj *obj) {
+        auto manager = obj->info.manager;
+        manager->deallocate(obj);
+    }
 
     /**
      * Changes pointer to type params @p pObj specified in @p old_ to pointers specified in @p new_.
@@ -110,6 +114,21 @@ public:
     void setType(Type *destType) { this->type = destType; }
 };
 
+class ObjNull;
+
+template<typename T, typename... Args>
+T *Obj::alloc(MemoryManager *manager, Args... args) {
+    size_t size = sizeof(T);
+    T *obj = (T *) manager->allocate(size);
+    if (obj == null) {
+        throw MemoryError(size);
+    }
+    *obj = T(args...);
+    obj->info.manager = manager;
+    manager->postAllocation(obj);
+    return (T *) obj;
+}
+
 class ObjBool;
 
 /**
@@ -124,7 +143,7 @@ public:
     /**
      * Performs comparison between two objects
      * @param rhs the other object to compare
-     * @return < 0 if the object is less than this,
+     * @return \< 0 if the object is less than this,
      *         = 0 if the object is equal to this,
      *         otherwise > 0 if the object is greater than this
      */

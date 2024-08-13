@@ -42,7 +42,7 @@ Type *TypeParam::getType() const {
 }
 
 Obj *TypeParam::copy() const {
-    auto newTypeParam = new(info.space->getManager()) TypeParam(sign, module, meta);
+    auto newTypeParam = Obj::alloc<TypeParam>(info.manager, sign, module, meta);
     newTypeParam->reify(placeholder);
     return newTypeParam;
 }

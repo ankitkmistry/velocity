@@ -1,4 +1,5 @@
 #include "module.hpp"
+#include "inbuilt_types.hpp"
 
 string ObjModule::getAbsolutePath() {
     if (!path.is_absolute()) path = std::filesystem::current_path() / path;
@@ -15,10 +16,9 @@ ObjModule::ObjModule(const fs::path &path, ElpInfo &elp, const Table<string> &me
 
 void ObjModule::setConstantPool(const vector<Obj *> &constantPool_) {
     constantPool = constantPool_;
-    // Set the param
     sign = Sign{constantPool[elp.thisModule]->toString()};
-    // Get the imports
     auto imports = cast<ObjArray *>(constantPool[elp.imports]);
+    dependencies.clear();
     // Get the import paths to dependencies vector
     imports->foreach([&](auto obj) {
         dependencies.push_back(obj->toString());
@@ -26,7 +26,7 @@ void ObjModule::setConstantPool(const vector<Obj *> &constantPool_) {
 }
 
 Obj *ObjModule::copy() const {
-    return new(info.space->getManager()) ObjModule(sign, meta, state, path, constantPool, dependencies, elp);
+    return (Obj *) this;
 }
 
 bool ObjModule::truth() const {
