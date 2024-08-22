@@ -2,5 +2,5 @@
 #include "../ee/vm.hpp"
 
 MemoryManager *MemoryManager::current() {
-    return VM::current()->getMemoryManager();
+    return SpadeVM::current()->getMemoryManager();
 }

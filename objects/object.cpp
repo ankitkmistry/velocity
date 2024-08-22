@@ -25,7 +25,7 @@ Obj *Object::getMember(const string &name) const {
     try {
         return members.at(name);
     } catch (std::out_of_range &) {
-        return Obj::alloc<ObjNull>(info.manager);
+        throw IllegalAccessError(format("cannot find member: %s in %s", name.c_str(), toString().c_str()));
     }
 }
 

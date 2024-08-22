@@ -3,12 +3,12 @@
 
 #include "../utils/common.hpp"
 
-class VM;
+class SpadeVM;
 class Obj;
 
 class MemoryManager {
 protected:
-    VM *vm;
+    SpadeVM *vm;
 
 public:
     MemoryManager() {}
@@ -38,11 +38,11 @@ public:
      */
     virtual void collectGarbage() = 0;
 
-    void setVM(VM *vm_) { vm = vm_; }
+    void setVM(SpadeVM *vm_) { vm = vm_; }
 
-    const VM *getVM() const { return vm; }
+    const SpadeVM *getVM() const { return vm; }
 
-    VM *getVM() { return vm; }
+    SpadeVM *getVM() { return vm; }
 
     /**
      * @return the current memory manager respective to the current vm

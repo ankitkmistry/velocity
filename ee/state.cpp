@@ -2,7 +2,7 @@
 #include "../objects/method.hpp"
 #include "../objects/module.hpp"
 
-VMState::VMState(VM *vm) : vm(vm) {
+VMState::VMState(SpadeVM *vm) : vm(vm) {
     callStack = new Frame[FRAMES_MAX];
     fp = callStack;
 }

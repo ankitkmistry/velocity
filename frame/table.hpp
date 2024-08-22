@@ -51,7 +51,7 @@ public:
  * Represents a function argument
  */
 class Arg : public TableNode {
-    friend class VM;
+    friend class SpadeVM;
 
 public:
     Arg(string name, Obj *value, Table<string> meta)

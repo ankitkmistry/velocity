@@ -10,7 +10,9 @@ void BasicCollector::gc() {
 void BasicCollector::markRoots() {
     auto vm = manager->getVM();
     // mark the globals
-    markTable(vm->getGlobals());
+    for (auto [key, object]: vm->getModules()) {
+        mark(object);
+    }
     // mark the threads
     for (auto thread: vm->getThreads()) markThread(thread);
 }

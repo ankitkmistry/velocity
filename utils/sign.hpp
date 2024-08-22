@@ -38,6 +38,10 @@ public:
 
     ~Sign();
 
+    const vector<SignElement> &getElements() const { return elements; }
+
+    vector<SignElement> &getElements() { return elements; }
+
     /**
      * @return true if the signature is empty, false otherwise
      */
@@ -103,10 +107,7 @@ public:
     string toString() const;
 };
 
-/// For internal use only
 class SignElement {
-    friend class Sign;
-
     friend class SignParser;
 
     string name;
@@ -114,13 +115,12 @@ class SignElement {
     vector<string> typeParams;
     vector<Sign> params;
 
+public:
     SignElement(string name, Sign::Kind kind, vector<string> typeParams = {}, vector<Sign> params = {})
             : name(name), kind(kind), params(params), typeParams(typeParams) {}
 
-public:
     ~SignElement() = default;
 
-private:
     const string &getName() const { return name; }
 
     Sign::Kind getKind() const { return kind; }

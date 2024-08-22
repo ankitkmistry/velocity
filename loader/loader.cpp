@@ -3,36 +3,55 @@
 #include "verifier.hpp"
 #include "../ee/vm.hpp"
 
-Loader::Loader(VM *vm) : vm(vm), manager(vm->getMemoryManager()) {}
+Loader::Loader(SpadeVM *vm) : vm(vm), manager(vm->getMemoryManager()) {}
 
-ObjMethod *Loader::load(const string &path) {
-    auto module = readModule(path);
-    modStack.push_back(module);
-    while (!modStack.empty()) {
-        module = modStack.back();
-        module->setState(ObjModule::State::MARKED);
-        for (auto &dep: module->getDependencies()) {
-            auto depLib = readModule(dep);
-            if (depLib->getState() == ObjModule::State::NOT_LOADED) {
-                modStack.push_back(depLib);
-                break;
+ObjMethod *Loader::load(string path) {
+    vector<ObjModule *> toBeLoaded;
+    {   // Read
+        struct ModInfo {
+            vector<string> deps;
+            uint32 i;
+        };
+        vector<ModInfo> moduleStack;
+        ObjModule *module = readModule(path);
+        ModInfo modInfo = {.deps=module->getDependencies(), .i=0};
+        moduleStack.push_back(modInfo);
+        toBeLoaded.push_back(module);
+        while (!moduleStack.empty()) {
+            modInfo = moduleStack.back();
+            for (; modInfo.i < modInfo.deps.size(); ++modInfo.i) {
+                string depPath = modInfo.deps[modInfo.i];
+                auto depModule = readModule(depPath);
+                if (depModule->getState() == ObjModule::State::NOT_READ) {
+                    ModInfo depModInfo = {.deps=module->getDependencies(), .i=0};
+                    moduleStack.push_back(depModInfo);
+                    toBeLoaded.push_back(depModule);
+                }
             }
         }
-        if (modStack.back() == module) {
+    }
+    {   // Load
+        for (auto module: toBeLoaded) {
+            current = module;
             loadModule(module);
-            modStack.pop_back();
+        }
+        current = null;
+        // Complain about the unresolved types
+        for (auto [sign, reference]: referencePool) {
+            if (reference->getKind() == Type::Kind::UNRESOLVED) {
+                throw IllegalAccessError(format("reference not found: '%s'", sign.c_str()));
+                // TODO give a detailed error message for all the unresolved references
+            }
+        }
+    }
+    {   // Init
+        for (auto module: toBeLoaded) {
+            module->getInit()->invoke(null, {});
+            module->setState(ObjModule::State::INITIALIZED);
         }
     }
 
-    // Complain about the unresolved types
-    for (auto [sign, reference]: referencePool) {
-        if (reference->getKind() == Type::Kind::UNRESOLVED) {
-            throw ReferenceNotFoundError(sign);
-            // TODO give a detailed error message for all the unresolved references
-        }
-    }
-
-    // Finish up...
+    auto module = toBeLoaded[0];
     auto elp = module->getElp();
     // If this is an executable one, get the entry point
     if (elp.type == 0x01) {
@@ -41,7 +60,7 @@ ObjMethod *Loader::load(const string &path) {
         // Get the param of the entry point
         auto entrySign = constPool[elp.entry]->toString();
         // Return the entry point
-        return cast<ObjMethod *>(vm->getGlobal(entrySign));
+        return cast<ObjMethod *>(vm->getSymbol(entrySign));
     }
     return null;
 }
@@ -64,10 +83,12 @@ ObjModule *Loader::readModule(const string &path) {
     reader.close();
     // Load the constant pool
     auto module = Obj::alloc<ObjModule>(manager, path, elp, readMeta(elp.meta));
-    modStack.push_back(module);
+    current = module;
     auto constPool = readConstPool(elp.constantPool, elp.constantPoolCount);
     module->setConstantPool(constPool);
-    modStack.pop_back();
+    current = null;
+
+    module->setState(ObjModule::State::READ);
     // Insert the module to the module table
     modules[absolutePath] = module;
     return module;
@@ -78,15 +99,15 @@ void Loader::loadModule(ObjModule *module) {
     // Load the objects
     for (int i = 0; i < elp.objectsCount; ++i) {
         auto obj = readObj(elp.objects[i]);
-        vm->setGlobal(obj->getSign().toString(), obj);
+        module->setMember(obj->getSign().getName(), obj);
     }
     // Load the globals
     for (int i = 0; i < elp.globalsCount; ++i) {
         auto global = readGlobal(elp.globals[i]);
-        vm->setGlobal(global->getSign().toString(), global);
+        module->setMember(global->getSign().getName(), global);
     }
     // Add the module to the globals
-    vm->setGlobal(module->getSign().toString(), module);
+    vm->getModules()[module->getSign().getName()] = module;
     // Set the state to loaded
     module->setState(ObjModule::State::LOADED);
 }
@@ -97,16 +118,7 @@ Obj *Loader::readGlobal(GlobalInfo &global) {
     auto type = findType(constPool[global.type]->toString());
     auto meta = readMeta(global.meta);
 
-    return match<Obj *>(constPool[global.type]->toString(), {
-            {"array",  [&] { return Obj::alloc<ObjArray>(manager, 0, getCurrentModule(), meta); }},
-            {"bool",   [&] { return Obj::alloc<ObjBool>(manager, false, getCurrentModule(), meta); }},
-            {"char",   [&] { return Obj::alloc<ObjChar>(manager, '\0', getCurrentModule(), meta); }},
-            {"float",  [&] { return Obj::alloc<ObjFloat>(manager, 0, getCurrentModule(), meta); }},
-            {"int",    [&] { return Obj::alloc<ObjInt>(manager, 0, getCurrentModule(), meta); }},
-            {"string", [&] { return Obj::alloc<ObjString>(manager, "", getCurrentModule(), meta); }}
-    }, [&] {
-        return Obj::alloc<Object>(manager, sign, type, getCurrentModule(), meta);
-    });
+    return makeObj(constPool[global.type]->toString(), sign, type, meta);
 }
 
 Obj *Loader::readObj(ObjInfo &obj) {
@@ -184,7 +196,7 @@ Obj *Loader::readClass(ClassInfo klass) {
     }
     // Resolve the type
     auto type = resolveType(sign.toString(), {sign, kind, typeParams, supers, members, getCurrentModule(), meta});
-    vm->setGlobal(sign.toString(), type);
+    vm->setSymbol(sign.toString(), type);
     return type;
 }
 
@@ -194,16 +206,7 @@ Obj *Loader::readField(FieldInfo &field) {
     auto type = findType(constPool[field.type]->toString());
     auto meta = readMeta(field.meta);
 
-    return match<Obj *>(constPool[field.type]->toString(), {
-            {"array",  [&] { return Obj::alloc<ObjArray>(manager, 0, getCurrentModule(), meta); }},
-            {"bool",   [&] { return Obj::alloc<ObjBool>(manager, false, getCurrentModule(), meta); }},
-            {"char",   [&] { return Obj::alloc<ObjChar>(manager, '\0', getCurrentModule(), meta); }},
-            {"float",  [&] { return Obj::alloc<ObjFloat>(manager, 0, getCurrentModule(), meta); }},
-            {"int",    [&] { return Obj::alloc<ObjInt>(manager, 0, getCurrentModule(), meta); }},
-            {"string", [&] { return Obj::alloc<ObjString>(manager, "", getCurrentModule(), meta); }}
-    }, [&] {
-        return Obj::alloc<Object>(manager, sign, type, getCurrentModule(), meta);
-    });
+    return makeObj(constPool[field.type]->toString(), sign, type, meta);
 }
 
 Obj *Loader::readMethod(const string &klassSign, MethodInfo &method) {
@@ -288,7 +291,7 @@ Obj *Loader::readMethod(MethodInfo &method) {
             manager, sign, kind, frameTemplate, null, typeParams, getCurrentModule(), meta
     );
     if (kind == ObjMethod::CONSTRUCTOR)
-        vm->setGlobal(sign.toString(), methodObj);
+        vm->setSymbol(sign.toString(), methodObj);
     return methodObj;
 }
 
@@ -320,16 +323,7 @@ Local Loader::readLocal(MethodInfo::LocalInfo &local) {
     auto sign = getSign(local.thisLocal);
     auto type = findType(constPool[local.type]->toString());
     auto meta = readMeta(local.meta);
-    auto obj = match<Obj *>(constPool[local.type]->toString(), {
-            {"array",  [&] { return Obj::alloc<ObjArray>(manager, 0, getCurrentModule(), meta); }},
-            {"bool",   [&] { return Obj::alloc<ObjBool>(manager, false, getCurrentModule(), meta); }},
-            {"char",   [&] { return Obj::alloc<ObjChar>(manager, '\0', getCurrentModule(), meta); }},
-            {"float",  [&] { return Obj::alloc<ObjFloat>(manager, 0, getCurrentModule(), meta); }},
-            {"int",    [&] { return Obj::alloc<ObjInt>(manager, 0, getCurrentModule(), meta); }},
-            {"string", [&] { return Obj::alloc<ObjString>(manager, "", getCurrentModule(), meta); }}
-    }, [&] {
-        return Obj::alloc<Object>(manager, sign, type, getCurrentModule(), meta);
-    });
+    auto obj = makeObj(constPool[local.type]->toString(), sign, type, meta);
     return {sign.toString(), obj, meta};
 }
 
@@ -338,16 +332,7 @@ Arg Loader::readArg(MethodInfo::ArgInfo &arg) {
     auto sign = getSign(arg.thisArg);
     auto type = findType(constPool[arg.type]->toString());
     auto meta = readMeta(arg.meta);
-    auto obj = match<Obj *>(constPool[arg.type]->toString(), {
-            {"array",  [&] { return Obj::alloc<ObjArray>(manager, 0, getCurrentModule(), meta); }},
-            {"bool",   [&] { return Obj::alloc<ObjBool>(manager, false, getCurrentModule(), meta); }},
-            {"char",   [&] { return Obj::alloc<ObjChar>(manager, '\0', getCurrentModule(), meta); }},
-            {"float",  [&] { return Obj::alloc<ObjFloat>(manager, 0, getCurrentModule(), meta); }},
-            {"int",    [&] { return Obj::alloc<ObjInt>(manager, 0, getCurrentModule(), meta); }},
-            {"string", [&] { return Obj::alloc<ObjString>(manager, "", getCurrentModule(), meta); }}
-    }, [&] {
-        return Obj::alloc<Object>(manager, sign, type, getCurrentModule(), meta);
-    });
+    auto obj = makeObj(constPool[arg.type]->toString(), sign, type, meta);
     return {sign.toString(), obj, meta};
 }
 
@@ -407,7 +392,7 @@ Type *Loader::findType(const string &sign) {
 
     Type *type;
 
-    if (auto find1 = vm->getGlobal(sign); is<Type *>(find1)) { // Try to find in vm globals
+    if (auto find1 = vm->getSymbol(sign); is<Type *>(find1)) { // Try to find in vm globals
         // Get it
         type = cast<Type *>(find1);
     } else if (auto find2 = referencePool.find(sign);
@@ -437,6 +422,22 @@ Type *Loader::resolveType(const string &sign, Type type) {
     }
 }
 
+Obj *Loader::makeObj(string typeSign, Sign objSign, Type *type, Table<string> meta) {
+    static map<string, function<Obj *()>> objMap = {
+            {"array",  [&] { return Obj::alloc<ObjArray>(manager, 0, getCurrentModule(), meta); }},
+            {"bool",   [&] { return Obj::alloc<ObjBool>(manager, false, getCurrentModule(), meta); }},
+            {"char",   [&] { return Obj::alloc<ObjChar>(manager, '\0', getCurrentModule(), meta); }},
+            {"float",  [&] { return Obj::alloc<ObjFloat>(manager, 0, getCurrentModule(), meta); }},
+            {"int",    [&] { return Obj::alloc<ObjInt>(manager, 0, getCurrentModule(), meta); }},
+            {"string", [&] { return Obj::alloc<ObjString>(manager, "", getCurrentModule(), meta); }}
+    };
+    try {
+        return objMap.at(typeSign)();
+    } catch (std::out_of_range &) {
+        return Obj::alloc<Object>(manager, objSign, type, getCurrentModule(), meta);
+    }
+}
+
 Sign Loader::getSign(cpidx index) {
     return Sign{getConstantPool()[index]->toString()};
 }
@@ -447,7 +448,7 @@ const vector<Obj *> &Loader::getConstantPool() {
 }
 
 ObjModule *Loader::getCurrentModule() {
-    return modStack[modStack.size() - 1];
+    return current;
 }
 
 CorruptFileError Loader::corrupt() { return CorruptFileError(getCurrentModule()->getAbsolutePath()); }

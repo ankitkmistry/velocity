@@ -1,22 +1,36 @@
 #include "typeparam.hpp"
-#include "../utils/exceptions.hpp"
 
 Type::Kind TypeParam::getKind() const {
     checkPlaceholder();
     return placeholder->getKind();
 }
 
-vector<TypeParam *> TypeParam::getTypeParams() const {
+const vector<TypeParam *> &TypeParam::getTypeParams() const {
     checkPlaceholder();
     return placeholder->getTypeParams();
 }
 
-Table<Type *> TypeParam::getSupers() const {
+const Table<Type *> &TypeParam::getSupers() const {
     checkPlaceholder();
     return placeholder->getSupers();
 }
 
-Table<Obj *> TypeParam::getMembers() const {
+const Table<Obj *> &TypeParam::getMembers() const {
+    checkPlaceholder();
+    return placeholder->getMembers();
+}
+
+vector<TypeParam *> &TypeParam::getTypeParams() {
+    checkPlaceholder();
+    return placeholder->getTypeParams();
+}
+
+Table<Type *> &TypeParam::getSupers() {
+    checkPlaceholder();
+    return placeholder->getSupers();
+}
+
+Table<Obj *> &TypeParam::getMembers() {
     checkPlaceholder();
     return placeholder->getMembers();
 }

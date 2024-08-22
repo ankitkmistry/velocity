@@ -8,7 +8,7 @@
 #include "../objects/module.hpp"
 #include "../frame/table.hpp"
 
-class VM;
+class SpadeVM;
 
 /**
  * Represents the loader of the vm
@@ -16,17 +16,16 @@ class VM;
 class Loader {
 private:
     /// Reference to the vm
-    VM *vm;
+    SpadeVM *vm;
     /// The memory manager
     MemoryManager *manager;
     /// List of all modules in the form of [path, module]
     std::map<string, ObjModule *> modules = {};
-    /// The module stack used for resolving dependencies
-    std::vector<ObjModule *> modStack = {};
     /// Pool of unresolved references
     Table<Type *> referencePool = {};
+    ObjModule *current;
 public:
-    explicit Loader(VM *vm);
+    explicit Loader(SpadeVM *vm);
 
     /**
      * This function loads the bytecode file at \p path and
@@ -34,7 +33,8 @@ public:
      * @param path the path to the file
      * @return the entry point if present, null otherwise
      */
-    ObjMethod *load(const string &path);
+    ObjMethod *load(string path);
+
 
 private:
     /**
@@ -129,6 +129,8 @@ private:
     const vector<Obj *> &getConstantPool();
 
     CorruptFileError corrupt();
+
+    Obj *makeObj(string typeSign, Sign objSign, Type *type, Table<string> meta);
 };
 
 #endif //VELOCITY_LOADER_HPP

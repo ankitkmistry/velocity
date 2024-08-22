@@ -1,25 +1,25 @@
 #include "vm.hpp"
 
-VM::VM(MemoryManager *manager_, Settings settings)
+SpadeVM::SpadeVM(MemoryManager *manager_, Settings settings)
         : settings(std::move(settings)) {
     manager = manager_;
     manager->setVM(this);
 }
 
-void VM::onExit(const function<void()> &fun) { onExitList.push_back(fun); }
+void SpadeVM::onExit(const function<void()> &fun) { onExitList.push_back(fun); }
 
-int VM::start(const string &filename, const vector<string> &args) {
+int SpadeVM::start(const string &filename, const vector<string> &args) {
     // Load the file and get the entry point
     auto entry = loader.load(filename);
     // Complain if there is no entry point
-    if (entry == null) throw EntryPointNotFoundError(filename);
+    if (entry == null) throw IllegalAccessError(format("cannot find entry point in '%s'", filename.c_str()));
     if (entry->getFrameTemplate()->getArgs().count() != 1)
         throw runtimeError("entry point must have one argument (string[]): " + entry->getSign().toString());
     // Execute from the entry
     return start(entry, argsRepr(args));
 }
 
-ObjArray *VM::argsRepr(const vector<string> &args) {
+ObjArray *SpadeVM::argsRepr(const vector<string> &args) {
     auto array = Obj::alloc<ObjArray>(manager, args.size());
     for (int i = 0; i < args.size(); ++i) {
         array->set(i, Obj::alloc<ObjString>(manager, args[i]));
@@ -27,7 +27,7 @@ ObjArray *VM::argsRepr(const vector<string> &args) {
     return array;
 }
 
-int VM::start(ObjMethod *entry, ObjArray *args) {
+int SpadeVM::start(ObjMethod *entry, ObjArray *args) {
     auto state = new VMState(this);
     Thread thread{state, [&](auto thr) {
         thr->setStatus(Thread::RUNNING);
@@ -47,27 +47,70 @@ int VM::start(ObjMethod *entry, ObjArray *args) {
     return thread.getExitCode();
 }
 
-ThrowSignal VM::runtimeError(const string &str) {
+ThrowSignal SpadeVM::runtimeError(const string &str) {
     return ThrowSignal{Obj::alloc<ObjString>(manager, str)};
 }
 
-Obj *VM::getGlobal(const string &sign) const {
+Obj *SpadeVM::getSymbol(const string &sign) const {
+    Sign symbolSign{sign};
+    vector<SignElement> elements = symbolSign.getElements();
+    if (elements.empty())return Obj::alloc<ObjNull>(manager);
+    Obj *acc;
     try {
-        return globals.at(sign);
-    } catch (std::out_of_range &) {
-        throw GlobalError(sign);
+        acc = modules.at(elements[0].getName());
+        for (int i = 1; i < elements.size(); ++i) {
+            if (is<Object *>(acc)) {
+                auto object = cast<Object *>(acc);
+                acc = object->getMember(elements[i].getName());
+            } else if (is<Type *>(acc)) {
+                auto type = cast<Type *>(acc);
+                acc = type->getMember(elements[i].getName());
+            } else if (i < elements.size() - 1) {
+                throw IllegalAccessError(format("cannot find symbol: %s", sign.c_str()));
+            }
+        }
+    } catch (const std::out_of_range &) {
+        throw IllegalAccessError(format("cannot find symbol: %s", sign.c_str()));
+    }
+    return acc;
+}
+
+void SpadeVM::setSymbol(const string &sign, Obj *val) {
+    Sign symbolSign{sign};
+    vector<SignElement> elements = symbolSign.getElements();
+    if (elements.empty())return;
+    Obj *acc;
+    try {
+        acc = modules.at(elements[0].getName());
+        for (int i = 1; i < elements.size(); ++i) {
+            if (is<Object *>(acc)) {
+                auto object = cast<Object *>(acc);
+                if (i == elements.size() - 1) {
+                    object->getMembers()[elements.back().getName()] = val;
+                } else {
+                    acc = object->getMember(elements[i].getName());
+                }
+            } else if (is<Type *>(acc)) {
+                auto type = cast<Type *>(acc);
+                if (i == elements.size() - 1) {
+                    type->getMembers()[elements.back().getName()] = val;
+                } else {
+                    acc = type->getMember(elements[i].getName());
+                }
+            } else if (i < elements.size() - 1) {
+                throw IllegalAccessError(format("cannot find symbol: %s", sign.c_str()));
+            }
+        }
+    } catch (const std::out_of_range &) {
+        throw IllegalAccessError(format("cannot find symbol: %s", sign.c_str()));
     }
 }
 
-void VM::setGlobal(const string &sign, Obj *val) {
-    globals[sign] = val;
-}
-
-bool VM::checkCast(const Type *type1, const Type *type2) {
+bool SpadeVM::checkCast(const Type *type1, const Type *type2) {
     // TODO implement this
     return false;
 }
 
-VM *VM::current() {
+SpadeVM *SpadeVM::current() {
     return Thread::current()->getState()->getVM();
 }

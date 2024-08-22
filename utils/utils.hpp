@@ -141,25 +141,4 @@ int32 longToInt(int64 num);
 
 string getAbsolutePath(string path);
 
-template<class ResultType, class CompareType>
-ResultType match(CompareType value,
-                 map<CompareType, function<ResultType()>> matchCases) {
-    try {
-        return static_cast<ResultType>(matchCases.at(value)());
-    } catch (std::out_of_range &) {
-        throw Unreachable();
-    }
-}
-
-template<class ResultType, class CompareType>
-ResultType match(CompareType value,
-                 map<CompareType, function<ResultType()>> matchCases,
-                 function<ResultType()> defaultCase) {
-    try {
-        return dynamic_cast<ResultType>(matchCases.at(value)());
-    } catch (std::out_of_range &) {
-        return defaultCase();
-    }
-}
-
 #endif /* UTILS_UTILS_HPP_ */

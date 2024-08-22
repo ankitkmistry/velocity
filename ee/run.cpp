@@ -3,7 +3,7 @@
 #include "../debug/debug.hpp"
 #include "elpops/opcode.hpp"
 
-Obj *VM::run(Thread *thread) {
+Obj *SpadeVM::run(Thread *thread) {
     auto state = thread->getState();
     auto topFrame = state->getFrame();
     while (thread->isRunning()) {
@@ -28,10 +28,10 @@ Obj *VM::run(Thread *thread) {
                     state->push(state->peek());
                     break;
                 case Opcode::LOAD_GLOBAL:
-                    state->push(getGlobal(state->loadConst(state->readShort())->toString()));
+                    state->push(getSymbol(state->loadConst(state->readShort())->toString()));
                     break;
                 case Opcode::STORE_GLOBAL:
-                    setGlobal(state->loadConst(state->readShort())->toString(), state->peek());
+                    setSymbol(state->loadConst(state->readShort())->toString(), state->peek());
                     break;
                 case Opcode::LOAD_LOCAL:
                     state->push(frame->getLocals().get(state->readShort()));
@@ -43,10 +43,10 @@ Obj *VM::run(Thread *thread) {
                     state->push(frame->getLambdas()[state->readShort()]);
                     break;
                 case Opcode::LOAD_GLOBAL_FAST:
-                    state->push(getGlobal(state->loadConst(state->readByte())->toString()));
+                    state->push(getSymbol(state->loadConst(state->readByte())->toString()));
                     break;
                 case Opcode::STORE_GLOBAL_FAST:
-                    setGlobal(state->loadConst(state->readByte())->toString(), state->peek());
+                    setSymbol(state->loadConst(state->readByte())->toString(), state->peek());
                     break;
                 case Opcode::LOAD_LOCAL_FAST:
                     state->push(frame->getLocals().get(state->readByte()));
@@ -58,13 +58,13 @@ Obj *VM::run(Thread *thread) {
                     state->push(frame->getLambdas()[state->readByte()]);
                     break;
                 case Opcode::POP_STORE_GLOBAL:
-                    setGlobal(state->loadConst(state->readShort())->toString(), state->pop());
+                    setSymbol(state->loadConst(state->readShort())->toString(), state->pop());
                     break;
                 case Opcode::POP_STORE_LOCAL:
                     frame->getLocals().set(state->readShort(), state->pop());
                     break;
                 case Opcode::POP_STORE_GLOBAL_FAST:
-                    setGlobal(state->loadConst(state->readByte())->toString(), state->pop());
+                    setSymbol(state->loadConst(state->readByte())->toString(), state->pop());
                     break;
                 case Opcode::POP_STORE_LOCAL_FAST:
                     frame->getLocals().set(state->readByte(), state->pop());
@@ -279,7 +279,7 @@ Obj *VM::run(Thread *thread) {
                 }
                 case Opcode::INVOKE_GLOBAL: {
                     // Get the method
-                    auto method = cast<ObjMethod *>(getGlobal(state->loadConst(state->readShort())->toString()));
+                    auto method = cast<ObjMethod *>(getSymbol(state->loadConst(state->readShort())->toString()));
                     // Get the arg count
                     auto count = method->getFrameTemplate()->getArgs().count();
                     // Pop the arguments
@@ -337,7 +337,7 @@ Obj *VM::run(Thread *thread) {
                 }
                 case Opcode::INVOKE_GLOBAL_FAST: {
                     // Get the method
-                    auto method = cast<ObjMethod *>(getGlobal(state->loadConst(state->readByte())->toString()));
+                    auto method = cast<ObjMethod *>(getSymbol(state->loadConst(state->readByte())->toString()));
                     // Get the arg count
                     auto count = method->getFrameTemplate()->getArgs().count();
                     // Pop the arguments

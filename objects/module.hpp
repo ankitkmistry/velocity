@@ -3,20 +3,16 @@
 
 #include <elpops/elpdef.hpp>
 #include "object.hpp"
+#include "method.hpp"
 
 class ObjModule : public Object {
 public:
     enum class State {
-        /// Library has started to load but is resolving its dependencies
-        MARKED,
-        /// Library has already been loaded
-        LOADED,
-        /// Library is not yet loaded
-        NOT_LOADED
+        NOT_READ, READ, LOADED, INITIALIZED
     };
 private:
     /// State of the module
-    State state = State::NOT_LOADED;
+    State state = State::NOT_READ;
     /// Path of the module
     fs::path path;
     /// The constant pool of the module
@@ -25,6 +21,8 @@ private:
     vector<string> dependencies;
     /// The information in the module
     ElpInfo elp;
+    /// The module init method
+    ObjMethod *init;
 
     ObjModule(const Sign sign, const Table<string> meta, State state,
               const fs::path path, const vector<Obj *> constantPool, const vector<string> dependencies,
@@ -54,6 +52,10 @@ public:
     void setConstantPool(const vector<Obj *> &constantPool_);
 
     const vector<string> &getDependencies() const { return dependencies; }
+
+    ObjMethod *getInit() const { return init; }
+
+    void setInit(ObjMethod *init_) { init = init_; }
 
     Obj *copy() const override;
 

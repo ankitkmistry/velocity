@@ -39,11 +39,17 @@ public:
 
     virtual Kind getKind() const { return kind; }
 
-    virtual Table<Type *> getSupers() const { return supers; }
+    virtual const Table<Type *> &getSupers() const { return supers; }
 
-    virtual Table<Obj *> getMembers() const { return members; }
+    virtual const Table<Obj *> &getMembers() const { return members; }
 
-    virtual vector<TypeParam *> getTypeParams() const { return typeParams; }
+    virtual const vector<TypeParam *> &getTypeParams() const { return typeParams; }
+
+    virtual Table<Type *> &getSupers() { return supers; }
+
+    virtual Table<Obj *> &getMembers() { return members; }
+
+    virtual vector<TypeParam *> &getTypeParams() { return typeParams; }
 
     Obj *getMember(string name) const;
 

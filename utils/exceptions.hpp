@@ -53,30 +53,6 @@ public:
     const string &getTo() const { return to; }
 };
 
-class IndexError : public FatalError {
-public:
-    explicit IndexError(size_t index)
-            : FatalError(format("index out of bounds: %d", index)) {}
-
-    explicit IndexError(string index_of, size_t index)
-            : FatalError(format("index out of bounds: %d (%s)", index, index_of.c_str())) {}
-};
-
-class FileNotFoundError : public FatalError {
-    string path;
-public:
-    explicit FileNotFoundError(const string &path)
-            : FatalError(format("file not found: '%s'", path.c_str())), path(path) {}
-
-    const string &getPath() const { return path; }
-};
-
-class ReferenceNotFoundError : public FatalError {
-public:
-    explicit ReferenceNotFoundError(const string &sign)
-            : FatalError(format("reference not found: '%s'", sign.c_str())) {}
-};
-
 class MemoryError : public FatalError {
 public:
     explicit MemoryError(size_t size)
@@ -88,10 +64,19 @@ public:
     Unreachable() : FatalError("unreachable code reached") {}
 };
 
-class EntryPointNotFoundError : public FatalError {
+class IllegalAccessError : public FatalError {
 public:
-    explicit EntryPointNotFoundError(const string &sign)
-            : FatalError(format("cannot find entry point in '%s'", sign.c_str())) {}
+    explicit IllegalAccessError(const string &message)
+            : FatalError(message) {}
+};
+
+class IndexError : public IllegalAccessError {
+public:
+    explicit IndexError(size_t index)
+            : IllegalAccessError(format("index out of bounds: %d", index)) {}
+
+    explicit IndexError(string index_of, size_t index)
+            : IllegalAccessError(format("index out of bounds: %d (%s)", index, index_of.c_str())) {}
 };
 
 class IllegalTypeParamAccessError : public FatalError {

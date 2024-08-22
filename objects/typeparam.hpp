@@ -7,6 +7,7 @@ class TypeParam : public Type {
     Type *placeholder = null;
 
     void checkPlaceholder() const;
+
 public:
     TypeParam(Sign sign, ObjModule *module = null, const Table<string> &meta = {})
             : Type(sign, Kind::TYPE_PARAM, {}, {}, {}, module, meta) {}
@@ -19,11 +20,17 @@ public:
 
     Kind getKind() const override;
 
-    vector<TypeParam *> getTypeParams() const override;
+    const vector<TypeParam *> &getTypeParams() const override;
 
-    Table<Type *> getSupers() const override;
+    const Table<Type *> &getSupers() const override;
 
-    Table<Obj *> getMembers() const override;
+    const Table<Obj *> &getMembers() const override;
+
+    vector<TypeParam *> &getTypeParams() override;
+
+    Table<Type *> &getSupers() override;
+
+    Table<Obj *> &getMembers() override;
 
     ObjModule *getModule() const override;
 

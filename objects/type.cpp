@@ -1,7 +1,5 @@
 #include "type.hpp"
-#include "inbuilt_types.hpp"
 #include "typeparam.hpp"
-#include "../utils/utils.hpp"
 
 static string kindNames[] = {
         "class",
@@ -46,8 +44,9 @@ Obj *Type::getStaticMember(string &name) const {
             if ((obj = super->getStaticMember(name)) != null)break;
         }
     }
-    if (obj == null)
-        obj = Obj::alloc<ObjNull>(info.manager);
+    if (obj == null) {
+        throw IllegalAccessError(format("cannot find static member: %s in %s", name.c_str(), toString().c_str()));
+    }
     return obj;
 }
 

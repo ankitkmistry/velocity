@@ -25,7 +25,7 @@ void signTest() {
 
 void runVM() {
     try {
-        VM vm{new BasicMemoryManager};
+        SpadeVM vm{new BasicMemoryManager};
         ForeignLoader foreignLoader;
         auto lib = foreignLoader.loadSimpleLibrary("mscvrt.dll");
         cout << (intptr) lib->call<void *>("malloc", 64) << '\n';

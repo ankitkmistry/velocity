@@ -3,17 +3,16 @@
 
 #include "../utils/common.hpp"
 #include "thread.hpp"
+#include "settings.hpp"
 #include "../objects/obj.hpp"
 #include "../objects/inbuilt_types.hpp"
 #include "../loader/loader.hpp"
 #include "../memory/memory.hpp"
-#include "settings.hpp"
 
-class VM {
-
+class SpadeVM {
 private:
-    /// The globals
-    Table<Obj *> globals;
+    /// The modules
+    Table<ObjModule *> modules;
     /// The threads
     std::set<Thread *> threads;
     /// The loader
@@ -28,7 +27,7 @@ private:
     std::stringstream out;
 
 public:
-    explicit VM(MemoryManager *manager, Settings settings = {});
+    explicit SpadeVM(MemoryManager *manager, Settings settings = {});
 
     /**
      * This function registers the action which will be executed
@@ -65,29 +64,34 @@ public:
     ThrowSignal runtimeError(const string &str);
 
     /**
-     * @param sign the signature of the global
-     * @return The value of the global corresponding
-     * to the signature <i>param</i>, raises GlobalError if the global cannot be found
+     * @param sign the signature of the symbol
+     * @return The value of the symbol corresponding
+     * to the signature \p sign , raises GlobalError if the global cannot be found
      */
-    Obj *getGlobal(const string &sign) const;
+    Obj *getSymbol(const string &sign) const;
 
     /**
-     * Set the value of the global corresponding to the signature <i>param</i>.
-     * Creates a new global and sets the value to <i>val</i> if there is no
-     * existing global with signature <i>param</i>.
-     * @param sign the signature of the global
+     * Set the value of the symbol corresponding to the signature \p sign.
+     * Creates a new symbol and sets the value to \p val if there is no
+     * existing symbol with signature \p sign.
+     * @param sign the signature of the symbol
      * @param val the value
      */
-    void setGlobal(const string &sign, Obj *val);
+    void setSymbol(const string &sign, Obj *val);
 
     std::set<Thread *> &getThreads() { return threads; }
 
     const std::set<Thread *> &getThreads() const { return threads; }
 
     /**
-     * @return the globals table
+     * @return the modules table
      */
-    Table<Obj *> getGlobals() const { return globals; }
+    const Table<ObjModule *> &getModules() const { return modules; }
+
+    /**
+     * @return the modules table
+     */
+    Table<ObjModule *> &getModules() { return modules; }
 
     /**
      * @return the vm settings
@@ -117,7 +121,7 @@ public:
     /**
      * @return the current vm respective to the current thread
      */
-    static VM *current();
+    static SpadeVM *current();
 
 private:
 

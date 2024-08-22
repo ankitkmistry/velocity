@@ -5,14 +5,14 @@
 #include "../utils/utils.hpp"
 #include "../frame/frame.hpp"
 
-class VM;
+class SpadeVM;
 
 class VMState {
 private:
-    VM *vm;
+    SpadeVM *vm;
     Frame *callStack = null, *fp = null;
 public:
-    VMState(VM *vm);
+    VMState(SpadeVM *vm);
 
     VMState(const VMState &state)
             : vm(state.vm),
@@ -84,7 +84,7 @@ public:
     /**
      * @return The vm pointer associated with this state
      */
-    VM *getVM() const { return vm; }
+    SpadeVM *getVM() const { return vm; }
 
     /**
      * @return The call stack
