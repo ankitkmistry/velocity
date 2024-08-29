@@ -15,7 +15,9 @@ public:
 
     void call(Thread *thread, Obj **args) override;
 
-    Obj *copy() const override;
+    void linkLibrary();
+
+    Obj *copy() const override { return (Obj *) this; }
 
     string toString() const override;
 };

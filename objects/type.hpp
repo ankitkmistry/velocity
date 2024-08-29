@@ -21,11 +21,12 @@ public:
         /// Represents an unresolved type
         UNRESOLVED
     };
-private:
+protected:
     Kind kind;
     Table<Type *> supers;
     Table<Obj *> members;
     vector<TypeParam *> typeParams;
+    map<vector<Type *>, Type *> reified;
 public:
     Type(const Sign &sign, Kind kind, vector<TypeParam *> typeParams, const Table<Type *> &supers,
          const Table<Obj *> &members, ObjModule *module = null, const Table<string> &meta = {})
@@ -41,19 +42,22 @@ public:
 
     virtual const Table<Type *> &getSupers() const { return supers; }
 
-    virtual const Table<Obj *> &getMembers() const { return members; }
-
     virtual const vector<TypeParam *> &getTypeParams() const { return typeParams; }
 
     virtual Table<Type *> &getSupers() { return supers; }
-
-    virtual Table<Obj *> &getMembers() { return members; }
 
     virtual vector<TypeParam *> &getTypeParams() { return typeParams; }
 
     Obj *getMember(string name) const;
 
     Obj *getStaticMember(string &name) const;
+
+    /**
+     * @param args the type args
+     * @param count count of type args
+     * @return a newly reified type or previously reified type
+     */
+    Type *getReified(Obj **args, uint8 count);
 
     Obj *copy() const override;
 
@@ -62,6 +66,8 @@ public:
     string toString() const override;
 
     static Type *SENTINEL_(const string &sign, MemoryManager *manager);
+
+    void setMember(string name, Obj *value);
 };
 
 #endif //VELOCITY_TYPE_HPP

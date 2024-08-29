@@ -5,7 +5,7 @@
 #include "object.hpp"
 #include "method.hpp"
 
-class ObjModule : public Object {
+class ObjModule : public Obj {
 public:
     enum class State {
         NOT_READ, READ, LOADED, INITIALIZED
@@ -27,7 +27,7 @@ private:
     ObjModule(const Sign sign, const Table<string> meta, State state,
               const fs::path path, const vector<Obj *> constantPool, const vector<string> dependencies,
               ElpInfo elp)
-            : Object(sign, null, null, meta),
+            : Obj(sign, null, null, meta),
               state(state), path(path),
               constantPool(constantPool),
               dependencies(dependencies), elp(elp) {}

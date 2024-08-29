@@ -7,8 +7,6 @@
 
 class ObjMethod;
 
-class FrameTemplate;
-
 class Frame {
     friend class VMState;
 
@@ -29,7 +27,6 @@ private:
     vector<ObjMethod *> lambdas;
     vector<MatchTable> matches;
     ObjMethod *method = null;
-    FrameTemplate *frameTemplate = null;
 
     Frame() = default;
 

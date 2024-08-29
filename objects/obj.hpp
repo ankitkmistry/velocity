@@ -32,19 +32,10 @@ protected:
     Sign sign;
     /// Type of the object
     Type *type;
+    /// Members of the object
+    Table<Obj *> members = {};
     /// Meta info of the object
     Table<string> meta;
-
-public:
-    Obj(Sign sign, Type *type, ObjModule *module, const Table<string> &meta = Table<string>());
-
-    template<typename T, typename ...Args>
-    static T *alloc(MemoryManager *manager, Args ...args);
-
-    static void free(Obj *obj) {
-        auto manager = obj->info.manager;
-        manager->deallocate(obj);
-    }
 
     /**
      * Changes pointer to type params @p pObj specified in @p old_ to pointers specified in @p new_.
@@ -54,6 +45,15 @@ public:
      * @param new_ new type parameters
      */
     static void reify(Obj **pObj, vector<TypeParam *> old_, vector<TypeParam *> new_);
+
+public:
+    template<typename T, typename ...Args>
+    static T *alloc(MemoryManager *manager, Args ...args);
+
+    inline static void free(Obj *obj) {
+        auto manager = obj->info.manager;
+        manager->deallocate(obj);
+    }
 
     /**
      * Creates a deep copy of \p obj.
@@ -65,22 +65,24 @@ public:
      */
     static Obj *createCopy(Obj *obj);
 
+    Obj(Sign sign, Type *type, ObjModule *module, const Table<string> &meta = Table<string>());
+
     /**
      * Performs a complete deep copy on the object.
      * @warning The user should not use this function except in exceptional cases
      * @return a copy of the object
      */
-    virtual Obj *copy() const = 0;
+    virtual Obj *copy() const;
 
     /**
      * @return the corresponding truth value of the object
      */
-    virtual bool truth() const = 0;
+    virtual bool truth() const { return true; }
 
     /**
      * @return a string representation of this object for VM context only
      */
-    virtual string toString() const = 0;
+    virtual string toString() const;
 
     /**
      * @return the memory information of the object
@@ -91,11 +93,6 @@ public:
      * @return the encapsulating module of the object
      */
     virtual ObjModule *getModule() const { return module; }
-
-    /**
-     * @return the meta information of the object
-     */
-    virtual const Table<string> &getMeta() const { return meta; }
 
     /**
      * @return the signature of the object
@@ -112,9 +109,37 @@ public:
      * @param destType the destination type
      */
     void setType(Type *destType) { this->type = destType; }
-};
 
-class ObjNull;
+    /**
+     * @return the members of this object
+     */
+    virtual const Table<Obj *> &getMembers() const { return members; }
+
+    /**
+     * @return the members of this object
+     */
+    virtual Table<Obj *> &getMembers() { return members; }
+
+    /**
+     * @throws IllegalAccessError if the member cannot be found
+     * @param name the name of the member
+     * @return the member of this object
+     */
+    virtual Obj *getMember(string name) const;
+
+    /**
+     * Sets the member of this object with \p name and sets it to \p value.
+     * If a member with \p name does not exist then creates a new member and sets it to \p value
+     * @param name name of the member
+     * @param value value to be set to
+     */
+    virtual void setMember(string name, Obj *value);
+
+    /**
+     * @return the meta information of the object
+     */
+    virtual const Table<string> &getMeta() const { return meta; }
+};
 
 template<typename T, typename... Args>
 T *Obj::alloc(MemoryManager *manager, Args... args) {

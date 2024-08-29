@@ -7,8 +7,8 @@
 #include "../ee/thread.hpp"
 
 class ObjCallable : public Obj {
-public :
-    enum Kind {
+public:
+    enum class Kind {
         FUNCTION,
         METHOD,
         CONSTRUCTOR,

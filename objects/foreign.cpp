@@ -262,6 +262,20 @@
 
 #define WRITE_CASE(n) case n: result = library->call<Obj *>(name, REPEAT_ARGS(args,n)); break
 
+void ObjForeign::linkLibrary() {
+    auto foreignAnnoType = SpadeVM::current()->getSymbol("spade::foreign.Foreign");
+    auto annos = cast<ObjArray *>(getMember("$annotations"));
+    Obj *foreignAnno;
+    annos->foreach([foreignAnnoType, &foreignAnno](Obj *anno) {
+        if (anno->getType() == foreignAnnoType) {
+            foreignAnno = anno;
+        }
+    });
+    auto libraryPath = foreignAnno->getMember("path")->toString();
+    auto metName = foreignAnno->getMember("name")->toString();
+
+}
+
 void ObjForeign::call(Thread *thread, vector<Obj *> args) {
     call(thread, args.data());
 }
@@ -533,10 +547,6 @@ void ObjForeign::call(Thread *thread, Obj **args) {
             break;
     }
     thread->getState()->push(result);
-}
-
-Obj *ObjForeign::copy() const {
-    return null;
 }
 
 string ObjForeign::toString() const {

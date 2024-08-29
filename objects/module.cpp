@@ -11,7 +11,7 @@ string ObjModule::getModuleName() const {
 }
 
 ObjModule::ObjModule(const fs::path &path, ElpInfo &elp, const Table<string> &meta)
-        : Object(Sign(""), null, null, meta), path(path), elp(elp) {
+        : Obj(Sign(""), null, null, meta), path(path), elp(elp) {
 }
 
 void ObjModule::setConstantPool(const vector<Obj *> &constantPool_) {

@@ -55,7 +55,7 @@ public:
      * @param index
      * @return the loaded value
      */
-    Obj *loadConst(uint16 index) const { return getFrame()->getConstPool()[index]->copy(); }
+    Obj *loadConst(uint16 index) const { return Obj::createCopy(getFrame()->getConstPool()[index]); }
 
     // Code operations
     /**

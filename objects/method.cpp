@@ -53,3 +53,29 @@ string ObjMethod::toString() const {
     };
     return format("<%s '%s'>", kindNames[kind].c_str(), sign.toString().c_str());
 }
+
+ObjMethod *ObjMethod::getReified(Obj **args, uint8 count) {
+    if (typeParams.size() != count) {
+        throw ArgumentError(sign.toString(),
+                            format("expected %d type arguments, but got %d", typeParams.size(), count));
+    }
+
+    vector<Type *> typeArgs;
+    for (int i = 0; i < count; ++i) {
+        typeArgs.push_back(cast<Type *>(args[i]));
+    }
+    typeArgs.shrink_to_fit();
+
+    try {
+        return reified.at(typeArgs);
+    } catch (const std::out_of_range &) {
+        // Always make a copy of the object when reifying
+        auto method = cast<ObjMethod *>(copy());
+        auto &params = method->getTypeParams();
+        for (int i = 0; i < count; i++) {
+            params[i]->reify(typeArgs[i]);
+        }
+        reified[typeArgs] = method;
+        return method;
+    }
+}

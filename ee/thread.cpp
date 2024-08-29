@@ -6,5 +6,9 @@ Thread::Thread(VMState *state, function<void(Thread *)> fun)
 }
 
 Thread *Thread::current() {
-    return threads[std::this_thread::get_id()];
+    try {
+        return threads.at(std::this_thread::get_id());
+    } catch (const std::out_of_range &) {
+        return null;
+    }
 }

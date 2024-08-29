@@ -61,3 +61,33 @@ Type::Type(Type &type) : Obj(type.sign, null, type.module, type.meta) {
     supers = type.supers;
     members = type.members;
 }
+
+void Type::setMember(string name, Obj *value) {
+    getMembers()[name] = value;
+}
+
+Type *Type::getReified(Obj **args, uint8 count) {
+    if (typeParams.size() != count) {
+        throw ArgumentError(sign.toString(),
+                            format("expected %d type arguments, but got %d", typeParams.size(), count));
+    }
+
+    vector<Type *> typeArgs;
+    for (int i = 0; i < count; ++i) {
+        typeArgs.push_back(cast<Type *>(args[i]));
+    }
+    typeArgs.shrink_to_fit();
+
+    try {
+        return reified.at(typeArgs);
+    } catch (const std::out_of_range &) {
+        // Always make a copy of the object when reifying
+        auto type = cast<Type *>(copy());
+        auto &params = type->getTypeParams();
+        for (int i = 0; i < count; i++) {
+            params[i]->reify(typeArgs[i]);
+        }
+        reified[typeArgs] = type;
+        return type;
+    }
+}

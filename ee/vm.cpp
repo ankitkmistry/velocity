@@ -39,10 +39,7 @@ int SpadeVM::start(ObjMethod *entry, ObjArray *args) {
 
     threads.erase(&thread);
     if (threads.empty()) {
-        for (auto &item: onExitList)
-            item();
-        // Clean the globals
-        // Clean the heap
+        for (auto &action: onExitList) action();
     }
     return thread.getExitCode();
 }
@@ -57,18 +54,12 @@ Obj *SpadeVM::getSymbol(const string &sign) const {
     if (elements.empty())return Obj::alloc<ObjNull>(manager);
     Obj *acc;
     try {
-        acc = modules.at(elements[0].getName());
+        acc = modules.at(elements[0].toString());
         for (int i = 1; i < elements.size(); ++i) {
-            if (is<Object *>(acc)) {
-                auto object = cast<Object *>(acc);
-                acc = object->getMember(elements[i].getName());
-            } else if (is<Type *>(acc)) {
-                auto type = cast<Type *>(acc);
-                acc = type->getMember(elements[i].getName());
-            } else if (i < elements.size() - 1) {
-                throw IllegalAccessError(format("cannot find symbol: %s", sign.c_str()));
-            }
+            acc = acc->getMember(elements[i].toString());
         }
+    } catch (const IllegalAccessError &) {
+        throw IllegalAccessError(format("cannot find symbol: %s", sign.c_str()));
     } catch (const std::out_of_range &) {
         throw IllegalAccessError(format("cannot find symbol: %s", sign.c_str()));
     }
@@ -81,26 +72,16 @@ void SpadeVM::setSymbol(const string &sign, Obj *val) {
     if (elements.empty())return;
     Obj *acc;
     try {
-        acc = modules.at(elements[0].getName());
+        acc = modules.at(elements[0].toString());
         for (int i = 1; i < elements.size(); ++i) {
-            if (is<Object *>(acc)) {
-                auto object = cast<Object *>(acc);
-                if (i == elements.size() - 1) {
-                    object->getMembers()[elements.back().getName()] = val;
-                } else {
-                    acc = object->getMember(elements[i].getName());
-                }
-            } else if (is<Type *>(acc)) {
-                auto type = cast<Type *>(acc);
-                if (i == elements.size() - 1) {
-                    type->getMembers()[elements.back().getName()] = val;
-                } else {
-                    acc = type->getMember(elements[i].getName());
-                }
-            } else if (i < elements.size() - 1) {
-                throw IllegalAccessError(format("cannot find symbol: %s", sign.c_str()));
+            if (i == elements.size() - 1) {
+                acc->getMembers()[elements.back().toString()] = val;
+            } else {
+                acc = acc->getMember(elements[i].toString());
             }
         }
+    } catch (const IllegalAccessError &) {
+        throw IllegalAccessError(format("cannot find symbol: %s", sign.c_str()));
     } catch (const std::out_of_range &) {
         throw IllegalAccessError(format("cannot find symbol: %s", sign.c_str()));
     }

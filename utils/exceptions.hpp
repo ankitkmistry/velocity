@@ -85,12 +85,6 @@ public:
             : FatalError(format("tried to access empty type parameter: '%s'", sign.c_str())) {}
 };
 
-class GlobalError : public FatalError {
-public:
-    explicit GlobalError(const string &sign)
-            : FatalError(format("cannot find global: '%s'", sign.c_str())) {}
-};
-
 class NativeLibraryError : public FatalError {
 public:
     NativeLibraryError(string library, string msg)

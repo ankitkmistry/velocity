@@ -161,7 +161,7 @@ static vector<T> slice(vector<T> list, int64 start, int64 end) {
     if (start < 0)start += list.size();
     if (end < 0)end += list.size();
     if (start >= list.size() || end >= list.size())throw FatalError("slice(): index out of bounds");
-    if (start > end){
+    if (start > end) {
         int temp = start;
         start = end;
         end = temp;
@@ -300,5 +300,5 @@ vector<Sign> Sign::getParams() const {
 }
 
 string Sign::getName() const {
-    return elements.back().getName();
+    return elements.back().toString();
 }

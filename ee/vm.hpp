@@ -64,16 +64,15 @@ public:
     ThrowSignal runtimeError(const string &str);
 
     /**
+     * @throws IllegalAccessError if the symbol cannot be found
      * @param sign the signature of the symbol
-     * @return The value of the symbol corresponding
-     * to the signature \p sign , raises GlobalError if the global cannot be found
+     * @return The value of the symbol corresponding to the signature \p sign
      */
     Obj *getSymbol(const string &sign) const;
 
     /**
-     * Set the value of the symbol corresponding to the signature \p sign.
-     * Creates a new symbol and sets the value to \p val if there is no
-     * existing symbol with signature \p sign.
+     * Set the value of the symbol corresponding to the signature \p sign
+     * @throws IllegalAccessError if the symbol cannot be found
      * @param sign the signature of the symbol
      * @param val the value
      */

@@ -19,6 +19,9 @@ ObjMethod *Loader::load(string path) {
         toBeLoaded.push_back(module);
         while (!moduleStack.empty()) {
             modInfo = moduleStack.back();
+            if (modInfo.i >= modInfo.deps.size()) {
+                moduleStack.pop_back();
+            }
             for (; modInfo.i < modInfo.deps.size(); ++modInfo.i) {
                 string depPath = modInfo.deps[modInfo.i];
                 auto depModule = readModule(depPath);
@@ -46,8 +49,11 @@ ObjMethod *Loader::load(string path) {
     }
     {   // Init
         for (auto module: toBeLoaded) {
-            module->getInit()->invoke(null, {});
-            module->setState(ObjModule::State::INITIALIZED);
+            ObjMethod *init = module->getInit();
+            if (init != null) {
+                init->invoke(Thread::current(), {});
+                module->setState(ObjModule::State::INITIALIZED);
+            }
         }
     }
 
@@ -110,6 +116,13 @@ void Loader::loadModule(ObjModule *module) {
     vm->getModules()[module->getSign().getName()] = module;
     // Set the state to loaded
     module->setState(ObjModule::State::LOADED);
+    // Try to get init point
+    auto initSign = getConstantPool()[elp.init]->toString();
+    if (initSign.empty()) {
+        module->setInit(cast<ObjMethod *>(vm->getSymbol(initSign)));
+    } else {
+        module->setInit(null);
+    }
 }
 
 Obj *Loader::readGlobal(GlobalInfo &global) {
@@ -290,8 +303,6 @@ Obj *Loader::readMethod(MethodInfo &method) {
     auto methodObj = Obj::alloc<ObjMethod>(
             manager, sign, kind, frameTemplate, null, typeParams, getCurrentModule(), meta
     );
-    if (kind == ObjMethod::CONSTRUCTOR)
-        vm->setSymbol(sign.toString(), methodObj);
     return methodObj;
 }
 
@@ -301,7 +312,7 @@ MatchTable Loader::readMatch(MethodInfo::MatchInfo match) {
     cases.reserve(match.caseCount);
     for (int i = 0; i < match.caseCount; ++i) {
         auto kase = match.cases[i];
-        cases.push_back({constPool[kase.value]->copy(), kase.location});
+        cases.push_back({Obj::createCopy(constPool[kase.value]), kase.location});
     }
     return {cases, match.defaultLocation};
 }

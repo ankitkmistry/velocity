@@ -88,17 +88,17 @@ Obj *SpadeVM::run(Thread *thread) {
                     frame->getMethod()->getTypeParams()[state->readByte()]->reify(cast<Type *>(state->pop()));
                     break;
                 case Opcode::LOAD_MEMBER: {
-                    auto object = cast<Object *>(state->pop());
+                    auto object = state->pop();
                     auto name = Sign(state->loadConst(state->readShort())->toString()).getName();
                     Obj *member = object->getMember(name);
                     state->push(member);
                     break;
                 }
                 case Opcode::STORE_MEMBER: {
-                    auto object = cast<Object *>(state->pop());
+                    auto object = state->pop();
                     auto value = state->peek();
                     auto name = Sign(state->loadConst(state->readShort())->toString()).getName();
-                    object->getMembers()[name] = value;
+                    object->setMember(name, value);
                     break;
                 }
                 case Opcode::LOAD_STATIC: {
@@ -111,21 +111,21 @@ Obj *SpadeVM::run(Thread *thread) {
                     auto type = cast<Type *>(state->pop());
                     auto value = state->peek();
                     auto name = Sign(state->loadConst(state->readShort())->toString()).getName();
-                    type->getMembers()[name] = value;
+                    type->setMember(name, value);
                     break;
                 }
                 case Opcode::LOAD_MEMBER_FAST: {
-                    auto object = cast<Object *>(state->pop());
+                    auto object = state->pop();
                     auto name = Sign(state->loadConst(state->readByte())->toString()).getName();
                     Obj *member = object->getMember(name);
                     state->push(member);
                     break;
                 }
                 case Opcode::STORE_MEMBER_FAST: {
-                    auto object = cast<Object *>(state->pop());
+                    auto object = state->pop();
                     auto value = state->peek();
                     auto name = Sign(state->loadConst(state->readByte())->toString()).getName();
-                    object->getMembers()[name] = value;
+                    object->setMember(name, value);
                     break;
                 }
                 case Opcode::LOAD_STATIC_FAST: {
@@ -138,40 +138,40 @@ Obj *SpadeVM::run(Thread *thread) {
                     auto type = cast<Type *>(state->pop());
                     auto value = state->peek();
                     auto name = Sign(state->loadConst(state->readByte())->toString()).getName();
-                    type->getMembers()[name] = value;
+                    type->setMember(name, value);
                     break;
                 }
                 case Opcode::POP_STORE_MEMBER: {
-                    auto object = cast<Object *>(state->pop());
+                    auto object = state->pop();
                     auto value = state->pop();
                     auto name = Sign(state->loadConst(state->readShort())->toString()).getName();
-                    object->getMembers()[name] = value;
+                    object->setMember(name, value);
                     break;
                 }
                 case Opcode::POP_STORE_STATIC: {
                     auto type = cast<Type *>(state->pop());
                     auto value = state->pop();
                     auto name = Sign(state->loadConst(state->readShort())->toString()).getName();
-                    type->getMembers()[name] = value;
+                    type->setMember(name, value);
                     break;
                 }
                 case Opcode::POP_STORE_MEMBER_FAST: {
-                    auto object = cast<Object *>(state->pop());
+                    auto object = state->pop();
                     auto value = state->pop();
                     auto name = Sign(state->loadConst(state->readByte())->toString()).getName();
-                    object->getMembers()[name] = value;
+                    object->setMember(name, value);
                     break;
                 }
                 case Opcode::POP_STORE_STATIC_FAST: {
                     auto type = cast<Type *>(state->pop());
                     auto value = state->pop();
                     auto name = Sign(state->loadConst(state->readByte())->toString()).getName();
-                    type->getMembers()[name] = value;
+                    type->setMember(name, value);
                     break;
                 }
                 case Opcode::LOAD_OBJECT: {
                     auto type = cast<Type *>(state->pop());
-                    auto object = Obj::alloc<Object>(manager, Sign(""), type, frame->getMethod()->getModule());
+                    auto object = Obj::alloc<Obj>(manager, Sign(""), type, frame->getMethod()->getModule());
                     state->push(object);
                     break;
                 }
@@ -241,7 +241,7 @@ Obj *SpadeVM::run(Thread *thread) {
                     // Pop the arguments
                     for (int i = 0; i < count; i++) state->pop();
                     // Get the object
-                    auto object = cast<Object *>(state->pop());
+                    auto object = state->pop();
                     // Get the method
                     auto method = cast<ObjMethod *>(object->getMember(name));
                     // Call it
@@ -299,7 +299,7 @@ Obj *SpadeVM::run(Thread *thread) {
                     // Pop the arguments
                     for (int i = 0; i < count; i++) state->pop();
                     // Get the object
-                    auto object = cast<Object *>(state->pop());
+                    auto object = state->pop();
                     // Get the method
                     auto method = cast<ObjMethod *>(object->getMember(name));
                     // Call it
@@ -459,7 +459,7 @@ Obj *SpadeVM::run(Thread *thread) {
                     break;
                 case Opcode::SAFE_CAST: {
                     auto type = cast<Type *>(state->pop());
-                    auto obj = cast<Object *>(state->pop());
+                    auto obj = state->pop();
                     if (checkCast(obj->getType(), type)) {
                         obj->setType(type);
                         state->push(obj);
@@ -469,7 +469,7 @@ Obj *SpadeVM::run(Thread *thread) {
                 }
                 case Opcode::CHECKED_CAST: {
                     auto type = cast<Type *>(state->pop());
-                    auto obj = cast<Object *>(state->pop());
+                    auto obj = state->pop();
                     if (checkCast(obj->getType(), type)) {
                         obj->setType(type);
                         state->push(obj);
@@ -649,23 +649,9 @@ Obj *SpadeVM::run(Thread *thread) {
                     auto args = frame->sp;
                     auto obj = state->pop();
                     if (is<ObjMethod *>(obj)) {
-                        // Always make a copy of the object when reifying
-                        auto method = cast<ObjMethod *>(cast<ObjMethod *>(obj)->copy());
-                        auto typeParams = method->getTypeParams();
-                        for (int i = 0; i < count; i++) {
-                            auto typeParam = typeParams[i];
-                            typeParam->reify(cast<Type *>(args[i]));
-                        }
-                        state->push(method);
+                        state->push(cast<ObjMethod *>(obj)->getReified(args, count));
                     } else if (is<Type *>(obj)) {
-                        // Always make a copy of the object when reifying
-                        auto type = cast<Type *>(cast<Type *>(obj)->copy());
-                        auto typeParams = type->getTypeParams();
-                        for (int i = 0; i < count; i++) {
-                            auto typeParam = typeParams[i];
-                            typeParam->reify(cast<Type *>(args[i]));
-                        }
-                        state->push(type);
+                        state->push(cast<Type *>(obj)->getReified(args, count));
                     } else
                         throw runtimeError(format("cannot reify value of type %s", obj->getType()->toString().c_str()));
                     break;

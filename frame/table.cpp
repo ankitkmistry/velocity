@@ -86,7 +86,8 @@ uint32 MatchTable::perform(Obj *value) {
 ArgsTable ArgsTable::copy() const {
     ArgsTable newArgs;
     for (auto arg: args) {
-        newArgs.addArg(Arg(arg.getName(), Obj::createCopy(arg.getValue()), arg.getMeta()));
+//        newArgs.addArg(Arg(arg.getName(), Obj::createCopy(arg.getValue()), arg.getMeta()));
+        newArgs.addArg(Arg(arg.getName(), arg.getValue(), arg.getMeta()));
     }
     newArgs.args.shrink_to_fit();
     return newArgs;
@@ -95,7 +96,8 @@ ArgsTable ArgsTable::copy() const {
 LocalsTable LocalsTable::copy() const {
     LocalsTable newLocals{closureStart};
     for (auto local: locals) {
-        newLocals.addLocal(Local(local.getName(), Obj::createCopy(local.getValue()), local.getMeta()));
+//        newLocals.addLocal(Local(local.getName(), Obj::createCopy(local.getValue()), local.getMeta()));
+        newLocals.addLocal(Local(local.getName(), local.getValue(), local.getMeta()));
     }
     newLocals.locals.shrink_to_fit();
     for (auto closure: closures) {
