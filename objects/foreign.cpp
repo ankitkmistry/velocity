@@ -555,5 +555,5 @@ string ObjForeign::toString() const {
             "method",
             "constructor"
     };
-    return format("<foreign %s '%s'>", kindNames[kind].c_str(), sign.toString().c_str());
+    return format("<foreign %s '%s'>", kindNames[static_cast<int>(kind)].c_str(), sign.toString().c_str());
 }

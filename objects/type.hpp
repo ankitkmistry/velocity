@@ -48,7 +48,7 @@ public:
 
     virtual vector<TypeParam *> &getTypeParams() { return typeParams; }
 
-    Obj *getMember(string name) const;
+    Obj *getMember(string name) const override;
 
     Obj *getStaticMember(string &name) const;
 
@@ -66,8 +66,6 @@ public:
     string toString() const override;
 
     static Type *SENTINEL_(const string &sign, MemoryManager *manager);
-
-    void setMember(string name, Obj *value);
 };
 
 #endif //VELOCITY_TYPE_HPP

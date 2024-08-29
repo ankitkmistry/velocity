@@ -51,7 +51,7 @@ string ObjMethod::toString() const {
             "method",
             "constructor"
     };
-    return format("<%s '%s'>", kindNames[kind].c_str(), sign.toString().c_str());
+    return format("<%s '%s'>", kindNames[static_cast<int>(kind)].c_str(), sign.toString().c_str());
 }
 
 ObjMethod *ObjMethod::getReified(Obj **args, uint8 count) {

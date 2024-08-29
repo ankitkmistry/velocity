@@ -3,7 +3,6 @@
 
 #include <thread>
 #include "../utils/common.hpp"
-#include "../objects/object.hpp"
 #include "state.hpp"
 
 /**
@@ -25,7 +24,7 @@ private:
     std::thread thread;
     // TODO Fix program representation
     /// Program representation
-    Object *value = null;
+    Obj *value = null;
     /// The vm state stored in the thread
     VMState *state;
     /// Status of the thread
@@ -43,7 +42,7 @@ public:
     /**
      * @return The object representation of the thread
      */
-    Object *getValue() const { return value; }
+    Obj *getValue() const { return value; }
 
     /**
      * @return The vm state

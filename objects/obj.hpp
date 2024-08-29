@@ -123,7 +123,7 @@ public:
     /**
      * @throws IllegalAccessError if the member cannot be found
      * @param name the name of the member
-     * @return the member of this object
+     * @return the member of this object, the member can be static also
      */
     virtual Obj *getMember(string name) const;
 

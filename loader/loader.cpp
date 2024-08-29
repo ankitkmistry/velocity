@@ -235,13 +235,13 @@ Obj *Loader::readMethod(MethodInfo &method) {
     ObjMethod::Kind kind;
     switch (method.type) {
         case 0x01:
-            kind = ObjMethod::FUNCTION;
+            kind = ObjMethod::Kind::FUNCTION;
             break;
         case 0x02:
-            kind = ObjMethod::METHOD;
+            kind = ObjMethod::Kind::METHOD;
             break;
         case 0x03:
-            kind = ObjMethod::CONSTRUCTOR;
+            kind = ObjMethod::Kind::CONSTRUCTOR;
             break;
         default:
             throw Unreachable();
@@ -445,7 +445,7 @@ Obj *Loader::makeObj(string typeSign, Sign objSign, Type *type, Table<string> me
     try {
         return objMap.at(typeSign)();
     } catch (std::out_of_range &) {
-        return Obj::alloc<Object>(manager, objSign, type, getCurrentModule(), meta);
+        return Obj::alloc<Obj>(manager, objSign, type, getCurrentModule(), meta);
     }
 }
 

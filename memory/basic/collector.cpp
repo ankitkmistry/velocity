@@ -95,12 +95,6 @@ void BasicCollector::traceReferences() {
                 // mark every value of the array
                 mark(val);
             });
-        } else if (is<Object *>(obj)) {
-            auto object = cast<Object *>(obj);
-            for (auto [name, member]: object->getMembers()) {
-                // mark every member
-                mark(member);
-            }
         } else if (is<Type *>(obj)) {
             auto type = cast<Type *>(obj);
             for (auto typeParam: type->getTypeParams()) {
@@ -112,6 +106,11 @@ void BasicCollector::traceReferences() {
                 mark((Obj *) super);
             }
             for (auto [name, member]: type->getMembers()) {
+                // mark every member
+                mark(member);
+            }
+        } else {
+            for (auto [name, member]: obj->getMembers()) {
                 // mark every member
                 mark(member);
             }

@@ -1,7 +1,6 @@
 #include "obj.hpp"
 #include "module.hpp"
 #include "type.hpp"
-#include "object.hpp"
 #include "inbuilt_types.hpp"
 #include "method.hpp"
 
@@ -100,7 +99,15 @@ Obj *Obj::getMember(string name) const {
     try {
         return getMembers().at(name);
     } catch (std::out_of_range &) {
-        throw IllegalAccessError(format("cannot find member: %s in %s", name.c_str(), toString().c_str()));
+        if (type == null) {
+            throw IllegalAccessError(format("cannot find member: %s in %s", name.c_str(), toString().c_str()));
+        } else {
+            try {
+                return type->getStaticMember(name);
+            } catch (const IllegalAccessError &) {
+                throw IllegalAccessError(format("cannot find member: %s in %s", name.c_str(), toString().c_str()));
+            }
+        }
     }
 }
 

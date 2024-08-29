@@ -2,7 +2,6 @@
 #define VELOCITY_MODULE_HPP
 
 #include <elpops/elpdef.hpp>
-#include "object.hpp"
 #include "method.hpp"
 
 class ObjModule : public Obj {

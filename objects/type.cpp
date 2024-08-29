@@ -62,10 +62,6 @@ Type::Type(Type &type) : Obj(type.sign, null, type.module, type.meta) {
     members = type.members;
 }
 
-void Type::setMember(string name, Obj *value) {
-    getMembers()[name] = value;
-}
-
 Type *Type::getReified(Obj **args, uint8 count) {
     if (typeParams.size() != count) {
         throw ArgumentError(sign.toString(),
