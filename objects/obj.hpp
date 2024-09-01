@@ -20,6 +20,14 @@ class TypeParam;
 class ObjModule;
 
 /*
+ *   raw             = 0x 00000000 00000000
+ *                        |      | |      |
+ *                        +------+ +------+
+ *                           |        |
+ *   accessor        |-------+        |
+ *   modifier        |----------------+
+ *
+ *
  *   modifier        = 0x  0  0  0  0  0  0  0  0
  *   =================                 |  |  |  |
  *   operator        |-----------------+  |  |  |
@@ -35,49 +43,45 @@ class ObjModule;
  *   internal        |-----------------------+  |
  *   private         |--------------------------+
  */
-union Flags {
-    struct {
-        unsigned modifier: 1;
-        unsigned accessor: 1;
-    };
+struct Flags {
     uint16 raw;
 
     explicit Flags(uint16 raw = 0) : raw(raw) {}
 
     bool isStatic() const {
-        return modifier & 0x00000001;
+        return raw & 0x00000001;
     }
 
     bool isAbstract() const {
-        return modifier & 0x00000010;
+        return raw & 0x00000010;
     }
 
     bool isFinal() const {
-        return modifier & 0x00000100;
+        return raw & 0x00000100;
     }
 
     bool isOperator() const {
-        return modifier & 0x00001000;
+        return raw & 0x00001000;
     }
 
     bool isPrivate() const {
-        return accessor & 0x00000001;
+        return (raw >> 8) & 0x00000001;
     }
 
     bool isInternal() const {
-        return accessor & 0x00000010;
+        return (raw >> 8) & 0x00000010;
     }
 
     bool isPackagePrivate() const {
-        return accessor & 0x00000100;
+        return (raw >> 8) & 0x00000100;
     }
 
     bool isProtected() const {
-        return accessor & 0x00001000;
+        return (raw >> 8) & 0x00001000;
     }
 
     bool isPublic() const {
-        return accessor & 0x00010000;
+        return (raw >> 8) & 0x00010000;
     }
 };
 

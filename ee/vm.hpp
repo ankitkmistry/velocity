@@ -4,7 +4,6 @@
 #include "../utils/common.hpp"
 #include "thread.hpp"
 #include "settings.hpp"
-#include "../objects/obj.hpp"
 #include "../objects/inbuilt_types.hpp"
 #include "../loader/loader.hpp"
 #include "../memory/memory.hpp"
@@ -68,12 +67,21 @@ public:
     /**
      * @throws IllegalAccessError if the symbol cannot be found
      * @param sign the signature of the symbol
-     * @return The value of the symbol corresponding to the signature \p sign
+     * @return the value of the symbol corresponding to the signature \p sign
      */
     Obj *getSymbol(const string &sign) const;
 
+    /**
+     * @param sign the sign of the symbol
+     * @return the metadata of the symbol corresponding to \p sign
+     */
     const Table<string> &getMetadata(const string &sign);
 
+    /**
+     * Sets the metadata of the symbol corresponding to \p sign
+     * @param sign the sign of the symbol
+     * @param meta the metadata to be set
+     */
     void setMetadata(const string &sign, Table<string> meta);
 
     /**
@@ -124,7 +132,7 @@ public:
     string getOutput() const { return out.str(); }
 
     /**
-     * @return the current vm respective to the current thread
+     * @return the current vm respective to the current thread if present, null otherwise
      */
     static SpadeVM *current();
 
