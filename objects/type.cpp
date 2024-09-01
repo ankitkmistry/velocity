@@ -35,13 +35,22 @@ Obj *Type::getMember(string name) const {
     return getStaticMember(name);
 }
 
-Obj *Type::getStaticMember(string &name) const {
+Obj *Type::getStaticMember(string name) const {
+    try {
+        auto slot = getMemberSlots().at(name);
+        if (slot.getFlags().isStatic()) {
+            return slot.getValue();
+        }
+    } catch (const std::out_of_range &) {}
+
     Obj *obj = null;
-    try { obj = getMemberSlots().at(name).getValue(); }
-    catch (std::out_of_range &) {
-        // Check for the members in the super classes
-        for (auto [_, super]: getSupers()) {
-            if ((obj = super->getStaticMember(name)) != null)break;
+    // Check for the members in the super classes
+    for (auto [_, super]: getSupers()) {
+        try {
+            obj = super->getStaticMember(name);
+        } catch (const IllegalAccessError &) {
+            obj = null;
+            continue;
         }
     }
     if (obj == null) {

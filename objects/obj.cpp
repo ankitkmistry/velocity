@@ -12,12 +12,17 @@ Obj::Obj(Sign sign, Type *type, ObjModule *module) :
     }
     if (type != null) {
         for (auto [name, slot]: type->getMemberSlots()) {
-            Obj *valueCopy = Obj::createCopy(slot.getValue());
-            if (is<ObjMethod *>(valueCopy)) {
+            if (slot.getFlags().isStatic())continue;
+            Obj *value = slot.getValue();
+            if (is<ObjMethod *>(value) &&
+                cast<ObjMethod *>(value)->getKind() != ObjCallable::Kind::CONSTRUCTOR) {
+                auto newMethod = cast<ObjMethod*>(value->copy());
                 // Set this argument in every method
-                const_cast<LocalsTable &>(cast<ObjMethod *>(valueCopy)->getFrameTemplate()->getLocals()).set(0, this);
+                const_cast<LocalsTable &>(newMethod->getFrameTemplate()->getLocals()).set(0, this);
+                this->memberSlots[name] = newMethod;
+            } else {
+                this->memberSlots[name] = Obj::createCopy(slot.getValue());
             }
-            this->memberSlots[name] = valueCopy;
         }
     }
 }

@@ -19,15 +19,74 @@ class TypeParam;
 
 class ObjModule;
 
+/*
+ *   modifier        = 0x  0  0  0  0  0  0  0  0
+ *   =================                 |  |  |  |
+ *   operator        |-----------------+  |  |  |
+ *   final           |--------------------+  |  |
+ *   abstract        |-----------------------+  |
+ *   static          |--------------------------+
+ *
+ *   accessor        = 0x  0  0  0  0  0  0  0  0
+ *   =================              |  |  |  |  |
+ *   public          |--------------+  |  |  |  |
+ *   protected       |-----------------+  |  |  |
+ *   package-private |--------------------+  |  |
+ *   internal        |-----------------------+  |
+ *   private         |--------------------------+
+ */
+union Flags {
+    struct {
+        unsigned modifier: 1;
+        unsigned accessor: 1;
+    };
+    uint16 raw;
+
+    explicit Flags(uint16 raw = 0) : raw(raw) {}
+
+    bool isStatic() const {
+        return modifier & 0x00000001;
+    }
+
+    bool isAbstract() const {
+        return modifier & 0x00000010;
+    }
+
+    bool isFinal() const {
+        return modifier & 0x00000100;
+    }
+
+    bool isOperator() const {
+        return modifier & 0x00001000;
+    }
+
+    bool isPrivate() const {
+        return accessor & 0x00000001;
+    }
+
+    bool isInternal() const {
+        return accessor & 0x00000010;
+    }
+
+    bool isPackagePrivate() const {
+        return accessor & 0x00000100;
+    }
+
+    bool isProtected() const {
+        return accessor & 0x00001000;
+    }
+
+    bool isPublic() const {
+        return accessor & 0x00010000;
+    }
+};
+
 class MemberSlot {
 private:
-    /// Value of the member
     Obj *value;
-    uint8 flags;
-    /// Meta info of the member
-    Table<string> meta;
+    Flags flags;
 public:
-    MemberSlot(Obj *value = null, const Table<string> &meta = {}) : value(value), meta(meta) {}
+    MemberSlot(Obj *value = null, Flags flags = Flags{0}) : value(value), flags(flags) {}
 
     Obj *getValue() const { return value; }
 
@@ -35,7 +94,7 @@ public:
 
     void setValue(Obj *value_) { value = value_; }
 
-    const Table<string> &getMeta() const { return meta; }
+    const Flags &getFlags() const { return flags; }
 };
 
 /**

@@ -191,13 +191,13 @@ Obj *Loader::readClass(ClassInfo klass) {
     });
 
     Table<MemberSlot> members;
+    for (int i = 0; i < klass.fieldsCount; ++i) {
+        auto field = readField(klass.fields[i]);
+        members[field->getSign().getName()] = MemberSlot{field, Flags{klass.fields[i].flags}};
+    }
     for (int i = 0; i < klass.methodsCount; ++i) {
         auto method = readMethod(sign.toString(), klass.methods[i]);
         members[method->getSign().getName()] = MemberSlot{method};
-    }
-    for (int i = 0; i < klass.fieldsCount; ++i) {
-        auto field = readField(klass.fields[i]);
-        members[field->getSign().getName()] = MemberSlot{field};
     }
     for (int i = 0; i < klass.objectsCount; ++i) {
         auto object = readObj(klass.objects[i]);

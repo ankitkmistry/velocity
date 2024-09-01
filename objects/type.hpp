@@ -50,7 +50,7 @@ public:
 
     Obj *getMember(string name) const override;
 
-    Obj *getStaticMember(string &name) const;
+    Obj *getStaticMember(string name) const;
 
     /**
      * @param args the type args
