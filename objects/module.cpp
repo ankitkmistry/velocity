@@ -1,5 +1,4 @@
 #include "module.hpp"
-#include "inbuilt_types.hpp"
 
 string ObjModule::getAbsolutePath() {
     if (!path.is_absolute()) path = std::filesystem::current_path() / path;
@@ -10,19 +9,9 @@ string ObjModule::getModuleName() const {
     return path.filename().string();
 }
 
-ObjModule::ObjModule(const fs::path &path, ElpInfo &elp, const Table<string> &meta)
-        : Obj(Sign(""), null, null, meta), path(path), elp(elp) {
-}
-
-void ObjModule::setConstantPool(const vector<Obj *> &constantPool_) {
-    constantPool = constantPool_;
-    sign = Sign{constantPool[elp.thisModule]->toString()};
-    auto imports = cast<ObjArray *>(constantPool[elp.imports]);
-    dependencies.clear();
-    // Get the import paths to dependencies vector
-    imports->foreach([&](auto obj) {
-        dependencies.push_back(obj->toString());
-    });
+ObjModule::ObjModule(Sign sign, const fs::path &path, vector<Obj *> constantPool, vector<string> dependencies,
+                     ElpInfo &elp)
+        : Obj(sign, null, null), path(path), constantPool(constantPool), elp(elp) {
 }
 
 Obj *ObjModule::copy() const {
@@ -35,4 +24,14 @@ bool ObjModule::truth() const {
 
 string ObjModule::toString() const {
     return format("<module %s>", sign.toString().c_str());
+}
+
+ObjModule *ObjModule::current() {
+    if (auto thread = Thread::current();thread != null) {
+        auto state = thread->getState();
+        if (auto frame = state->getFrame();frame > state->getCallStack()) {
+            return frame->getMethod()->getModule();
+        }
+    }
+    return null;
 }

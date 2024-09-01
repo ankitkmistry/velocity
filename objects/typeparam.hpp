@@ -9,8 +9,8 @@ class TypeParam : public Type {
     void checkPlaceholder() const;
 
 public:
-    TypeParam(Sign sign, ObjModule *module = null, const Table<string> &meta = {})
-            : Type(sign, Kind::TYPE_PARAM, {}, {}, {}, module, meta) {}
+    TypeParam(Sign sign, ObjModule *module = null)
+            : Type(sign, Kind::TYPE_PARAM, {}, {}, {}, module) {}
 
     /**
      * Reifies the type parameter to the specified \p type
@@ -24,13 +24,13 @@ public:
 
     const Table<Type *> &getSupers() const override;
 
-    const Table<Obj *> &getMembers() const override;
+    const Table<MemberSlot> & getMemberSlots() const override;
 
     vector<TypeParam *> &getTypeParams() override;
 
     Table<Type *> &getSupers() override;
 
-    Table<Obj *> &getMembers() override;
+    Table<MemberSlot> & getMemberSlots() override;
 
     ObjModule *getModule() const override;
 

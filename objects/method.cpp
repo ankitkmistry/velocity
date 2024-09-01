@@ -3,8 +3,8 @@
 
 
 ObjMethod::ObjMethod(const Sign &sign, Kind kind, FrameTemplate *frame, Type *type,
-                     vector<TypeParam *> typeParams, ObjModule *module, const Table<string> &meta)
-        : ObjCallable(sign, kind, type, module, meta), typeParams(typeParams),
+                     vector<TypeParam *> typeParams, ObjModule *module)
+        : ObjCallable(sign, kind, type, module), typeParams(typeParams),
           frameTemplate(frame) {
     frameTemplate->setMethod(this);
 }
@@ -16,7 +16,7 @@ Obj *ObjMethod::copy() const {
     }
     Obj *newMethod = Obj::alloc<ObjMethod>(info.manager,
                                            sign, kind, frameTemplate->copy(),
-                                           type, newTypeParams, module, meta);
+                                           type, newTypeParams, module);
     Obj::reify(&newMethod, typeParams, newTypeParams);
     return newMethod;
 }

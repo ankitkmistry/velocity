@@ -17,8 +17,8 @@ public:
 protected:
     Kind kind;
 public:
-    ObjCallable(const Sign &sign, Kind kind, Type *type, ObjModule *module = null,
-                const Table<string> &meta = {}) : Obj(sign, type, module, meta), kind(kind) {}
+    ObjCallable(const Sign &sign, Kind kind, Type *type, ObjModule *module = null)
+            : Obj(sign, type, module), kind(kind) {}
 
     /**
      * Calls this method with \p args on \p thread

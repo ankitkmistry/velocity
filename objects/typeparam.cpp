@@ -15,9 +15,9 @@ const Table<Type *> &TypeParam::getSupers() const {
     return placeholder->getSupers();
 }
 
-const Table<Obj *> &TypeParam::getMembers() const {
+const Table<MemberSlot> & TypeParam::getMemberSlots() const {
     checkPlaceholder();
-    return placeholder->getMembers();
+    return placeholder->getMemberSlots();
 }
 
 vector<TypeParam *> &TypeParam::getTypeParams() {
@@ -30,9 +30,9 @@ Table<Type *> &TypeParam::getSupers() {
     return placeholder->getSupers();
 }
 
-Table<Obj *> &TypeParam::getMembers() {
+Table<MemberSlot> & TypeParam::getMemberSlots() {
     checkPlaceholder();
-    return placeholder->getMembers();
+    return placeholder->getMemberSlots();
 }
 
 ObjModule *TypeParam::getModule() const {
@@ -56,7 +56,7 @@ Type *TypeParam::getType() const {
 }
 
 Obj *TypeParam::copy() const {
-    auto newTypeParam = Obj::alloc<TypeParam>(info.manager, sign, module, meta);
+    auto newTypeParam = Obj::alloc<TypeParam>(info.manager, sign, module);
     newTypeParam->reify(placeholder);
     return newTypeParam;
 }

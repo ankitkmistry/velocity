@@ -1,5 +1,4 @@
 #include "inbuilt_types.hpp"
-#include "../utils/utils.hpp"
 #include "cmath"
 
 int32 ObjBool::compare(const Obj *rhs) const {
@@ -17,8 +16,8 @@ int32 ObjNull::compare(const Obj *rhs) const {
     return 0;
 }
 
-ObjString::ObjString(uint8 *bytes, uint16 len, ObjModule *module, const Table<string> &meta) :
-        ComparableObj(Sign("string"), null, module, meta), str() {
+ObjString::ObjString(uint8 *bytes, uint16 len, ObjModule *module) :
+        ComparableObj(Sign("string"), null, module), str() {
     str = string(bytes, bytes + len);
 }
 

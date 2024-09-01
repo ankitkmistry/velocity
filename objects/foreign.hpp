@@ -8,8 +8,8 @@ class ObjForeign final : public ObjCallable {
     Library *library;
     string name;
 public:
-    ObjForeign(const Sign &sign, Kind kind, Type *type, ObjModule *module, const Table<string> &meta = {})
-            : ObjCallable(sign, kind, type, module, meta) {}
+    ObjForeign(const Sign &sign, Kind kind, Type *type, ObjModule *module)
+            : ObjCallable(sign, kind, type, module) {}
 
     void call(Thread *thread, vector<Obj *> args) override;
 

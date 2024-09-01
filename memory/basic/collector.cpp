@@ -105,14 +105,14 @@ void BasicCollector::traceReferences() {
                 // mark every super class
                 mark((Obj *) super);
             }
-            for (auto [name, member]: type->getMembers()) {
+            for (auto [name, member]: type->getMemberSlots()) {
                 // mark every member
-                mark(member);
+                mark(member.getValue());
             }
         } else {
-            for (auto [name, member]: obj->getMembers()) {
+            for (auto [name, member]: obj->getMemberSlots()) {
                 // mark every member
-                mark(member);
+                mark(member.getValue());
             }
         }
     }

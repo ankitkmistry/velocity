@@ -19,6 +19,25 @@ class TypeParam;
 
 class ObjModule;
 
+class MemberSlot {
+private:
+    /// Value of the member
+    Obj *value;
+    uint8 flags;
+    /// Meta info of the member
+    Table<string> meta;
+public:
+    MemberSlot(Obj *value = null, const Table<string> &meta = {}) : value(value), meta(meta) {}
+
+    Obj *getValue() const { return value; }
+
+    Obj *&getValue() { return value; }
+
+    void setValue(Obj *value_) { value = value_; }
+
+    const Table<string> &getMeta() const { return meta; }
+};
+
 /**
  * The abstract description of an object in the virtual machine
  */
@@ -32,10 +51,8 @@ protected:
     Sign sign;
     /// Type of the object
     Type *type;
-    /// Members of the object
-    Table<Obj *> members = {};
-    /// Meta info of the object
-    Table<string> meta;
+    /// Member slots of the object
+    Table<MemberSlot> memberSlots = {};
 
     /**
      * Changes pointer to type params @p pObj specified in @p old_ to pointers specified in @p new_.
@@ -65,7 +82,13 @@ public:
      */
     static Obj *createCopy(Obj *obj);
 
-    Obj(Sign sign, Type *type, ObjModule *module, const Table<string> &meta = Table<string>());
+    /**
+     *
+     * @param sign
+     * @param type
+     * @param module
+     */
+    Obj(Sign sign, Type *type, ObjModule *module = null);
 
     /**
      * Performs a complete deep copy on the object.
@@ -113,12 +136,12 @@ public:
     /**
      * @return the members of this object
      */
-    virtual const Table<Obj *> &getMembers() const { return members; }
+    virtual const Table<MemberSlot> &getMemberSlots() const { return memberSlots; }
 
     /**
      * @return the members of this object
      */
-    virtual Table<Obj *> &getMembers() { return members; }
+    virtual Table<MemberSlot> &getMemberSlots() { return memberSlots; }
 
     /**
      * @throws IllegalAccessError if the member cannot be found
@@ -138,7 +161,7 @@ public:
     /**
      * @return the meta information of the object
      */
-    virtual const Table<string> &getMeta() const { return meta; }
+    virtual const Table<string> &getMeta() const;
 };
 
 template<typename T, typename... Args>
@@ -162,8 +185,8 @@ class ObjBool;
  */
 class ComparableObj : public Obj {
 public:
-    ComparableObj(Sign sign, Type *type, ObjModule *module, const Table<string> &meta = Table<string>())
-            : Obj(sign, type, module, meta) {}
+    ComparableObj(Sign sign, Type *type, ObjModule *module)
+            : Obj(sign, type, module) {}
 
     /**
      * Performs comparison between two objects

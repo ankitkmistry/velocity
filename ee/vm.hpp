@@ -23,6 +23,8 @@ private:
     vector<function<void()>> onExitList;
     /// The vm settings
     Settings settings;
+    /// Metadata associated with all objects
+    Table<Table<string>> metadata;
     /// The output stream
     std::stringstream out;
 
@@ -69,6 +71,10 @@ public:
      * @return The value of the symbol corresponding to the signature \p sign
      */
     Obj *getSymbol(const string &sign) const;
+
+    const Table<string> &getMetadata(const string &sign);
+
+    void setMetadata(const string &sign, Table<string> meta);
 
     /**
      * Set the value of the symbol corresponding to the signature \p sign

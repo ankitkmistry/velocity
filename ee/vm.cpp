@@ -75,7 +75,7 @@ void SpadeVM::setSymbol(const string &sign, Obj *val) {
         acc = modules.at(elements[0].toString());
         for (int i = 1; i < elements.size(); ++i) {
             if (i == elements.size() - 1) {
-                acc->getMembers()[elements.back().toString()] = val;
+                acc->getMemberSlots()[elements.back().toString()] = val;
             } else {
                 acc = acc->getMember(elements[i].toString());
             }
@@ -87,11 +87,25 @@ void SpadeVM::setSymbol(const string &sign, Obj *val) {
     }
 }
 
+const Table<string> &SpadeVM::getMetadata(const string &sign) {
+    try {
+        return metadata.at(sign);
+    } catch (const std::out_of_range &) {
+        throw IllegalAccessError(format("cannot find metadata: %s", sign.c_str()));
+    }
+}
+
+void SpadeVM::setMetadata(const string &sign, Table<string> meta) {
+    metadata[sign] = meta;
+}
+
 bool SpadeVM::checkCast(const Type *type1, const Type *type2) {
     // TODO implement this
     return false;
 }
 
 SpadeVM *SpadeVM::current() {
-    return Thread::current()->getState()->getVM();
+    if (auto thread = Thread::current();thread != null)
+        return thread->getState()->getVM();
+    return null;
 }

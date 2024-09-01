@@ -17,7 +17,7 @@ Obj *Type::copy() const {
         newTypeParams.push_back(cast<TypeParam *>(typeParam->copy()));
     }
     // Create new type object
-    Obj *newType = Obj::alloc<Type>(info.manager, sign, kind, newTypeParams, supers, members, module, meta);
+    Obj *newType = Obj::alloc<Type>(info.manager, sign, kind, newTypeParams, supers, memberSlots, module);
     // Reify the type params
     Obj::reify(&newType, typeParams, newTypeParams);
     return newType;
@@ -37,7 +37,7 @@ Obj *Type::getMember(string name) const {
 
 Obj *Type::getStaticMember(string &name) const {
     Obj *obj = null;
-    try { obj = getMembers().at(name); }
+    try { obj = getMemberSlots().at(name).getValue(); }
     catch (std::out_of_range &) {
         // Check for the members in the super classes
         for (auto [_, super]: getSupers()) {
@@ -52,14 +52,14 @@ Obj *Type::getStaticMember(string &name) const {
 
 Type *Type::SENTINEL_(const string &sign, MemoryManager *manager) {
     return Obj::alloc<Type>(manager, Sign(sign), Kind::UNRESOLVED,
-                            vector<TypeParam *>{}, Table<Type *>{}, Table<Obj *>{}, null, Table<string>{});
+                            vector<TypeParam *>{}, Table<Type *>{}, Table<MemberSlot>{}, null);
 }
 
-Type::Type(Type &type) : Obj(type.sign, null, type.module, type.meta) {
+Type::Type(Type &type) : Obj(type.sign, null, type.module) {
     kind = type.kind;
     typeParams = type.typeParams;
     supers = type.supers;
-    members = type.members;
+    memberSlots = type.memberSlots;
 }
 
 Type *Type::getReified(Obj **args, uint8 count) {

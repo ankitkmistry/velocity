@@ -23,16 +23,10 @@ private:
     /// The module init method
     ObjMethod *init;
 
-    ObjModule(const Sign sign, const Table<string> meta, State state,
-              const fs::path path, const vector<Obj *> constantPool, const vector<string> dependencies,
-              ElpInfo elp)
-            : Obj(sign, null, null, meta),
-              state(state), path(path),
-              constantPool(constantPool),
-              dependencies(dependencies), elp(elp) {}
-
 public:
-    ObjModule(const fs::path &path, ElpInfo &elp, const Table<string> &meta);
+    ObjModule(Sign sign, const fs::path &path, vector<Obj *> constantPool, vector<string> dependencies, ElpInfo &elp);
+
+    static ObjModule *current();
 
     string getAbsolutePath();
 
@@ -47,8 +41,6 @@ public:
     ElpInfo getElp() const { return elp; }
 
     const vector<Obj *> &getConstantPool() const { return constantPool; }
-
-    void setConstantPool(const vector<Obj *> &constantPool_);
 
     const vector<string> &getDependencies() const { return dependencies; }
 

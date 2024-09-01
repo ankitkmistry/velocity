@@ -16,8 +16,7 @@ public:
               FrameTemplate *frame,
               Type *type,
               vector<TypeParam *> typeParams,
-              ObjModule *module = null,
-              const Table<string> &meta = {});
+              ObjModule *module = null);
 
     const FrameTemplate *getFrameTemplate() const { return frameTemplate; }
 

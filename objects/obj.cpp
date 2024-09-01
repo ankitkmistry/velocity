@@ -3,17 +3,21 @@
 #include "type.hpp"
 #include "inbuilt_types.hpp"
 #include "method.hpp"
+#include "../ee/vm.hpp"
 
-Obj::Obj(Sign sign, Type *type, ObjModule *module, const Table<string> &meta) :
-        sign(sign), type(type), module(module), meta(meta) {
+Obj::Obj(Sign sign, Type *type, ObjModule *module) :
+        sign(sign), type(type), module(module) {
+    if (this->module == null) {
+        this->module = ObjModule::current();
+    }
     if (type != null) {
-        for (auto [key, value]: type->getMembers()) {
-            Obj *valueCopy = Obj::createCopy(value);
+        for (auto [name, slot]: type->getMemberSlots()) {
+            Obj *valueCopy = Obj::createCopy(slot.getValue());
             if (is<ObjMethod *>(valueCopy)) {
                 // Set this argument in every method
                 const_cast<LocalsTable &>(cast<ObjMethod *>(valueCopy)->getFrameTemplate()->getLocals()).set(0, this);
             }
-            this->members[key] = valueCopy;
+            this->memberSlots[name] = valueCopy;
         }
     }
 }
@@ -84,8 +88,8 @@ void Obj::reify(Obj **pObj, vector<TypeParam *> old_, vector<TypeParam *> new_) 
         object->type = cast<Type *>(type);
     }
     // Reify members
-    for (auto [_, member]: object->getMembers()) {
-        REIFY(&member);
+    for (auto [_, member]: object->getMemberSlots()) {
+        REIFY(&member.getValue());
     }
 #undef REIFY
 }
@@ -97,7 +101,7 @@ Obj *Obj::createCopy(Obj *obj) {
 
 Obj *Obj::getMember(string name) const {
     try {
-        return getMembers().at(name);
+        return getMemberSlots().at(name).getValue();
     } catch (std::out_of_range &) {
         if (type == null) {
             throw IllegalAccessError(format("cannot find member: %s in %s", name.c_str(), toString().c_str()));
@@ -112,13 +116,22 @@ Obj *Obj::getMember(string name) const {
 }
 
 void Obj::setMember(string name, Obj *value) {
-    getMembers()[name] = value;
+    getMemberSlots()[name].setValue(value);
+}
+
+const Table<string> &Obj::getMeta() const {
+    if (sign.empty())return {};
+    try {
+        return info.manager->getVM()->getMetadata(sign.toString());
+    } catch (const IllegalAccessError &) {
+        return {};
+    }
 }
 
 Obj *Obj::copy() const {
-    auto copyObj = Obj::alloc<Obj>(info.manager, sign, type, module, meta);
-    for (auto [key, value]: members) {
-        copyObj->setMember(key, Obj::createCopy(value));
+    auto copyObj = Obj::alloc<Obj>(info.manager, sign, type, module);
+    for (auto [name, slot]: memberSlots) {
+        copyObj->setMember(name, Obj::createCopy(slot.getValue()));
     }
     return copyObj;
 }

@@ -10,8 +10,8 @@ private:
     bool value;
 
 public:
-    ObjBool(bool value, ObjModule *module = null, const Table<string> &meta = Table<string>())
-            : ComparableObj(Sign("bool"), null, module, meta), value(value) {}
+    ObjBool(bool value, ObjModule *module = null)
+            : ComparableObj(Sign("bool"), null, module), value(value) {}
 
     bool truth() const override {
         return value;
@@ -37,8 +37,8 @@ private:
     char c;
 
 public:
-    ObjChar(const char c, ObjModule *module = null, const Table<string> &meta = Table<string>())
-            : ComparableObj(Sign("char"), null, module, meta), c(c) {}
+    ObjChar(const char c, ObjModule *module = null)
+            : ComparableObj(Sign("char"), null, module), c(c) {}
 
     bool truth() const override {
         return c != '\0';
@@ -57,8 +57,8 @@ public:
 
 class ObjNull : public ComparableObj {
 public:
-    ObjNull(ObjModule *module = null, const Table<string> &meta = Table<string>())
-            : ComparableObj(Sign("null"), null, module, meta) {}
+    ObjNull(ObjModule *module = null)
+            : ComparableObj(Sign("null"), null, module) {}
 
     bool truth() const override {
         return false;
@@ -79,10 +79,10 @@ class ObjString : public ComparableObj {
 private:
     string str;
 public:
-    ObjString(string str, ObjModule *module = null, const Table<string> &meta = Table<string>())
-            : ComparableObj(Sign("string"), null, module, meta), str(str) {}
+    ObjString(string str, ObjModule *module = null)
+            : ComparableObj(Sign("string"), null, module), str(str) {}
 
-    ObjString(uint8 *bytes, uint16 len, ObjModule *module = null, const Table<string> &meta = Table<string>());
+    ObjString(uint8 *bytes, uint16 len, ObjModule *module = null);
 
     bool truth() const override {
         return !str.empty();
@@ -104,8 +104,8 @@ private:
     Obj **array;
     uint16 length;
 public:
-    explicit ObjArray(uint16 length, ObjModule *module = null, const Table<string> &meta = Table<string>())
-            : ComparableObj(Sign("array"), null, module, meta), length(length) {}
+    explicit ObjArray(uint16 length, ObjModule *module = null)
+            : ComparableObj(Sign("array"), null, module), length(length) {}
 
     void foreach(function<void(Obj *)> func) const;
 
@@ -131,8 +131,8 @@ class ObjInt;
 
 class ObjNumber : public ComparableObj {
 public:
-    ObjNumber(Sign sign, ObjModule *module = null, Table<string> meta = {})
-            : ComparableObj(sign, null, module, meta) {}
+    ObjNumber(Sign sign, ObjModule *module = null)
+            : ComparableObj(sign, null, module) {}
 
     virtual Obj *operator-() const = 0;
 
@@ -151,8 +151,8 @@ class ObjInt final : public ObjNumber {
 private:
     int64 val;
 public:
-    ObjInt(int64 val, ObjModule *module = null, Table<string> meta = {})
-            : ObjNumber(Sign("int"), module, meta), val(val) {}
+    ObjInt(int64 val, ObjModule *module = null)
+            : ObjNumber(Sign("int"), module), val(val) {}
 
     Obj *copy() const override;
 
@@ -197,8 +197,8 @@ class ObjFloat final : public ObjNumber {
 private:
     double val;
 public:
-    ObjFloat(double val, ObjModule *module = null, Table<string> meta = {})
-            : ObjNumber(Sign("float"), module, meta), val(val) {}
+    ObjFloat(double val, ObjModule *module = null)
+            : ObjNumber(Sign("float"), module), val(val) {}
 
     Obj *copy() const override;
 

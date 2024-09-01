@@ -2,5 +2,7 @@
 #include "../ee/vm.hpp"
 
 MemoryManager *MemoryManager::current() {
-    return SpadeVM::current()->getMemoryManager();
+    if (auto vm = SpadeVM::current();vm != null)
+        return vm->getMemoryManager();
+    return null;
 }

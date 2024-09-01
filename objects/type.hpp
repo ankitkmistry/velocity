@@ -24,17 +24,17 @@ public:
 protected:
     Kind kind;
     Table<Type *> supers;
-    Table<Obj *> members;
     vector<TypeParam *> typeParams;
     map<vector<Type *>, Type *> reified;
 public:
     Type(const Sign &sign, Kind kind, vector<TypeParam *> typeParams, const Table<Type *> &supers,
-         const Table<Obj *> &members, ObjModule *module = null, const Table<string> &meta = {})
-            : Obj(sign, null, module, meta),
+         const Table<MemberSlot> &memberSlots, ObjModule *module = null)
+            : Obj(sign, null, module),
               kind(kind),
               supers(supers),
-              members(members),
-              typeParams(typeParams) {}
+              typeParams(typeParams) {
+        this->memberSlots = memberSlots;
+    }
 
     Type(Type &type);
 
