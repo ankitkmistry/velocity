@@ -7,18 +7,18 @@
  * Represents VM settings
  */
 struct Settings {
-    const string VERSION = "1.0";
-    const string LANG_NAME = "spade";
-    const string VM_NAME = "velocity";
-    const string INFO_STRING = VERSION + " " + LANG_NAME + " " + VM_NAME;
+    string VERSION = "1.0";
+    string LANG_NAME = "spade";
+    string VM_NAME = "velocity";
+    string INFO_STRING = VERSION + " " + LANG_NAME + " " + VM_NAME;
 
     std::set<string> inbuiltTypes = {
-            "array",
-            "bool",
-            "char",
-            "float",
-            "int",
-            "string",
+            ".array",
+            ".bool",
+            ".char",
+            ".float",
+            ".int",
+            ".string",
     };
 
     string libPath;

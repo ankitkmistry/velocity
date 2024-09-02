@@ -1,7 +1,6 @@
 #include <iostream>
 
 #include "ee/vm.hpp"
-#include "loader/foreign_loader.hpp"
 #include "memory/basic/manager.hpp"
 
 void signTest() {
@@ -23,16 +22,14 @@ void signTest() {
     cout << sign8.toString() << '\n';
 }
 
-void runVM() {
+int runVM() {
     try {
-        SpadeVM vm{new BasicMemoryManager};
-        ForeignLoader foreignLoader;
-        auto lib = foreignLoader.loadSimpleLibrary("mscvrt.dll");
-        cout << (intptr) lib->call<void *>("malloc", 64) << '\n';
+        auto manager = new BasicMemoryManager;
+        SpadeVM vm{manager};
 #if defined(OS_LINUX)
-        //        vm.start("/mnt/d/Programming (Ankit)/Projects/spade/1.0/velocity/hello.xp", {});
+        return vm.start("/mnt/d/Programming (Ankit)/Projects/spade/1.0/velocity/test_code/hello.elp", {});
 #elif defined(OS_WINDOWS)
-        //        vm.start(R"(D:\Programming (Ankit)\Projects\spade\1.0\velocity\hello.xp)", {});
+        return vm.start(R"(D:\Programming (Ankit)\Projects\spade\1.0\velocity\test_code\hello.elp)", {});
 #endif
     } catch (const FatalError &error) {
         cout << "VM Error: " << error.what();
@@ -42,6 +39,6 @@ void runVM() {
 int main() {
     std::ios_base::sync_with_stdio(true);
     cout << std::boolalpha;
-    runVM();
+    return runVM();
 //    signTest();
 }

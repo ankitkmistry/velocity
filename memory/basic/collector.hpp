@@ -1,5 +1,5 @@
-#ifndef VELOCITY_BASIC_COLLECTOR_HPP
-#define VELOCITY_BASIC_COLLECTOR_HPP
+#ifndef VELOCITY_MEMORY_BASIC_COLLECTOR_HPP
+#define VELOCITY_MEMORY_BASIC_COLLECTOR_HPP
 
 #include "manager.hpp"
 #include "../../objects/obj.hpp"
@@ -31,4 +31,4 @@ public:
     void gc();
 };
 
-#endif //VELOCITY_BASIC_COLLECTOR_HPP
+#endif //VELOCITY_MEMORY_BASIC_COLLECTOR_HPP

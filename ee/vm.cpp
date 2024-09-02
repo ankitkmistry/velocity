@@ -1,9 +1,9 @@
 #include "vm.hpp"
 
-SpadeVM::SpadeVM(MemoryManager *manager_, Settings settings)
-        : settings(std::move(settings)) {
-    manager = manager_;
-    manager->setVM(this);
+SpadeVM::SpadeVM(MemoryManager *manager, Settings settings)
+        : settings(settings), manager(manager), loader(this) {
+    this->manager->setVM(this);
+    loader = Loader{this};
 }
 
 void SpadeVM::onExit(const function<void()> &fun) { onExitList.push_back(fun); }
@@ -14,7 +14,7 @@ int SpadeVM::start(const string &filename, const vector<string> &args) {
     // Complain if there is no entry point
     if (entry == null) throw IllegalAccessError(format("cannot find entry point in '%s'", filename.c_str()));
     if (entry->getFrameTemplate()->getArgs().count() != 1)
-        throw runtimeError("entry point must have one argument (string[]): " + entry->getSign().toString());
+        throw runtimeError("entry point must have one argument (.array): " + entry->getSign().toString());
     // Execute from the entry
     return start(entry, argsRepr(args));
 }
@@ -31,7 +31,7 @@ int SpadeVM::start(ObjMethod *entry, ObjArray *args) {
     auto state = new VMState(this);
     Thread thread{state, [&](auto thr) {
         thr->setStatus(Thread::RUNNING);
-        entry->call(&thread, {args});
+        entry->call(thr, {args});
         run(thr);
     }};
     threads.insert(&thread);

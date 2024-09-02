@@ -3,7 +3,9 @@
 #include "verifier.hpp"
 #include "../ee/vm.hpp"
 
-Loader::Loader(SpadeVM *vm) : vm(vm), manager(vm->getMemoryManager()) {}
+Loader::Loader(SpadeVM *vm) : vm(vm), manager(vm->getMemoryManager()) {
+
+}
 
 ObjMethod *Loader::load(string path) {
     vector<ObjModule *> toBeLoaded;
@@ -120,7 +122,7 @@ void Loader::loadModule(ObjModule *module) {
     module->setState(ObjModule::State::LOADED);
     // Try to get init point
     auto initSign = getConstantPool()[elp.init]->toString();
-    if (initSign.empty()) {
+    if (!initSign.empty()) {
         module->setInit(cast<ObjMethod *>(vm->getSymbol(initSign)));
     } else {
         module->setInit(null);
@@ -339,20 +341,20 @@ Exception Loader::readException(MethodInfo::ExceptionTableInfo &exception) {
 
 Local Loader::readLocal(MethodInfo::LocalInfo &local) {
     auto constPool = getConstantPool();
-    auto sign = getSign(local.thisLocal);
+    auto name = constPool[local.thisLocal]->toString();
     auto type = findType(constPool[local.type]->toString());
     auto meta = readMeta(local.meta);
-    auto obj = makeObj(constPool[local.type]->toString(), sign, type);
-    return {sign.toString(), obj, meta};
+    auto obj = makeObj(constPool[local.type]->toString(), type);
+    return {name, obj, meta};
 }
 
 Arg Loader::readArg(MethodInfo::ArgInfo &arg) {
     auto constPool = getConstantPool();
-    auto sign = getSign(arg.thisArg);
+    auto name = constPool[arg.thisArg]->toString();
     auto type = findType(constPool[arg.type]->toString());
     auto meta = readMeta(arg.meta);
-    auto obj = makeObj(constPool[arg.type]->toString(), sign, type);
-    return {sign.toString(), obj, meta};
+    auto obj = makeObj(constPool[arg.type]->toString(), type);
+    return {name, obj, meta};
 }
 
 vector<Obj *> Loader::readConstPool(CpInfo *constantPool, uint16 count) {
@@ -454,6 +456,22 @@ Obj *Loader::makeObj(string typeSign, Sign objSign, Type *type) {
         return objMap.at(typeSign)();
     } catch (std::out_of_range &) {
         return Obj::alloc<Obj>(manager, objSign, type, getCurrentModule());
+    }
+}
+
+Obj *Loader::makeObj(string typeSign, Type *type) {
+    static map<string, function<Obj *()>> objMap = {
+            {".array",  [&] { return Obj::alloc<ObjArray>(manager, 0, getCurrentModule()); }},
+            {".bool",   [&] { return Obj::alloc<ObjBool>(manager, false, getCurrentModule()); }},
+            {".char",   [&] { return Obj::alloc<ObjChar>(manager, '\0', getCurrentModule()); }},
+            {".float",  [&] { return Obj::alloc<ObjFloat>(manager, 0, getCurrentModule()); }},
+            {".int",    [&] { return Obj::alloc<ObjInt>(manager, 0, getCurrentModule()); }},
+            {".string", [&] { return Obj::alloc<ObjString>(manager, "", getCurrentModule()); }}
+    };
+    try {
+        return objMap.at(typeSign)();
+    } catch (const std::out_of_range &) {
+        return Obj::alloc<Obj>(manager, Sign(""), type, getCurrentModule());
     }
 }
 

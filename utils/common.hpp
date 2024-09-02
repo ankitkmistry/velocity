@@ -3,16 +3,14 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
+#include <stdexcept>
 #include <any>
 #include <string>
-#include <map>
 #include <vector>
-#include <stack>
 #include <set>
-#include <tuple>
-#include <stdexcept>
+#include <map>
 #include <algorithm>
-#include <cstdio>
 #include <functional>
 #include <filesystem>
 #include <sstream>
@@ -46,5 +44,9 @@ using int64 = std::int64_t;
 
 template<class T>
 using Table = map<string, T>;
+
+/*void *operator new(size_t size);
+
+void operator delete(void *pVoid);*/
 
 #endif /* SOURCE_UTILS_COMMON_HPP_ */

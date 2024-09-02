@@ -131,6 +131,8 @@ private:
     CorruptFileError corrupt();
 
     Obj *makeObj(string typeSign, Sign objSign, Type *type);
+
+    Obj *makeObj(string typeSign, Type *type);
 };
 
 #endif //VELOCITY_LOADER_HPP

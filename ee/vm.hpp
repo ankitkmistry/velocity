@@ -15,7 +15,7 @@ private:
     /// The threads
     std::set<Thread *> threads;
     /// The loader
-    Loader loader{this};
+    Loader loader;
     /// The memory manager
     MemoryManager *manager;
     /// The actions to be performed when the vm terminates

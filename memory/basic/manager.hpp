@@ -1,5 +1,5 @@
-#ifndef VELOCITY_BASIC_MANAGER_HPP
-#define VELOCITY_BASIC_MANAGER_HPP
+#ifndef VELOCITY_MEMORY_BASIC_MANAGER_HPP
+#define VELOCITY_MEMORY_BASIC_MANAGER_HPP
 
 #include "../memory.hpp"
 
@@ -28,4 +28,4 @@ public:
     void collectGarbage() override;
 };
 
-#endif //VELOCITY_BASIC_MANAGER_HPP
+#endif //VELOCITY_MEMORY_BASIC_MANAGER_HPP

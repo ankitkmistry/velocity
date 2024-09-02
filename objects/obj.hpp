@@ -132,6 +132,7 @@ public:
 
     inline static void free(Obj *obj) {
         auto manager = obj->info.manager;
+        obj->~Obj();
         manager->deallocate(obj);
     }
 
@@ -230,11 +231,11 @@ public:
 template<typename T, typename... Args>
 T *Obj::alloc(MemoryManager *manager, Args... args) {
     size_t size = sizeof(T);
-    T *obj = (T *) manager->allocate(size);
-    if (obj == null) {
+    void *memory = manager->allocate(size);
+    if (memory == null) {
         throw MemoryError(size);
     }
-    *obj = T(args...);
+    T *obj = new(memory) T(args...);
     obj->info.manager = manager;
     manager->postAllocation(obj);
     return (T *) obj;

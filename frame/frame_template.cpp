@@ -13,7 +13,7 @@ Frame *FrameTemplate::initialize() {
     frame->lambdas = lambdas;
     frame->matches = matches;
     frame->method = method;
-    return nullptr;
+    return frame;
 }
 
 FrameTemplate *FrameTemplate::copy() {
