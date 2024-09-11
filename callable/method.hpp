@@ -2,7 +2,7 @@
 #define VELOCITY_METHOD_HPP
 
 #include "callable.hpp"
-#include "../frame/frame_template.hpp"
+#include "frame_template.hpp"
 
 
 class ObjMethod final : public ObjCallable {

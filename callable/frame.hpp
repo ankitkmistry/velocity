@@ -23,7 +23,7 @@ private:
     ArgsTable args;
     LocalsTable locals{0};
     ExceptionTable exceptions;
-    LineNumberTable lines{0};
+    LineNumberTable lines{};
     vector<ObjMethod *> lambdas;
     vector<MatchTable> matches;
     ObjMethod *method = null;

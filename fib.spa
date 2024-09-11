@@ -1,19 +1,44 @@
-entry method "main(.array)":
+module: fib
+
+entry method "fib.main(.array)":
     args:
         "args": ".array"
     ;
-    maxstack: 4;
+    maxstack: 2;
     code:
-        INVOKE_GLOBAL ".foo()"
-        CONSTANT "hello, world"
+        CONSTANT            5
+        INVOKE_GLOBAL       "fib.fib(.int)"
         PRINTLN
         RETURN_VOID
     ;
 ;
 
-method "foo()":
-    maxstack: 1;
+method "fib.fib(.int)":
+    args:
+        "n": ".int"
+    ;
+    maxstack: 8;
     code:
-        RETURN_VOID
+        LOAD_ARG            0
+        CONSTANT            1
+        POP_JUMP_IF_EQ      $body
+
+        LOAD_ARG            0
+        CONSTANT            2
+        POP_JUMP_IF_EQ      $body
+
+        LOAD_ARG            0
+        CONSTANT            1
+        SUBTRACT
+        INVOKE_GLOBAL       "fib.fib(.int)"
+        LOAD_ARG            0
+        CONSTANT            2
+        SUBTRACT
+        INVOKE_GLOBAL       "fib.fib(.int)"
+        ADD
+        RETURN
+
+$body:  CONSTANT            1
+        RETURN
     ;
 ;

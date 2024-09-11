@@ -4,9 +4,8 @@
 #include "../utils/common.hpp"
 #include "../utils/exceptions.hpp"
 #include "../utils/utils.hpp"
-#include "../objects/method.hpp"
+#include "../callable/method.hpp"
 #include "../objects/type.hpp"
-#include "../frame/table.hpp"
 
 class DataTable {
 private:
@@ -90,10 +89,10 @@ public:
 
 class LineDataTable : public DataTable {
 public:
-    LineDataTable() : DataTable("Lines", {"bytecode", "source code"}) {}
+    LineDataTable() : DataTable("Lines", {"bytecode range", "source lineno"}) {}
 
-    void add(uint32 b, uint64 s) {
-        set({std::to_string(b), std::to_string(s)});
+    void add(string range, uint64 s) {
+        set({range, std::to_string(s)});
     }
 };
 

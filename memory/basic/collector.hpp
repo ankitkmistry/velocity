@@ -4,7 +4,7 @@
 #include "manager.hpp"
 #include "../../objects/obj.hpp"
 #include "../../ee/thread.hpp"
-#include "../../frame/frame.hpp"
+#include "../../callable/frame.hpp"
 
 class BasicCollector {
 private:

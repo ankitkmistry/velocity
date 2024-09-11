@@ -46,42 +46,42 @@ class ObjModule;
 struct Flags {
     uint16 raw;
 
-    explicit Flags(uint16 raw = 0) : raw(raw) {}
+    Flags(uint16 raw = 0) : raw(raw) {}
 
     bool isStatic() const {
-        return raw & 0x00000001;
+        return raw & 0b00000001;
     }
 
     bool isAbstract() const {
-        return raw & 0x00000010;
+        return raw & 0b00000010;
     }
 
     bool isFinal() const {
-        return raw & 0x00000100;
+        return raw & 0b00000100;
     }
 
     bool isOperator() const {
-        return raw & 0x00001000;
+        return raw & 0b00001000;
     }
 
     bool isPrivate() const {
-        return (raw >> 8) & 0x00000001;
+        return (raw >> 8) & 0b00000001;
     }
 
     bool isInternal() const {
-        return (raw >> 8) & 0x00000010;
+        return (raw >> 8) & 0b00000010;
     }
 
     bool isPackagePrivate() const {
-        return (raw >> 8) & 0x00000100;
+        return (raw >> 8) & 0b00000100;
     }
 
     bool isProtected() const {
-        return (raw >> 8) & 0x00001000;
+        return (raw >> 8) & 0b00001000;
     }
 
     bool isPublic() const {
-        return (raw >> 8) & 0x00010000;
+        return (raw >> 8) & 0b00010000;
     }
 };
 

@@ -52,6 +52,8 @@ public:
 
     Obj *getStaticMember(string name) const;
 
+    void setStaticMember(string name, Obj *value);
+
     /**
      * @param args the type args
      * @param count count of type args

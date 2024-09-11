@@ -1,5 +1,5 @@
 #include "frame.hpp"
-#include "../objects/method.hpp"
+#include "method.hpp"
 #include "../objects/module.hpp"
 
 void Frame::push(Obj *val) { *sp++ = val; }

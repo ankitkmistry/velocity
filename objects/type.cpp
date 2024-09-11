@@ -59,6 +59,25 @@ Obj *Type::getStaticMember(string name) const {
     return obj;
 }
 
+void Type::setStaticMember(string name, Obj *value) {
+    try {
+        auto &slot = getMemberSlots().at(name);
+        if (slot.getFlags().isStatic()) slot.setValue(value);
+        return;
+    } catch (const std::out_of_range &) {}
+
+    // Check for the members in the super classes
+    for (auto [_, super]: getSupers()) {
+        try {
+            super->setStaticMember(name, value);
+            return;
+        } catch (const IllegalAccessError &) {
+            continue;
+        }
+    }
+    throw IllegalAccessError(format("cannot find static member: %s in %s", name.c_str(), toString().c_str()));
+}
+
 Type *Type::SENTINEL_(const string &sign, MemoryManager *manager) {
     return Obj::alloc<Type>(manager, Sign(sign), Kind::UNRESOLVED,
                             vector<TypeParam *>{}, Table<Type *>{}, Table<MemberSlot>{}, null);

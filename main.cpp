@@ -27,9 +27,9 @@ int runVM() {
         auto manager = new BasicMemoryManager;
         SpadeVM vm{manager};
 #if defined(OS_LINUX)
-        return vm.start("/mnt/d/Programming (Ankit)/Projects/spade/1.0/velocity/test_code/hello.elp", {});
+        return vm.start("../test_code/fib.elp", {});
 #elif defined(OS_WINDOWS)
-        return vm.start(R"(D:\Programming (Ankit)\Projects\spade\1.0\velocity\test_code\hello.elp)", {});
+        return vm.start("..\\test_code\\fib.elp", {});
 #endif
     } catch (const FatalError &error) {
         cout << "VM Error: " << error.what();

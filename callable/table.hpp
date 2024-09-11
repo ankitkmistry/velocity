@@ -64,11 +64,16 @@ public:
  * Represents a local
  */
 class Local : public TableNode {
+    bool this_;
 public:
     Local(string name, Obj *value, Table<string> meta)
             : TableNode(name, value, meta) {}
 
     Local &operator=(const Local &local) = default;
+
+    bool isThis() const { return this_; }
+
+    void setThis(bool this__) { this_ = this__; }
 };
 
 /**
@@ -211,6 +216,7 @@ class LocalsTable {
     friend class FrameTemplate;
 
 private:
+    uint16 thisLocal = -1;
     uint16 closureStart;
     vector<Local> locals;
     vector<TableNode *> closures;
@@ -228,7 +234,8 @@ public:
     uint16 getClosureStart() const { return closureStart; }
 
     /**
-     * Sets the value of the local at index i to val
+     * Sets the value of the local at index i to val.
+     * If \p setAsThisRef is true, marks the local as this
      * @param i the local index
      * @param val value to be changed
      */
@@ -327,25 +334,24 @@ public:
  * of the source code and byte code. It is used for printing stack trace and debugging purposes
  */
 class LineNumberTable {
-private:
-    vector<uint32> bytecode;
-    vector<uint64> sourcecode;
 public:
-    explicit LineNumberTable(size_t count) : bytecode(count), sourcecode(count) {
-        bytecode.reserve(count);
-        sourcecode.reserve(count);
-    }
+    struct LineInfo {
+        uint32 sourceLine;
+        uint16 byteStart;
+        uint16 byteEnd;
+    };
+private:
+    vector<LineInfo> lineInfos;
 
-    LineNumberTable(const LineNumberTable &table) = default;
-
-    LineNumberTable &operator=(const LineNumberTable &lines) = default;
+public:
+    LineNumberTable() {}
 
     /**
      * Adds a line info at the end of the table
-     * @param byteLine the line number in the bytecode
+     * @param times the line number in the bytecode
      * @param sourceLine the line number in the source code
      */
-    void addLine(uint32 byteLine, uint64 sourceLine);
+    void addLine(uint8 times, uint32 sourceLine);
 
     /**
      * @return The corresponding line number in the source code
@@ -353,20 +359,7 @@ public:
      */
     uint64 getSourceLine(uint32 byteLine) const;
 
-    /**
-     * @return The bytecode line numbers
-     */
-    const vector<uint32> &getBytecode() const { return bytecode; }
-
-    /**
-     * @return The source code line numbers
-     */
-    const vector<uint64> &getSourcecode() const { return sourcecode; }
-
-    /**
-     * @return The count of the bytecode and source code line number pairs
-     */
-    size_t count() { return bytecode.capacity(); }
+    const vector<LineInfo> &getLineInfos() const { return lineInfos; }
 };
 
 /**

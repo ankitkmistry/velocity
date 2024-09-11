@@ -3,6 +3,7 @@
 
 #include "../utils/common.hpp"
 #include "../ee/state.hpp"
+#include "../callable/frame.hpp"
 
 class DebugOp {
 private:
@@ -18,13 +19,13 @@ private:
 
     static void printExceptions(ExceptionTable exceptions);
 
-    static void printCode(const uint8 *code, const uint8 *ip, const unsigned int codeCount, const vector<Obj *>& pool);
+    static void printCode(const uint8 *code, const uint8 *ip, const unsigned int codeCount, const vector<Obj *> &pool);
 
     static void printLocals(LocalsTable locals);
 
     static void printArgs(ArgsTable args);
 
-    static void printConstPool(const vector<Obj *>& pool);
+    static void printConstPool(const vector<Obj *> &pool);
 
 public:
     static void printVMState(VMState *state);

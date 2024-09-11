@@ -53,21 +53,22 @@ Exception ExceptionTable::getTarget(uint32 pc, Type *type) const {
     return Exception::NO_EXCEPTION();
 }
 
-void LineNumberTable::addLine(uint32 byteLine, uint64 sourceLine) {
-    bytecode.push_back(byteLine);
-    sourcecode.push_back(sourceLine);
+void LineNumberTable::addLine(uint8 times, uint32 sourceLine) {
+    if (!lineInfos.empty() && lineInfos.back().sourceLine == sourceLine) {
+        lineInfos.back().byteEnd += times;
+    } else {
+        uint16 end = lineInfos.empty() ? 0 : lineInfos.back().byteEnd;
+        lineInfos.push_back(LineInfo{.sourceLine=sourceLine, .byteStart=end, .byteEnd=(uint16) (end + times)});
+    }
 }
 
 uint64 LineNumberTable::getSourceLine(uint32 byteLine) const {
-    int i, j;
-    i = j = 0;
-    for (int line: bytecode) {
-        i = j;
-        j = line;
-        if (i <= byteLine && byteLine < j)
-            break;
+    for (auto lineInfo: lineInfos) {
+        if (lineInfo.byteStart <= byteLine && byteLine < lineInfo.byteEnd) {
+            return lineInfo.sourceLine;
+        }
     }
-    return i;
+    throw IllegalAccessError(format("no source line mapping is present for byte line %d", byteLine));
 }
 
 uint32 MatchTable::perform(Obj *value) {
@@ -86,8 +87,7 @@ uint32 MatchTable::perform(Obj *value) {
 ArgsTable ArgsTable::copy() const {
     ArgsTable newArgs;
     for (auto arg: args) {
-//        newArgs.addArg(Arg(arg.getName(), Obj::createCopy(arg.getValue()), arg.getMeta()));
-        newArgs.addArg(Arg(arg.getName(), arg.getValue(), arg.getMeta()));
+        newArgs.addArg(Arg(arg.getName(), Obj::createCopy(arg.getValue()), arg.getMeta()));
     }
     newArgs.args.shrink_to_fit();
     return newArgs;
@@ -96,8 +96,9 @@ ArgsTable ArgsTable::copy() const {
 LocalsTable LocalsTable::copy() const {
     LocalsTable newLocals{closureStart};
     for (auto local: locals) {
-//        newLocals.addLocal(Local(local.getName(), Obj::createCopy(local.getValue()), local.getMeta()));
-        newLocals.addLocal(Local(local.getName(), local.getValue(), local.getMeta()));
+        newLocals.addLocal(Local(local.getName(),
+                                 local.isThis() ? local.getValue() : Obj::createCopy(local.getValue()),
+                                 local.getMeta()));
     }
     newLocals.locals.shrink_to_fit();
     for (auto closure: closures) {

@@ -2,7 +2,7 @@
 #include "module.hpp"
 #include "type.hpp"
 #include "inbuilt_types.hpp"
-#include "method.hpp"
+#include "../callable/method.hpp"
 #include "../ee/vm.hpp"
 
 Obj::Obj(Sign sign, Type *type, ObjModule *module) :
@@ -16,9 +16,11 @@ Obj::Obj(Sign sign, Type *type, ObjModule *module) :
             Obj *value = slot.getValue();
             if (is<ObjMethod *>(value) &&
                 cast<ObjMethod *>(value)->getKind() != ObjCallable::Kind::CONSTRUCTOR) {
-                auto newMethod = cast<ObjMethod*>(value->copy());
+                auto newMethod = cast<ObjMethod *>(value->copy());
                 // Set this argument in every method
-                const_cast<LocalsTable &>(newMethod->getFrameTemplate()->getLocals()).set(0, this);
+                auto& local=const_cast<LocalsTable &>(newMethod->getFrameTemplate()->getLocals()).getLocal(0);
+                local.setValue(this);
+                local.setThis(true);
                 this->memberSlots[name] = newMethod;
             } else {
                 this->memberSlots[name] = Obj::createCopy(slot.getValue());
@@ -121,7 +123,19 @@ Obj *Obj::getMember(string name) const {
 }
 
 void Obj::setMember(string name, Obj *value) {
-    getMemberSlots()[name].setValue(value);
+    try {
+        getMemberSlots().at(name).setValue(value);
+    } catch (std::out_of_range &) {
+        if (type == null) {
+            getMemberSlots()[name] = MemberSlot{value, 0b0001000000000000};
+        } else {
+            try {
+                type->getStaticMember(name);
+            } catch (const IllegalAccessError &) {
+                getMemberSlots()[name] = MemberSlot{value, 0b0001000000000000};
+            }
+        }
+    }
 }
 
 const Table<string> &Obj::getMeta() const {

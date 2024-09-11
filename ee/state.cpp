@@ -1,5 +1,5 @@
 #include "state.hpp"
-#include "../objects/method.hpp"
+#include "../callable/method.hpp"
 #include "../objects/module.hpp"
 
 VMState::VMState(SpadeVM *vm) : vm(vm) {

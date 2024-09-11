@@ -61,11 +61,12 @@ void DebugOp::printStack(Obj **stack, uint32 count) {
 }
 
 void DebugOp::printLines(LineNumberTable lines) {
-    if (lines.count() == 0)return;
-    auto byteLines = lines.getBytecode();
-    auto sourceLines = lines.getSourcecode();
+    auto lineInfos = lines.getLineInfos();
+    if (lineInfos.empty())return;
     LineDataTable table;
-    for (int i = 0; i < lines.count(); ++i) table.add(byteLines[i], sourceLines[i]);
+    for(auto info:lineInfos){
+        table.add(format("[%d -> %d]", info.byteStart, info.byteEnd), info.sourceLine);
+    }
     cout << table;
 }
 

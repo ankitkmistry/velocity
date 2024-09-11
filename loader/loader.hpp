@@ -4,9 +4,9 @@
 #include "elpops/elpdef.hpp"
 #include "../utils/common.hpp"
 #include "../objects/obj.hpp"
-#include "../objects/method.hpp"
+#include "../callable/method.hpp"
+#include "../callable/table.hpp"
 #include "../objects/module.hpp"
-#include "../frame/table.hpp"
 
 class SpadeVM;
 
@@ -23,7 +23,7 @@ private:
     std::map<string, ObjModule *> modules = {};
     /// Pool of unresolved references
     Table<Type *> referencePool = {};
-    ObjModule *current;
+    ObjModule *current = null;
 public:
     explicit Loader(SpadeVM *vm);
 
@@ -133,6 +133,10 @@ private:
     Obj *makeObj(string typeSign, Sign objSign, Type *type);
 
     Obj *makeObj(string typeSign, Type *type);
+
+    string resolvePath(const string &pathStr);
+
+    fs::path getLoadPath();
 };
 
 #endif //VELOCITY_LOADER_HPP

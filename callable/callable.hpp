@@ -2,8 +2,8 @@
 #define VELOCITY_CALLABLE_HPP
 
 #include "../utils/common.hpp"
-#include "obj.hpp"
-#include "type.hpp"
+#include "../objects/obj.hpp"
+#include "../objects/type.hpp"
 #include "../ee/thread.hpp"
 
 class ObjCallable : public Obj {

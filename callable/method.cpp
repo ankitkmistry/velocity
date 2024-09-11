@@ -1,5 +1,5 @@
 #include "method.hpp"
-#include "typeparam.hpp"
+#include "../objects/typeparam.hpp"
 
 
 ObjMethod::ObjMethod(const Sign &sign, Kind kind, FrameTemplate *frame, Type *type,

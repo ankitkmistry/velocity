@@ -75,7 +75,7 @@ void SpadeVM::setSymbol(const string &sign, Obj *val) {
         acc = modules.at(elements[0].toString());
         for (int i = 1; i < elements.size(); ++i) {
             if (i == elements.size() - 1) {
-                acc->getMemberSlots()[elements.back().toString()] = val;
+                acc->getMemberSlots()[elements.back().toString()].setValue(val);
             } else {
                 acc = acc->getMember(elements[i].toString());
             }

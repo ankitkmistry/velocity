@@ -73,6 +73,37 @@ ObjMethod *Loader::load(string path) {
     return null;
 }
 
+string Loader::resolvePath(const string &pathStr) {
+    fs::path path{pathStr};
+    fs::path result;
+
+    if (path.is_absolute())result = path;
+    else if (path.string()[0] == '.') {
+        result = (getLoadPath() / path);
+    } else {
+        for (fs::path dir: vm->getSettings().modPath) {
+            result = dir / path;
+            if (fs::exists(result)) return result;
+        }
+        result = getLoadPath() / path;
+        if (fs::exists(result)) return result;
+        result = fs::current_path() / path;
+        if (fs::exists(result)) return result;
+    }
+    if (!fs::exists(result)) {
+        throw IllegalAccessError(format("path not found: %s", pathStr.c_str()));
+    }
+    return result.string();
+}
+
+
+fs::path Loader::getLoadPath() {
+    if (getCurrentModule() != null) {
+        return getCurrentModule()->getPath().parent_path();
+    }
+    return fs::current_path();
+}
+
 ObjModule *Loader::readModule(const string &path) {
     auto absolutePath = getAbsolutePath(path);
     // If the module is already read, return it
@@ -80,7 +111,7 @@ ObjModule *Loader::readModule(const string &path) {
         return it->second;
     }
     // Or else, start reading a new module
-    ElpReader reader{path};
+    ElpReader reader{resolvePath(path)};
     auto elp = reader.read();
     reader.close();
     // Verify it...
@@ -281,10 +312,10 @@ Obj *Loader::readMethod(MethodInfo &method) {
     for (int i = 0; i < method.exceptionTableCount; ++i) {
         exceptions.addException(readException(method.exceptionTable[i]));
     }
-    LineNumberTable lines{method.lineNumberTableCount};
-    for (int i = 0; i < method.lineNumberTableCount; ++i) {
-        auto lineInfo = method.lineNumberTable[i];
-        lines.addLine(lineInfo.byteCode, lineInfo.sourceCode);
+    LineNumberTable lines{};
+    for (int i = 0; i < method.lineInfo.numberCount; ++i) {
+        auto numberInfo = method.lineInfo.numbers[i];
+        lines.addLine(numberInfo.times, numberInfo.lineno);
     }
     vector<ObjMethod *> lambdas;
     lambdas.reserve(method.lambdaCount);
@@ -489,4 +520,5 @@ ObjModule *Loader::getCurrentModule() {
 }
 
 CorruptFileError Loader::corrupt() { return CorruptFileError(getCurrentModule()->getAbsolutePath()); }
+
 

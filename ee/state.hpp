@@ -3,7 +3,7 @@
 
 #include "../utils/common.hpp"
 #include "../utils/utils.hpp"
-#include "../frame/frame.hpp"
+#include "../callable/frame.hpp"
 
 class SpadeVM;
 

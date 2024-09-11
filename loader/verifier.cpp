@@ -79,11 +79,9 @@ void Verifier::checkMethod(MethodInfo method, uint16 cpCount) {
         checkException(method.exceptionTable[i], cpCount);
     }
     uint32 codeCount = method.codeCount;
-    for (int i = 0; i < method.lineNumberTableCount; i++) {
-        checkLine(method.lineNumberTable[i], codeCount);
-    }
+    checkLine(method.lineInfo, codeCount);
     for (int i = 0; i < method.lambdaCount; ++i) {
-        checkMethod(method.lambdas[i], 0);
+        checkMethod(method.lambdas[i], cpCount);
     }
     for (int i = 0; i < method.matchCount; ++i) {
         checkMatch(method.matches[i], codeCount, cpCount);
@@ -105,7 +103,11 @@ void Verifier::checkLocal(MethodInfo::LocalInfo local, uint16 cpCount) {
 }
 
 void Verifier::checkLine(MethodInfo::LineInfo line, uint16 codeCount) {
-    checkRange(line.byteCode, codeCount);
+    uint32 totalByteLines = 0;
+    for (int i = 0; i < line.numberCount; ++i) {
+        totalByteLines += line.numbers[i].times;
+    }
+    if (totalByteLines > codeCount) throw corrupt();
 }
 
 void Verifier::checkException(MethodInfo::ExceptionTableInfo exception,
