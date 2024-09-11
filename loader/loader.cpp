@@ -83,12 +83,12 @@ string Loader::resolvePath(const string &pathStr) {
     } else {
         for (fs::path dir: vm->getSettings().modPath) {
             result = dir / path;
-            if (fs::exists(result)) return result;
+            if (fs::exists(result)) return result.string();
         }
         result = getLoadPath() / path;
-        if (fs::exists(result)) return result;
+        if (fs::exists(result)) return result.string();
         result = fs::current_path() / path;
-        if (fs::exists(result)) return result;
+        if (fs::exists(result)) return result.string();
     }
     if (!fs::exists(result)) {
         throw IllegalAccessError(format("path not found: %s", pathStr.c_str()));

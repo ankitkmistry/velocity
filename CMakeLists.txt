@@ -27,6 +27,7 @@ add_executable(velocity main.cpp loader/verifier.cpp objects/type.cpp callable/m
         memory/basic/collector.hpp
         callable/inbuilt.cpp
         callable/inbuilt.hpp
+        callable/inbuilt.cpp
 )
 
 include_directories("../elpops")
