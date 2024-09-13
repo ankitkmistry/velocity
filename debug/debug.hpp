@@ -15,11 +15,10 @@ private:
 
     static void printStack(Obj **stack, uint32 count);
 
-    static void printLines(LineNumberTable lines);
-
     static void printExceptions(ExceptionTable exceptions);
 
-    static void printCode(const uint8 *code, const uint8 *ip, const unsigned int codeCount, const vector<Obj *> &pool);
+    static void printCode(const uint8 *code, const uint8 *ip, const uint32 codeCount, const vector<Obj *> &pool,
+                          LineNumberTable lineInfos);
 
     static void printLocals(LocalsTable locals);
 

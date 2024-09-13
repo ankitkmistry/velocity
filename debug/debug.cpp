@@ -47,10 +47,10 @@ void DebugOp::printFrame(Frame *frame) {
     printLocals(frame->getLocals());
     printStack(frame->stack, frame->getStackCount());
     cout << "\n";
-    printCode(frame->code, frame->ip, frame->getCodeCount(), frame->getConstPool());
+    printCode(frame->code, frame->ip, frame->getCodeCount(), frame->getConstPool(),
+              frame->getLines());
     cout << "\n";
     printExceptions(frame->getExceptions());
-    printLines(frame->getLines());
 }
 
 void DebugOp::printStack(Obj **stack, uint32 count) {
@@ -60,30 +60,31 @@ void DebugOp::printStack(Obj **stack, uint32 count) {
     cout << "Stack: [" << listToString(items) << "]\n";
 }
 
-void DebugOp::printLines(LineNumberTable lines) {
-    auto lineInfos = lines.getLineInfos();
-    if (lineInfos.empty())return;
-    LineDataTable table;
-    for(auto info:lineInfos){
-        table.add(format("[%d -> %d]", info.byteStart, info.byteEnd), info.sourceLine);
-    }
-    cout << table;
-}
-
 void DebugOp::printExceptions(ExceptionTable exceptions) {
     if (exceptions.count() == 0)return;
     ExcTable table;
     for (int i = 0; i < exceptions.count(); ++i) {
-        auto const& exception = exceptions.get(i);
+        auto const &exception = exceptions.get(i);
         table.add(exception.getFrom(), exception.getTo(), exception.getTarget(), exception.getType());
     }
     cout << table;
 }
 
-void DebugOp::printCode(const uint8 *code, const uint8 *ip, const uint32 codeCount, const vector<Obj *> &pool) {
+void DebugOp::printCode(const uint8 *code, const uint8 *ip, const uint32 codeCount, const vector<Obj *> &pool,
+                        LineNumberTable lineTable) {
     if (codeCount == 0)return;
-    auto max = std::to_string(codeCount - 1).length();
+    auto byteLineMaxLen = std::to_string(codeCount - 1).length();
+    auto sourceLineMaxLen = std::to_string(lineTable.getLineInfos().back().sourceLine).length() + 2;
+    uint32 sourceLine = 0;
     for (uint32 i = 0; i < codeCount;) {
+        uint32 sourceLineTemp = lineTable.getSourceLine(i);
+        string sourceLineStr;
+        if (sourceLine != sourceLineTemp) {
+            sourceLine = sourceLineTemp;
+            sourceLineStr = padRight(std::to_string(sourceLine) + " |", sourceLineMaxLen);
+        } else {
+            sourceLineStr = padRight(" |", sourceLineMaxLen);
+        }
         // Get the start of the line
         auto start = i;
         // Get the opcode
@@ -113,11 +114,13 @@ void DebugOp::printCode(const uint8 *code, const uint8 *ip, const uint32 codeCou
                 param = "";
                 break;
         }
-        cout << format(" %s %s: %s %s\n",
-                       (start == ip - code - 1 ? ">" : " "),
-                       padRight(std::to_string(start), max).c_str(),
-                       OpcodeInfo::toString(opcode).c_str(),
-                       param.c_str());
+        string finalStr = format(" %s %s: %s %s %s\n",
+                                 (start == ip - code - 1 ? ">" : " "),
+                                 padRight(std::to_string(start), byteLineMaxLen).c_str(),
+                                 sourceLineStr.c_str(),
+                                 OpcodeInfo::toString(opcode).c_str(),
+                                 param.c_str());
+        cout << finalStr;
     }
 }
 
@@ -127,7 +130,7 @@ void DebugOp::printLocals(LocalsTable locals) {
     ClosureTable closure;
     uint8 i;
     for (i = 0; i < locals.getClosureStart(); ++i) {
-        auto const& local = locals.getLocal(i);
+        auto const &local = locals.getLocal(i);
         table.add(i, local.getName(), local.getValue());
     }
     for (uint8 j = 0; i < locals.count(); i++, j++) {
@@ -149,7 +152,7 @@ void DebugOp::printArgs(ArgsTable args) {
     if (args.count() == 0)return;
     ArgumentTable table;
     for (uint8 i = 0; i < args.count(); ++i) {
-        auto const& arg = args.getArg(i);
+        auto const &arg = args.getArg(i);
         table.add(i, arg.getName(), arg.getValue());
     }
     cout << table;

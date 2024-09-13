@@ -33,6 +33,7 @@ int runVM() {
 #endif
     } catch (const FatalError &error) {
         cout << "VM Error: " << error.what();
+        return 1;
     }
 }
 

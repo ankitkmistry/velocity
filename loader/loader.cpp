@@ -3,9 +3,7 @@
 #include "verifier.hpp"
 #include "../ee/vm.hpp"
 
-Loader::Loader(SpadeVM *vm) : vm(vm), manager(vm->getMemoryManager()) {
-
-}
+Loader::Loader(SpadeVM *vm) : vm(vm), manager(vm->getMemoryManager()) {}
 
 ObjMethod *Loader::load(string path) {
     vector<ObjModule *> toBeLoaded;
