@@ -23,12 +23,6 @@ struct Settings {
 
     string libPath;
     vector<fs::path> modPath;
-
-    uint16 MAX_LIFE_IN_EDEN = 10;
-    /// MAX_EDEN_GC must be > MAX_LIFE_IN_EDEN
-    uint16 MAX_EDEN_GC = 20;
-    double HEAP_GROWTH_FACTOR = 1.5;
-    size_t EDEN_THRESHOLD = 1 * 1024 * 1024;
 };
 
 #endif //VELOCITY_SETTINGS_HPP

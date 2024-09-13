@@ -6,10 +6,10 @@ entry method "fib.main(.array)":
     ;
     maxstack: 2;
     code:
-        CONSTANT            5
-        INVOKE_GLOBAL       "fib.fib(.int)"
-        PRINTLN
-        RETURN_VOID
+        const            5
+        ginvoke          "fib.fib(.int)"
+        println
+        vret
     ;
 ;
 
@@ -19,26 +19,26 @@ method "fib.fib(.int)":
     ;
     maxstack: 8;
     code:
-        LOAD_ARG            0
-        CONSTANT            1
-        POP_JUMP_IF_EQ      $body
+        aload            0
+        const            1
+        jeq              $body
 
-        LOAD_ARG            0
-        CONSTANT            2
-        POP_JUMP_IF_EQ      $body
+        aload            0
+        const            2
+        jeq              $body
 
-        LOAD_ARG            0
-        CONSTANT            1
-        SUBTRACT
-        INVOKE_GLOBAL       "fib.fib(.int)"
-        LOAD_ARG            0
-        CONSTANT            2
-        SUBTRACT
-        INVOKE_GLOBAL       "fib.fib(.int)"
-        ADD
-        RETURN
+        aload            0
+        const            1
+        sub
+        ginvoke          "fib.fib(.int)"
+        aload            0
+        const            2
+        sub
+        ginvoke          "fib.fib(.int)"
+        add
+        ret
 
-$body:  CONSTANT            1
-        RETURN
+$body:  const            1
+        ret
     ;
 ;

@@ -106,14 +106,5 @@ public:
             : FatalError(format("%s: %s", sign.c_str(), msg.c_str())) {}
 };
 
-class SignatureError : public FatalError {
-public:
-    SignatureError(string sign, string msg)
-            : FatalError(format("invalid signature: %s: '%s'", msg.c_str(), sign.c_str())) {}
-
-    SignatureError(string sign)
-            : FatalError(format("invalid signature: '%s'", sign.c_str())) {}
-};
-
 
 #endif /* SOURCE_UTILS_EXCEPTIONS_HPP_ */

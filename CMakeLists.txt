@@ -7,27 +7,32 @@ else ()
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 endif ()
 
-add_executable(velocity main.cpp loader/verifier.cpp objects/type.cpp callable/method.cpp callable/table.cpp objects/inbuilt_types.cpp callable/frame.cpp ee/vm.cpp ee/state.cpp loader/loader.cpp debug/debug.cpp debug/table.cpp utils/utils.cpp objects/obj.cpp utils/sign.cpp utils/sign.cpp
-        objects/module.cpp
-        objects/typeparam.cpp
-        loader/foreign_loader.hpp
-        loader/foreign_loader.cpp
-        callable/callable.hpp
-        callable/foreign.hpp
+add_executable(velocity main.cpp
+        callable/method.cpp
+        callable/callable.cpp
+        callable/table.cpp
+        callable/frame.cpp
         callable/foreign.cpp
         callable/frame_template.cpp
-        callable/frame_template.hpp
+        callable/inbuilt.cpp
+        debug/debug.cpp
+        debug/table.cpp
+        ee/vm.cpp
+        ee/state.cpp
         ee/run.cpp
-        memory/basic/manager.cpp
-        memory/basic/manager.hpp
         ee/thread.cpp
-        memory/memory.cpp
-        callable/callable.cpp
+        loader/verifier.cpp
+        loader/loader.cpp
+        loader/foreign_loader.cpp
+        memory/basic/manager.cpp
         memory/basic/collector.cpp
-        memory/basic/collector.hpp
-        callable/inbuilt.cpp
-        callable/inbuilt.hpp
-        callable/inbuilt.cpp
+        memory/memory.cpp
+        objects/type.cpp
+        objects/inbuilt_types.cpp
+        objects/obj.cpp
+        objects/module.cpp
+        objects/typeparam.cpp
+        utils/utils.cpp
 )
 
 include_directories("../elpops")
