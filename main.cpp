@@ -3,6 +3,8 @@
 #include "ee/vm.hpp"
 #include "memory/basic/manager.hpp"
 
+using namespace spade;
+
 void signTest() {
     Sign sign1{"A::B"};
     cout << sign1.toString() << '\n';
@@ -24,7 +26,7 @@ void signTest() {
 
 int runVM() {
     try {
-        auto manager = new BasicMemoryManager;
+        auto manager = new spade::basic::BasicMemoryManager;
         SpadeVM vm{manager};
 #if defined(OS_LINUX)
         return vm.start("../test_code/fib.elp", {});

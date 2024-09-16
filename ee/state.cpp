@@ -2,21 +2,23 @@
 #include "../callable/method.hpp"
 #include "../objects/module.hpp"
 
-VMState::VMState(SpadeVM *vm) : vm(vm) {
-    callStack = new Frame[FRAMES_MAX];
-    fp = callStack;
-}
-
-void VMState::pushFrame(Frame frame) {
-    if (fp - callStack >= FRAMES_MAX) {
-        throw StackOverflowError();
+namespace spade {
+    VMState::VMState(SpadeVM *vm) : vm(vm) {
+        callStack = new Frame[FRAMES_MAX];
+        fp = callStack;
     }
-    *fp++ = frame;
-}
 
-Frame *VMState::popFrame() {
-    if (fp > callStack) {
-        return fp--;
+    void VMState::pushFrame(Frame frame) {
+        if (fp - callStack >= FRAMES_MAX) {
+            throw StackOverflowError();
+        }
+        *fp++ = frame;
     }
-    return fp = null;
+
+    Frame *VMState::popFrame() {
+        if (fp > callStack) {
+            return fp--;
+        }
+        return fp = null;
+    }
 }

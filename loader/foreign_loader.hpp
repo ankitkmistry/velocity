@@ -8,6 +8,14 @@
 
 #include <windows.h>
 
+#elif defined OS_LINUX
+
+#include <dlfcn.h>
+
+#endif
+
+#if defined OS_WINDOWS
+
 string getErrorMessage(DWORD errorCode);
 
 string getErrorMessage(DWORD errorCode, HMODULE module);
@@ -37,7 +45,7 @@ public:
         if (function == null) {
             DWORD errorCode = GetLastError();
             auto errMsg = getErrorMessage(errorCode, module);
-            throw NativeLibraryError(name, functionName, format("error code %d: %s", errorCode, errMsg.c_str()));
+            throw spade::NativeLibraryError(name, functionName, format("error code %d: %s", errorCode, errMsg.c_str()));
         }
         return function(args...);
     }
@@ -46,7 +54,6 @@ public:
 };
 
 #elif defined OS_LINUX
-#include <dlfcn.h>
 
 class Library {
 public:
@@ -71,24 +78,23 @@ public:
         using FunctionType = ReturnType(*)(Args...);
         FunctionType function = (FunctionType) dlsym(module, functionName.c_str());
         if (function == null) {
-            throw NativeLibraryError(name, functionName, dlerror());
+            throw spade::NativeLibraryError(name, functionName, dlerror());
         }
         return function(args...);
     }
 
     void unload();
 };
+
 #endif
 
 class ForeignLoader {
 private:
-    Table<Library *> libraries;
+    inline static spade::Table<Library *> libraries = {};
 public:
-    ForeignLoader() {}
+    static Library *loadSimpleLibrary(string path);
 
-    Library *loadSimpleLibrary(string path);
-
-    void unloadLibraries();
+    static void unloadLibraries();
 };
 
 #endif //VELOCITY_FOREIGN_LOADER_HPP

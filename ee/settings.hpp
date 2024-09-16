@@ -3,26 +3,28 @@
 
 #include "../utils/common.hpp"
 
-/**
- * Represents VM settings
- */
-struct Settings {
-    string VERSION = "1.0";
-    string LANG_NAME = "spade";
-    string VM_NAME = "velocity";
-    string INFO_STRING = VERSION + " " + LANG_NAME + " " + VM_NAME;
+namespace spade {
+    /**
+     * Represents VM settings
+     */
+    struct Settings {
+        string VERSION = "1.0";
+        string LANG_NAME = "spade";
+        string VM_NAME = "velocity";
+        string INFO_STRING = VERSION + " " + LANG_NAME + " " + VM_NAME;
 
-    std::set<string> inbuiltTypes = {
-            ".array",
-            ".bool",
-            ".char",
-            ".float",
-            ".int",
-            ".string",
+        std::set<string> inbuiltTypes = {
+                ".array",
+                ".bool",
+                ".char",
+                ".float",
+                ".int",
+                ".string",
+        };
+
+        string libPath;
+        vector<fs::path> modPath;
     };
-
-    string libPath;
-    vector<fs::path> modPath;
-};
+}
 
 #endif //VELOCITY_SETTINGS_HPP

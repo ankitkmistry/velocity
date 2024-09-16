@@ -61,7 +61,7 @@ Library *ForeignLoader::loadSimpleLibrary(string path) {
     if (module == null) {
         DWORD errorCode = GetLastError();
         auto errMsg = getErrorMessage(errorCode);
-        throw NativeLibraryError(path, format("%s (0x%X)", errMsg.c_str(), errorCode));
+        throw spade::NativeLibraryError(path, format("%s (0x%X)", errMsg.c_str(), errorCode));
     }
     auto library = new Library(Library::Kind::SIMPLE, path, module);
     libraries[path] = library;
@@ -69,6 +69,7 @@ Library *ForeignLoader::loadSimpleLibrary(string path) {
 }
 
 #elif defined OS_LINUX
+
 void Library::unload() {
     dlclose(module);
 }
@@ -77,12 +78,13 @@ Library *ForeignLoader::loadSimpleLibrary(string path) {
     // TODO: Add advanced lookup
     void *module = dlopen(path.c_str(), RTLD_LAZY);
     if (module == null) {
-        throw NativeLibraryError(path, dlerror());
+        throw spade::NativeLibraryError(path, dlerror());
     }
     auto library = new Library(Library::Kind::SIMPLE, path, module);
     libraries[path] = library;
     return library;
 }
+
 #endif
 
 void ForeignLoader::unloadLibraries() {

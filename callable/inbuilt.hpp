@@ -3,8 +3,10 @@
 
 #include "callable.hpp"
 
-class ObjInbuilt : public ObjCallable {
+namespace spade {
+    class ObjInbuilt : public ObjCallable {
 
-};
+    };
+}
 
 #endif //VELOCITY_INBUILT_HPP

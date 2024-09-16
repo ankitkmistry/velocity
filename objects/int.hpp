@@ -3,50 +3,52 @@
 
 #include "inbuilt_types.hpp"
 
-class ObjInt : public ObjNumber {
-private:
-    int64 val;
-public:
-    ObjInt(int64 val, ObjModule *module = null)
-            : ObjNumber(Sign("int"), module), val(val) {}
+namespace spade {
+    class ObjInt : public ObjNumber {
+    private:
+        int64 val;
+    public:
+        ObjInt(int64 val, ObjModule *module = null)
+                : ObjNumber(Sign("int"), module), val(val) {}
 
-    Obj *copy() const override;
+        Obj *copy() const override;
 
-    bool truth() const override;
+        bool truth() const override;
 
-    string toString() const override;
+        string toString() const override;
 
-    int32 compare(const Obj *rhs) const override;
+        int32 compare(const Obj *rhs) const override;
 
-    Obj *operator-() const override;
+        Obj *operator-() const override;
 
-    Obj *power(const ObjNumber *n) const override;
+        Obj *power(const ObjNumber *n) const override;
 
-    Obj *operator+(const ObjNumber *n) const override;
+        Obj *operator+(const ObjNumber *n) const override;
 
-    Obj *operator-(const ObjNumber *n) const override;
+        Obj *operator-(const ObjNumber *n) const override;
 
-    Obj *operator*(const ObjNumber *n) const override;
+        Obj *operator*(const ObjNumber *n) const override;
 
-    Obj *operator/(const ObjNumber *n) const override;
+        Obj *operator/(const ObjNumber *n) const override;
 
-    ObjInt *operator~() const;
+        ObjInt *operator~() const;
 
-    ObjInt *operator%(const ObjInt &n) const;
+        ObjInt *operator%(const ObjInt &n) const;
 
-    ObjInt *operator<<(const ObjInt &n) const;
+        ObjInt *operator<<(const ObjInt &n) const;
 
-    ObjInt *operator>>(const ObjInt &n) const;
+        ObjInt *operator>>(const ObjInt &n) const;
 
-    ObjInt *operator&(const ObjInt &n) const;
+        ObjInt *operator&(const ObjInt &n) const;
 
-    ObjInt *operator|(const ObjInt &n) const;
+        ObjInt *operator|(const ObjInt &n) const;
 
-    ObjInt *operator^(const ObjInt &n) const;
+        ObjInt *operator^(const ObjInt &n) const;
 
-    ObjInt *unsignedRightShift(const ObjInt &n) const;
+        ObjInt *unsignedRightShift(const ObjInt &n) const;
 
-    int64 value() const { return val; }
-};
+        int64 value() const { return val; }
+    };
+}
 
 #endif //VELOCITY_INT_HPP

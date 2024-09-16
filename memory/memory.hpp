@@ -3,51 +3,54 @@
 
 #include "../utils/common.hpp"
 
-class SpadeVM;
-class Obj;
+namespace spade {
+    class SpadeVM;
 
-class MemoryManager {
-protected:
-    SpadeVM *vm;
+    class Obj;
 
-public:
-    MemoryManager() {}
+    class MemoryManager {
+    protected:
+        SpadeVM *vm;
 
-    /**
-     * Allocates a block of memory
-     * @param size size in bytes
-     * @return the pointer to the memory block
-     */
-    virtual void *allocate(size_t size) = 0;
+    public:
+        MemoryManager() {}
 
-    /**
-     * This function performs post allocation tasks on the object.
-     * This function is automatically just after allocation and initialization
-     * @param obj
-     */
-    virtual void postAllocation(Obj *obj) = 0;
+        /**
+         * Allocates a block of memory
+         * @param size size in bytes
+         * @return the pointer to the memory block
+         */
+        virtual void *allocate(size_t size) = 0;
 
-    /**
-     * Frees the pointer and returns it to the operating system for further use
-     * @param pointer pointer to the memory block
-     */
-    virtual void deallocate(void *pointer) = 0;
+        /**
+         * This function performs post allocation tasks on the object.
+         * This function is automatically just after allocation and initialization
+         * @param obj
+         */
+        virtual void postAllocation(Obj *obj) = 0;
 
-    /**
-     * Initiates garbage collection. Frees up unnecessary space.
-     */
-    virtual void collectGarbage() = 0;
+        /**
+         * Frees the pointer and returns it to the operating system for further use
+         * @param pointer pointer to the memory block
+         */
+        virtual void deallocate(void *pointer) = 0;
 
-    void setVM(SpadeVM *vm_) { vm = vm_; }
+        /**
+         * Initiates garbage collection. Frees up unnecessary space.
+         */
+        virtual void collectGarbage() = 0;
 
-    const SpadeVM *getVM() const { return vm; }
+        void setVM(SpadeVM *vm_) { vm = vm_; }
 
-    SpadeVM *getVM() { return vm; }
+        const SpadeVM *getVM() const { return vm; }
 
-    /**
-     * @return the current memory manager respective to the current vm
-     */
-    static MemoryManager *current();
-};
+        SpadeVM *getVM() { return vm; }
+
+        /**
+         * @return the current memory manager respective to the current vm
+         */
+        static MemoryManager *current();
+    };
+}
 
 #endif //VELOCITY_MEMORY_HPP

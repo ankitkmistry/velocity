@@ -4,22 +4,27 @@
 #include "callable.hpp"
 #include "../loader/foreign_loader.hpp"
 
-class ObjForeign final : public ObjCallable {
-    Library *library;
-    string name;
-public:
-    ObjForeign(const Sign &sign, Kind kind, Type *type, ObjModule *module)
-            : ObjCallable(sign, kind, type, module) {}
+namespace spade {
+    class ObjForeign final : public ObjCallable {
+        Library *library;
+        string name;
+        Obj *self;
+    public:
+        ObjForeign(const Sign &sign, Kind kind, Type *type, ObjModule *module)
+                : ObjCallable(sign, kind, type, module) {}
 
-    void call(vector<Obj *> args) override;
+        void linkLibrary();
 
-    void call(Obj **args) override;
+        void setSelf(Obj *selfObj) override;
 
-    void linkLibrary();
+        void call(vector<Obj *> args) override;
 
-    Obj *copy() const override { return (Obj *) this; }
+        void call(Obj **args) override;
 
-    string toString() const override;
-};
+        Obj *copy() const override { return (Obj *) this; }
+
+        string toString() const override;
+    };
+}
 
 #endif //VELOCITY_FOREIGN_HPP

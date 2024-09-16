@@ -7,78 +7,80 @@
 #include "frame.hpp"
 #include "../objects/typeparam.hpp"
 
-class ObjMethod;
+namespace spade {
+    class ObjMethod;
 
-class FrameTemplate {
-    uint32 codeCount;
-    uint8 *code;
-    uint32 maxStack;
-    ArgsTable args;
-    LocalsTable locals;
-    ExceptionTable exceptions;
-    LineNumberTable lines;
-    vector<ObjMethod *> lambdas;
-    vector<MatchTable> matches;
-    ObjMethod *method;
+    class FrameTemplate {
+        uint32 codeCount;
+        uint8 *code;
+        uint32 maxStack;
+        ArgsTable args;
+        LocalsTable locals;
+        ExceptionTable exceptions;
+        LineNumberTable lines;
+        vector<ObjMethod *> lambdas;
+        vector<MatchTable> matches;
+        ObjMethod *method;
 
-public:
-    FrameTemplate(uint32 codeCount,
-                  uint8 *code,
-                  uint32 maxStack,
-                  ArgsTable args,
-                  LocalsTable locals,
-                  ExceptionTable exceptions,
-                  LineNumberTable lines,
-                  vector<ObjMethod *> lambdas,
-                  vector<MatchTable> matches,
-                  ObjMethod *method = null)
-            : codeCount(codeCount),
-              code(code),
-              maxStack(maxStack),
-              args(args), locals(locals),
-              exceptions(exceptions),
-              lines(lines),
-              method(method),
-              lambdas(lambdas),
-              matches(matches) {}
+    public:
+        FrameTemplate(uint32 codeCount,
+                      uint8 *code,
+                      uint32 maxStack,
+                      ArgsTable args,
+                      LocalsTable locals,
+                      ExceptionTable exceptions,
+                      LineNumberTable lines,
+                      vector<ObjMethod *> lambdas,
+                      vector<MatchTable> matches,
+                      ObjMethod *method = null)
+                : codeCount(codeCount),
+                  code(code),
+                  maxStack(maxStack),
+                  args(args), locals(locals),
+                  exceptions(exceptions),
+                  lines(lines),
+                  method(method),
+                  lambdas(lambdas),
+                  matches(matches) {}
 
-    Frame initialize();
+        Frame initialize();
 
-    FrameTemplate *copy();
+        FrameTemplate *copy();
 
-    uint32 getCodeCount() const { return codeCount; }
+        uint32 getCodeCount() const { return codeCount; }
 
-    uint8 *getCode() const { return code; }
+        uint8 *getCode() const { return code; }
 
-    uint32 getMaxStack() const { return maxStack; }
+        uint32 getMaxStack() const { return maxStack; }
 
-    const ArgsTable &getArgs() const { return args; }
+        const ArgsTable &getArgs() const { return args; }
 
-    const LocalsTable &getLocals() const { return locals; }
+        const LocalsTable &getLocals() const { return locals; }
 
-    const ExceptionTable &getExceptions() const { return exceptions; }
+        const ExceptionTable &getExceptions() const { return exceptions; }
 
-    const LineNumberTable &getLines() const { return lines; }
+        const LineNumberTable &getLines() const { return lines; }
 
-    const vector<ObjMethod *> &getLambdas() const { return lambdas; }
+        const vector<ObjMethod *> &getLambdas() const { return lambdas; }
 
-    const vector<MatchTable> &getMatches() const { return matches; }
+        const vector<MatchTable> &getMatches() const { return matches; }
 
-    ArgsTable &getArgs() { return args; }
+        ArgsTable &getArgs() { return args; }
 
-    LocalsTable &getLocals() { return locals; }
+        LocalsTable &getLocals() { return locals; }
 
-    ExceptionTable &getExceptions() { return exceptions; }
+        ExceptionTable &getExceptions() { return exceptions; }
 
-    LineNumberTable &getLines() { return lines; }
+        LineNumberTable &getLines() { return lines; }
 
-    vector<ObjMethod *> &getLambdas() { return lambdas; }
+        vector<ObjMethod *> &getLambdas() { return lambdas; }
 
-    vector<MatchTable> &getMatches() { return matches; }
+        vector<MatchTable> &getMatches() { return matches; }
 
-    ObjMethod *getMethod() const { return method; }
+        ObjMethod *getMethod() const { return method; }
 
-    void setMethod(ObjMethod *method_) { method = method_; }
-};
+        void setMethod(ObjMethod *method_) { method = method_; }
+    };
+}
 
 #endif //VELOCITY_FRAME_TEMPLATE_HPP

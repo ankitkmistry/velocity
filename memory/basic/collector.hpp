@@ -6,29 +6,31 @@
 #include "../../ee/thread.hpp"
 #include "../../callable/frame.hpp"
 
-class BasicCollector {
-private:
-    BasicMemoryManager *manager;
-    vector<Obj *> grayMaterial;
+namespace spade::basic {
+    class BasicCollector {
+    private:
+        BasicMemoryManager *manager;
+        vector<Obj *> grayMaterial;
 
-    void markRoots();
+        void markRoots();
 
-    void markTable(const Table<Obj *> &table);
+        void markTable(const Table<Obj *> &table);
 
-    void mark(Obj *obj);
+        void mark(Obj *obj);
 
-    void markThread(Thread *thread);
+        void markThread(Thread *thread);
 
-    void markFrame(Frame *frame);
+        void markFrame(Frame *frame);
 
-    void traceReferences();
+        void traceReferences();
 
-    void sweep();
+        void sweep();
 
-public:
-    explicit BasicCollector(BasicMemoryManager *manager) : manager(manager) {}
+    public:
+        explicit BasicCollector(BasicMemoryManager *manager) : manager(manager) {}
 
-    void gc();
-};
+        void gc();
+    };
+}
 
 #endif //VELOCITY_MEMORY_BASIC_COLLECTOR_HPP
