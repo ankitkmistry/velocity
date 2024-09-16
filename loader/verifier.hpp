@@ -1,7 +1,6 @@
 #ifndef SOURCE_LOADER_VERIFIER_HPP_
 #define SOURCE_LOADER_VERIFIER_HPP_
 
-#include "elpops/elpdef.hpp"
 #include "../utils/common.hpp"
 #include "../utils/exceptions.hpp"
 

@@ -21,26 +21,30 @@ Obj *ObjMethod::copy() const {
     return newMethod;
 }
 
-void ObjMethod::call(Thread *thread, vector<Obj *> args) {
+void ObjMethod::call(vector<Obj *> args) {
+    validateCallSite();
+    Thread *thread = Thread::current();
     auto newFrame = frameTemplate->initialize();
-    if (newFrame->getArgs().count() < args.size()) {
+    if (newFrame.getArgs().count() < args.size()) {
         throw ArgumentError(sign.toString(),
                             format("too less arguments, expected %d got %d", newFrame->getArgs().count(), args.size()));
-    } else if (newFrame->getArgs().count() > args.size()) {
+    } else if (newFrame.getArgs().count() > args.size()) {
         throw ArgumentError(sign.toString(),
                             format("too many arguments, expected %d got %d", newFrame->getArgs().count(), args.size()));
     } else {
-        for (int i = 0; i < newFrame->getArgs().count(); i++) {
-            newFrame->getArgs().set(i, args[i]);
+        for (int i = 0; i < newFrame.getArgs().count(); i++) {
+            newFrame.getArgs().set(i, args[i]);
         }
         thread->getState()->pushFrame(newFrame);
     }
 }
 
-void ObjMethod::call(Thread *thread, Obj **args) {
+void ObjMethod::call(Obj **args) {
+    validateCallSite();
+    Thread *thread = Thread::current();
     auto newFrame = frameTemplate->initialize();
-    for (int i = 0; i < newFrame->getArgs().count(); i++) {
-        newFrame->getArgs().set(i, args[i]);
+    for (int i = 0; i < newFrame.getArgs().count(); i++) {
+        newFrame.getArgs().set(i, args[i]);
     }
     thread->getState()->pushFrame(newFrame);
 }
@@ -78,4 +82,11 @@ ObjMethod *ObjMethod::getReified(Obj **args, uint8 count) {
         reified[typeArgs] = method;
         return method;
     }
+}
+
+void ObjMethod::setSelf(Obj *self) {
+    if (frameTemplate->getLocals().count() == 0) return;
+    auto local = frameTemplate->getLocals().getLocal(0);
+    local->setValue(self);
+    local->setNoCopy(true);
 }

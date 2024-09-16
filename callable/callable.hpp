@@ -16,36 +16,41 @@ public:
     };
 protected:
     Kind kind;
+
+    void validateCallSite();
+
 public:
     ObjCallable(const Sign &sign, Kind kind, Type *type, ObjModule *module = null)
             : Obj(sign, type, module), kind(kind) {}
 
     /**
-     * Calls this method with \p args on \p thread
-     * @param thread the thread
+     * Calls this method with \p args on the current thread
+     * @throws IllegalAccessError if the function is called outside a vm thread
      * @param method the method to be called
      * @param args arguments of the method
      */
-    virtual void call(Thread *thread, vector<Obj *> args) = 0;
+    virtual void call(vector<Obj *> args) = 0;
 
     /**
-     * Calls this method with \p args on \p thread
-     * @param thread the thread
+     * Calls this method with \p args on the current thread
+     * @throws IllegalAccessError if the function is called outside a vm thread
      * @param method the method to be called
      * @param args pointer to the args on the stack
      */
-    virtual void call(Thread *thread, Obj **args) = 0;
+    virtual void call(Obj **args) = 0;
+
+    virtual void setSelf(Obj *self) = 0;
 
     /**
-     * Calls this method with \p args on \p thread.
+     * Calls this method with \p args on the current thread.
      * Invokes the VM, completes the execution of
      * the function and returns the return value.
      * In case the function returns void, \c ObjNull is returned
-     * @param thread the thread
+     * @throws IllegalAccessError if the function is called outside a vm thread
      * @param args the method to be called
      * @return the return value of the function
      */
-    Obj *invoke(Thread *thread, vector<Obj *> args);
+    Obj *invoke(vector<Obj *> args);
 
     Kind getKind() const { return kind; }
 

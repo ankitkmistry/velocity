@@ -1,7 +1,8 @@
 #include "loader.hpp"
-#include "elpops/reader.hpp"
 #include "verifier.hpp"
 #include "../ee/vm.hpp"
+#include "../objects/int.hpp"
+#include "../objects/float.hpp"
 
 Loader::Loader(SpadeVM *vm) : vm(vm), manager(vm->getMemoryManager()) {}
 
@@ -51,7 +52,7 @@ ObjMethod *Loader::load(string path) {
         for (auto module: toBeLoaded) {
             ObjMethod *init = module->getInit();
             if (init != null) {
-                init->invoke(Thread::current(), {});
+                init->invoke({});
                 module->setState(ObjModule::State::INITIALIZED);
             }
         }
@@ -368,22 +369,22 @@ Exception Loader::readException(MethodInfo::ExceptionTableInfo &exception) {
     };
 }
 
-Local Loader::readLocal(MethodInfo::LocalInfo &local) {
+NamedRef* Loader::readLocal(MethodInfo::LocalInfo &local) {
     auto constPool = getConstantPool();
     auto name = constPool[local.thisLocal]->toString();
     auto type = findType(constPool[local.type]->toString());
     auto meta = readMeta(local.meta);
     auto obj = makeObj(constPool[local.type]->toString(), type);
-    return {name, obj, meta};
+    return new NamedRef{name, obj, meta};
 }
 
-Arg Loader::readArg(MethodInfo::ArgInfo &arg) {
+NamedRef* Loader::readArg(MethodInfo::ArgInfo &arg) {
     auto constPool = getConstantPool();
     auto name = constPool[arg.thisArg]->toString();
     auto type = findType(constPool[arg.type]->toString());
     auto meta = readMeta(arg.meta);
     auto obj = makeObj(constPool[arg.type]->toString(), type);
-    return {name, obj, meta};
+    return new NamedRef{name, obj, meta};
 }
 
 vector<Obj *> Loader::readConstPool(CpInfo *constantPool, uint16 count) {

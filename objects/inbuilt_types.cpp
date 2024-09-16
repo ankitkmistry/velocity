@@ -16,6 +16,11 @@ int32 ObjNull::compare(const Obj *rhs) const {
     return 0;
 }
 
+ObjNull *ObjNull::value() {
+    static thread_local ObjNull *nullRef = Obj::alloc<ObjNull>(MemoryManager::current());
+    return nullRef;
+}
+
 ObjString::ObjString(uint8 *bytes, uint16 len, ObjModule *module) :
         ComparableObj(Sign("string"), null, module), str() {
     str = string(bytes, bytes + len);
@@ -24,120 +29,6 @@ ObjString::ObjString(uint8 *bytes, uint16 len, ObjModule *module) :
 int32 ObjString::compare(const Obj *rhs) const {
     if (!is<const ObjString *>(rhs))return -1;
     return str.compare(cast<const ObjString *>(rhs)->str);
-}
-
-Obj *ObjFloat::copy() const {
-    return (Obj *) this;
-}
-
-bool ObjFloat::truth() const {
-    return val != 0.0;
-}
-
-string ObjFloat::toString() const {
-    return std::to_string(val);
-}
-
-int32 ObjFloat::compare(const Obj *rhs) const {
-    if (!is<const ObjFloat *>(rhs))return 0;
-    return val - cast<const ObjFloat *>(rhs)->val;
-}
-
-Obj *ObjFloat::operator-() const {
-    return Obj::alloc<ObjFloat>(info.manager, -val);
-}
-
-Obj *ObjFloat::power(const ObjNumber *n) const {
-    return Obj::alloc<ObjFloat>(info.manager, pow(val, cast<const ObjFloat *>(n)->val));
-}
-
-Obj *ObjFloat::operator+(const ObjNumber *n) const {
-    return Obj::alloc<ObjFloat>(info.manager, val + cast<const ObjFloat *>(n)->val);
-}
-
-Obj *ObjFloat::operator-(const ObjNumber *n) const {
-    return Obj::alloc<ObjFloat>(info.manager, val - cast<const ObjFloat *>(n)->val);
-}
-
-Obj *ObjFloat::operator*(const ObjNumber *n) const {
-    return Obj::alloc<ObjFloat>(info.manager, val * cast<const ObjFloat *>(n)->val);
-}
-
-Obj *ObjFloat::operator/(const ObjNumber *n) const {
-    return Obj::alloc<ObjFloat>(info.manager, val / cast<const ObjFloat *>(n)->val);
-}
-
-Obj *ObjInt::copy() const {
-    return (Obj *) this;
-}
-
-bool ObjInt::truth() const {
-    return val != 0;
-}
-
-string ObjInt::toString() const {
-    return std::to_string(val);
-}
-
-ObjInt *ObjInt::operator~() const {
-    return Obj::alloc<ObjInt>(info.manager, ~val);
-}
-
-ObjInt *ObjInt::operator<<(const ObjInt &n) const {
-    return Obj::alloc<ObjInt>(info.manager, val << n.val);
-}
-
-ObjInt *ObjInt::operator>>(const ObjInt &n) const {
-    return Obj::alloc<ObjInt>(info.manager, val >> n.val);
-}
-
-ObjInt *ObjInt::unsignedRightShift(const ObjInt &n) const {
-    return Obj::alloc<ObjInt>(info.manager, val & 0x7fffffff >> n.val);
-}
-
-ObjInt *ObjInt::operator%(const ObjInt &n) const {
-    return Obj::alloc<ObjInt>(info.manager, val % n.val);
-}
-
-ObjInt *ObjInt::operator&(const ObjInt &n) const {
-    return Obj::alloc<ObjInt>(info.manager, val & n.val);
-}
-
-ObjInt *ObjInt::operator|(const ObjInt &n) const {
-    return Obj::alloc<ObjInt>(info.manager, val | n.val);
-}
-
-ObjInt *ObjInt::operator^(const ObjInt &n) const {
-    return Obj::alloc<ObjInt>(info.manager, val ^ n.val);
-}
-
-int32 ObjInt::compare(const Obj *rhs) const {
-    if (!is<const ObjInt *>(rhs))return 0;
-    return val - cast<const ObjInt *>(rhs)->val;
-}
-
-Obj *ObjInt::operator-() const {
-    return Obj::alloc<ObjInt>(info.manager, -val);
-}
-
-Obj *ObjInt::power(const ObjNumber *n) const {
-    return Obj::alloc<ObjFloat>(info.manager, pow(val, cast<const ObjInt *>(n)->val));
-}
-
-Obj *ObjInt::operator+(const ObjNumber *n) const {
-    return Obj::alloc<ObjInt>(info.manager, val + cast<const ObjInt *>(n)->val);
-}
-
-Obj *ObjInt::operator-(const ObjNumber *n) const {
-    return Obj::alloc<ObjInt>(info.manager, val - cast<const ObjInt *>(n)->val);
-}
-
-Obj *ObjInt::operator*(const ObjNumber *n) const {
-    return Obj::alloc<ObjInt>(info.manager, val * cast<const ObjInt *>(n)->val);
-}
-
-Obj *ObjInt::operator/(const ObjNumber *n) const {
-    return Obj::alloc<ObjInt>(info.manager, val / cast<const ObjInt *>(n)->val);
 }
 
 Obj *ObjArray::copy() const {

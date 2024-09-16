@@ -45,12 +45,12 @@ void BasicCollector::markFrame(Frame *frame) {
     }
     for (const auto &arg: frame->getArgs().args) {
         // mark every value of args
-        auto obj = arg.getValue();
+        auto obj = arg->getValue();
         mark(obj);
     }
     for (const auto &local: frame->getLocals().locals) {
         // mark every value of locals
-        auto obj = local.getValue();
+        auto obj = local->getValue();
         mark(obj);
     }
     for (const auto &closure: frame->getLocals().closures) {

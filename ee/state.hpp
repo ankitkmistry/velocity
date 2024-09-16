@@ -23,7 +23,7 @@ public:
      * Pushes a call frame on top of the call stack
      * @param frame the frame to be pushed
      */
-    void pushFrame(Frame *frame);
+    void pushFrame(Frame frame);
 
     /**
      * Pops the active call frame and reloads the state

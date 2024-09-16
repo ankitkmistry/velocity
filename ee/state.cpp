@@ -7,11 +7,11 @@ VMState::VMState(SpadeVM *vm) : vm(vm) {
     fp = callStack;
 }
 
-void VMState::pushFrame(Frame *frame) {
+void VMState::pushFrame(Frame frame) {
     if (fp - callStack >= FRAMES_MAX) {
         throw StackOverflowError();
     }
-    *fp++ = *frame;
+    *fp++ = frame;
 }
 
 Frame *VMState::popFrame() {

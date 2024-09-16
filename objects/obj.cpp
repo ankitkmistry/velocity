@@ -2,7 +2,6 @@
 #include "module.hpp"
 #include "type.hpp"
 #include "inbuilt_types.hpp"
-#include "../callable/method.hpp"
 #include "../ee/vm.hpp"
 
 Obj::Obj(Sign sign, Type *type, ObjModule *module) :
@@ -14,16 +13,13 @@ Obj::Obj(Sign sign, Type *type, ObjModule *module) :
         for (auto [name, slot]: type->getMemberSlots()) {
             if (slot.getFlags().isStatic())continue;
             Obj *value = slot.getValue();
-            if (is<ObjMethod *>(value) &&
-                cast<ObjMethod *>(value)->getKind() != ObjCallable::Kind::CONSTRUCTOR) {
-                auto newMethod = cast<ObjMethod *>(value->copy());
-                // Set this argument in every method
-                auto& local=const_cast<LocalsTable &>(newMethod->getFrameTemplate()->getLocals()).getLocal(0);
-                local.setValue(this);
-                local.setThis(true);
-                this->memberSlots[name] = newMethod;
+            if (is<ObjCallable *>(value) &&
+                cast<ObjCallable *>(value)->getKind() != ObjCallable::Kind::CONSTRUCTOR) {
+                auto newMethod = cast<ObjCallable *>(value->copy());
+                newMethod->setSelf(this);
+                memberSlots[name] = newMethod;
             } else {
-                this->memberSlots[name] = Obj::createCopy(slot.getValue());
+                memberSlots[name] = Obj::createCopy(slot.getValue());
             }
         }
     }
@@ -135,6 +131,9 @@ void Obj::setMember(string name, Obj *value) {
                 getMemberSlots()[name] = MemberSlot{value, 0b0001000000000000};
             }
         }
+    }
+    if(is<ObjCallable*>(value)) {
+        cast<ObjCallable *>(value)->setSelf(this);
     }
 }
 

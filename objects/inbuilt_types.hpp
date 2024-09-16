@@ -60,6 +60,8 @@ public:
     ObjNull(ObjModule *module = null)
             : ComparableObj(Sign("null"), null, module) {}
 
+    static ObjNull *value();
+
     bool truth() const override {
         return false;
     }
@@ -125,10 +127,6 @@ public:
     int32 compare(const Obj *rhs) const override;
 };
 
-class ObjFloat;
-
-class ObjInt;
-
 class ObjNumber : public ComparableObj {
 public:
     ObjNumber(Sign sign, ObjModule *module = null)
@@ -145,82 +143,6 @@ public:
     virtual Obj *operator*(const ObjNumber *n) const = 0;
 
     virtual Obj *operator/(const ObjNumber *n) const = 0;
-};
-
-class ObjInt final : public ObjNumber {
-private:
-    int64 val;
-public:
-    ObjInt(int64 val, ObjModule *module = null)
-            : ObjNumber(Sign("int"), module), val(val) {}
-
-    Obj *copy() const override;
-
-    bool truth() const override;
-
-    string toString() const override;
-
-    int32 compare(const Obj *rhs) const override;
-
-    Obj *operator-() const override;
-
-    Obj *power(const ObjNumber *n) const override;
-
-    Obj *operator+(const ObjNumber *n) const override;
-
-    Obj *operator-(const ObjNumber *n) const override;
-
-    Obj *operator*(const ObjNumber *n) const override;
-
-    Obj *operator/(const ObjNumber *n) const override;
-
-    ObjInt *operator~() const;
-
-    ObjInt *operator%(const ObjInt &n) const;
-
-    ObjInt *operator<<(const ObjInt &n) const;
-
-    ObjInt *operator>>(const ObjInt &n) const;
-
-    ObjInt *operator&(const ObjInt &n) const;
-
-    ObjInt *operator|(const ObjInt &n) const;
-
-    ObjInt *operator^(const ObjInt &n) const;
-
-    ObjInt *unsignedRightShift(const ObjInt &n) const;
-
-    int64 value() const { return val; }
-};
-
-class ObjFloat final : public ObjNumber {
-private:
-    double val;
-public:
-    ObjFloat(double val, ObjModule *module = null)
-            : ObjNumber(Sign("float"), module), val(val) {}
-
-    Obj *copy() const override;
-
-    bool truth() const override;
-
-    string toString() const override;
-
-    int32 compare(const Obj *rhs) const override;
-
-    Obj *operator-() const override;
-
-    Obj *power(const ObjNumber *n) const override;
-
-    Obj *operator+(const ObjNumber *n) const override;
-
-    Obj *operator-(const ObjNumber *n) const override;
-
-    Obj *operator*(const ObjNumber *n) const override;
-
-    Obj *operator/(const ObjNumber *n) const override;
-
-    double value() const { return val; }
 };
 
 #endif /* OOP_OBJECTS_HPP_ */

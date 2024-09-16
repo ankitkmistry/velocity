@@ -42,7 +42,7 @@ public:
               lambdas(lambdas),
               matches(matches) {}
 
-    Frame *initialize();
+    Frame initialize();
 
     FrameTemplate *copy();
 
@@ -63,6 +63,18 @@ public:
     const vector<ObjMethod *> &getLambdas() const { return lambdas; }
 
     const vector<MatchTable> &getMatches() const { return matches; }
+
+    ArgsTable &getArgs() { return args; }
+
+    LocalsTable &getLocals() { return locals; }
+
+    ExceptionTable &getExceptions() { return exceptions; }
+
+    LineNumberTable &getLines() { return lines; }
+
+    vector<ObjMethod *> &getLambdas() { return lambdas; }
+
+    vector<MatchTable> &getMatches() { return matches; }
 
     ObjMethod *getMethod() const { return method; }
 

@@ -18,15 +18,11 @@ public:
               vector<TypeParam *> typeParams,
               ObjModule *module = null);
 
-    const FrameTemplate *getFrameTemplate() const { return frameTemplate; }
+    void call(vector<Obj *> args) override;
 
-    const vector<TypeParam *> &getTypeParams() const { return typeParams; }
+    void call(Obj **args) override;
 
-    vector<TypeParam *> &getTypeParams() { return typeParams; }
-
-    void call(Thread *thread, vector<Obj *> args) override;
-
-    void call(Thread *thread, Obj **args) override;
+    void setSelf(Obj *self) override;
 
     /**
      * @param args the type args
@@ -38,6 +34,12 @@ public:
     Obj *copy() const override;
 
     string toString() const override;
+
+    const FrameTemplate *getFrameTemplate() const { return frameTemplate; }
+
+    const vector<TypeParam *> &getTypeParams() const { return typeParams; }
+
+    vector<TypeParam *> &getTypeParams() { return typeParams; }
 };
 
 

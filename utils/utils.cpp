@@ -1,6 +1,16 @@
 #include "utils.hpp"
 #include "common.hpp"
 
+#if defined COMPILER_MSVC
+
+#include <dbghelp.h>
+
+#elif defined COMPILER_GCC
+
+#include <cxxabi.h>
+
+#endif
+
 string padRight(const string &str, size_t length) {
     return str.size() < length
            ? std::string(length - str.size(), ' ') + str
@@ -71,4 +81,19 @@ string getAbsolutePath(string path) {
     fs::path p(path);
     if (!p.is_absolute()) p = fs::current_path() / p;
     return p.string();
+}
+
+string cpp_demangle(string str) {
+#if defined COMPILER_MSVC
+    char *outStr;
+    auto length=UnDecorateSymbolName(str.c_str(), outStr, -1, UNDNAME_NAME_ONLY);
+    return string{outStr, length};
+#elif defined COMPILER_GCC
+    int status;
+    char *outStr = abi::__cxa_demangle(str.c_str(), null, null, &status);
+    if (status != 0 || outStr == null)return str;
+    return string{outStr};
+#elif defined COMPILER_OTHER
+    return str;
+#endif
 }

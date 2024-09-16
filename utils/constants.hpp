@@ -13,4 +13,12 @@
 #define OS_MAC
 #endif
 
+#if defined __GNUC__
+#define COMPILER_GCC
+#elif defined _MSC_VER
+#define COMPILER_MSVC
+#else
+#define COMPILER_OTHER
+#endif
+
 #endif //VELOCITY_CONSTANTS_HPP

@@ -276,12 +276,15 @@ void ObjForeign::linkLibrary() {
 
 }
 
-void ObjForeign::call(Thread *thread, vector<Obj *> args) {
-    call(thread, args.data());
+void ObjForeign::call(vector<Obj *> args) {
+    validateCallSite();
+    call(args.data());
 }
 
-void ObjForeign::call(Thread *thread, Obj **args) {
+void ObjForeign::call(Obj **args) {
+    validateCallSite();
     Obj *result;
+    Thread *thread = Thread::current();
     switch (sign.getParams().size()) {
         case 0:
             result = library->call<Obj *>(name);

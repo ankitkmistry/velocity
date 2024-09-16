@@ -33,13 +33,17 @@ add_executable(velocity main.cpp
         objects/module.cpp
         objects/typeparam.cpp
         utils/utils.cpp
+        objects/int.cpp
+        objects/int.hpp
+        objects/float.cpp
+        objects/float.hpp
 )
 
-include_directories("../elpops")
-target_include_directories(velocity PRIVATE "../elpops")
+include_directories("../sputils")
+target_include_directories(velocity PRIVATE "../sputils")
 if (WIN32)
-    target_link_libraries(velocity "D:\\Programming (Ankit)\\Projects\\spade\\1.0\\elpops\\debug-build\\libelpops.a")
+    target_link_libraries(velocity "D:\\Programming (Ankit)\\Projects\\spade\\1.0\\sputils\\build-debug\\libsputils.a")
 else ()
-    target_link_libraries(velocity "/mnt/d/Programming (Ankit)/Projects/spade/1.0/elpops/debug-build-wsl/libelpops.a")
+    target_link_libraries(velocity "/mnt/d/Programming (Ankit)/Projects/spade/1.0/sputils/build-debug-wsl/libsputils.a")
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ldl")
 endif ()

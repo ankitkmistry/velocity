@@ -68,11 +68,10 @@ public:
 
 class ClosureTable : public DataTable {
 public:
-    ClosureTable() : DataTable("Closures", {"slot", "type", "name", "value"}) {}
+    ClosureTable() : DataTable("Closures", {"slot", "name", "value"}) {}
 
-    void add(uint8 slot, bool isLocal, const string &name, Obj *value) {
+    void add(uint8 slot, const string &name, Obj *value) {
         set({std::to_string(slot),
-             isLocal ? "local" : "arg",
              name,
              value->toString()});
     }

@@ -1,6 +1,5 @@
 #include "debug.hpp"
 #include "table.hpp"
-#include "elpops/opcode.hpp"
 #include "../ee/vm.hpp"
 
 void DebugOp::clearConsole() {
@@ -131,17 +130,11 @@ void DebugOp::printLocals(LocalsTable locals) {
     uint8 i;
     for (i = 0; i < locals.getClosureStart(); ++i) {
         auto const &local = locals.getLocal(i);
-        table.add(i, local.getName(), local.getValue());
+        table.add(i, local->getName(), local->getValue());
     }
     for (uint8 j = 0; i < locals.count(); i++, j++) {
         auto node = locals.getClosure(i);
-        if (is<Local *>(node)) {
-            auto local = cast<Local *>(node);
-            closure.add(j, true, local->getName(), local->getValue());
-        } else {
-            auto arg = cast<Arg *>(node);
-            closure.add(j, false, arg->getName(), arg->getValue());
-        }
+        closure.add(j, node->getName(), node->getValue());
     }
     cout << table;
     if (locals.getClosureStart() < locals.count())
@@ -152,8 +145,8 @@ void DebugOp::printArgs(ArgsTable args) {
     if (args.count() == 0)return;
     ArgumentTable table;
     for (uint8 i = 0; i < args.count(); ++i) {
-        auto const &arg = args.getArg(i);
-        table.add(i, arg.getName(), arg.getValue());
+        auto arg = args.getArg(i);
+        table.add(i, arg->getName(), arg->getValue());
     }
     cout << table;
 }

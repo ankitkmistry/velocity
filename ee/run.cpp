@@ -1,7 +1,7 @@
 #include "vm.hpp"
 
 #include "../debug/debug.hpp"
-#include "elpops/opcode.hpp"
+#include "../objects/int.hpp"
 
 Obj *SpadeVM::run(Thread *thread) {
     auto state = thread->getState();
@@ -24,9 +24,22 @@ Obj *SpadeVM::run(Thread *thread) {
                 case Opcode::POP:
                     state->pop();
                     break;
+                case Opcode::NPOP:{
+                    auto count = state->readByte();
+                    frame->sp -= count;
+                    break;
+                }
                 case Opcode::DUP:
                     state->push(state->peek());
                     break;
+                case Opcode::NDUP:{
+                    auto count = state->readByte();
+                    for (int i = 0; i < count; ++i) {
+                        frame->sp[i] = frame->sp[-1];
+                    }
+                    frame->sp += count;
+                    break;
+                }
                 case Opcode::GLOAD:
                     state->push(getSymbol(state->loadConst(state->readShort())->toString()));
                     break;
@@ -182,6 +195,16 @@ Obj *SpadeVM::run(Thread *thread) {
                     });
                     break;
                 }
+                case Opcode::ARRPACK: {
+                    auto count = state->readByte();
+                    auto array = Obj::alloc<ObjArray>(manager, count);
+                    frame->sp -= count;
+                    for (int i = 0; i < count; ++i) {
+                        array->set(i, frame->sp[i]);
+                    }
+                    state->push(array);
+                    break;
+                }
                 case Opcode::ARRBUILD: {
                     auto count = state->readShort();
                     auto array = Obj::alloc<ObjArray>(manager, count);
@@ -223,11 +246,11 @@ Obj *SpadeVM::run(Thread *thread) {
                     // Get the count
                     auto count = state->readByte();
                     // Pop the arguments
-                    for (int i = 0; i < count; i++) state->pop();
+                    frame->sp -= count;
                     // Get the method
                     auto method = cast<ObjMethod *>(state->pop());
                     // Call it
-                    method->call(thread, frame->sp + 1);
+                    method->call(frame->sp + 1);
                     break;
                 }
                 case Opcode::VINVOKE: {
@@ -239,13 +262,13 @@ Obj *SpadeVM::run(Thread *thread) {
                     auto count = sign.getParams().size();
 
                     // Pop the arguments
-                    for (int i = 0; i < count; i++) state->pop();
+                    frame->sp -= count;
                     // Get the object
                     auto object = state->pop();
                     // Get the method
                     auto method = cast<ObjMethod *>(object->getMember(name));
                     // Call it
-                    method->call(thread, frame->sp + 1);
+                    method->call(frame->sp + 1);
                     break;
                 }
                 case Opcode::SINVOKE: {
@@ -257,13 +280,13 @@ Obj *SpadeVM::run(Thread *thread) {
                     auto count = sign.getParams().size();
 
                     // Pop the arguments
-                    for (int i = 0; i < count; i++) state->pop();
+                    frame->sp -= count;
                     // Get the type
                     auto type = cast<Type *>(state->pop());
                     // Get the method
                     auto method = cast<ObjMethod *>(type->getMember(name));
                     // Call it
-                    method->call(thread, frame->sp + 1);
+                    method->call(frame->sp + 1);
                     break;
                 }
                 case Opcode::LINVOKE: {
@@ -272,9 +295,9 @@ Obj *SpadeVM::run(Thread *thread) {
                     // Get the arg count
                     auto count = method->getFrameTemplate()->getArgs().count();
                     // Pop the arguments
-                    for (int i = 0; i < count; i++) state->pop();
+                    frame->sp -= count;
                     // Call it
-                    method->call(thread, frame->sp);
+                    method->call(frame->sp);
                     break;
                 }
                 case Opcode::GINVOKE: {
@@ -283,9 +306,9 @@ Obj *SpadeVM::run(Thread *thread) {
                     // Get the arg count
                     auto count = method->getFrameTemplate()->getArgs().count();
                     // Pop the arguments
-                    for (int i = 0; i < count; i++) state->pop();
+                    frame->sp -= count;
                     // Call it
-                    method->call(thread, frame->sp);
+                    method->call(frame->sp);
                     break;
                 }
                 case Opcode::VFINVOKE: {
@@ -297,13 +320,13 @@ Obj *SpadeVM::run(Thread *thread) {
                     auto count = sign.getParams().size();
 
                     // Pop the arguments
-                    for (int i = 0; i < count; i++) state->pop();
+                    frame->sp -= count;
                     // Get the object
                     auto object = state->pop();
                     // Get the method
                     auto method = cast<ObjMethod *>(object->getMember(name));
                     // Call it
-                    method->call(thread, frame->sp + 1);
+                    method->call(frame->sp + 1);
                     break;
                 }
                 case Opcode::SFINVOKE: {
@@ -315,13 +338,13 @@ Obj *SpadeVM::run(Thread *thread) {
                     auto count = sign.getParams().size();
 
                     // Pop the arguments
-                    for (int i = 0; i < count; i++) state->pop();
+                    frame->sp -= count;
                     // Get the type
                     auto type = cast<Type *>(state->pop());
                     // Get the method
                     auto method = cast<ObjMethod *>(type->getMember(name));
                     // Call it
-                    method->call(thread, frame->sp + 1);
+                    method->call(frame->sp + 1);
                     break;
                 }
                 case Opcode::LFINVOKE: {
@@ -330,9 +353,9 @@ Obj *SpadeVM::run(Thread *thread) {
                     // Get the arg count
                     auto count = method->getFrameTemplate()->getArgs().count();
                     // Pop the arguments
-                    for (int i = 0; i < count; i++) state->pop();
+                    frame->sp -= count;
                     // Call it
-                    method->call(thread, frame->sp);
+                    method->call(frame->sp);
                     break;
                 }
                 case Opcode::GFINVOKE: {
@@ -341,9 +364,9 @@ Obj *SpadeVM::run(Thread *thread) {
                     // Get the arg count
                     auto count = method->getFrameTemplate()->getArgs().count();
                     // Pop the arguments
-                    for (int i = 0; i < count; i++) state->pop();
+                    frame->sp -= count;
                     // Call it
-                    method->call(thread, frame->sp);
+                    method->call(frame->sp);
                     break;
                 }
                 case Opcode::AINVOKE: {
@@ -352,9 +375,9 @@ Obj *SpadeVM::run(Thread *thread) {
                     // Get the arg count
                     auto count = method->getFrameTemplate()->getArgs().count();
                     // Pop the arguments
-                    for (int i = 0; i < count; i++) state->pop();
+                    frame->sp -= count;
                     // Call it
-                    method->call(thread, frame->sp);
+                    method->call(frame->sp);
                     break;
                 }
                 case Opcode::CALLSUB: {
@@ -452,7 +475,7 @@ Obj *SpadeVM::run(Thread *thread) {
                         obj->setType(type);
                         state->push(obj);
                     } else
-                        state->push(Obj::alloc<ObjNull>(manager));
+                        state->push(ObjNull::value());
                     break;
                 }
                 case Opcode::CCAST: {
@@ -615,18 +638,18 @@ Obj *SpadeVM::run(Thread *thread) {
                     auto method = cast<ObjMethod *>(state->pop());
                     auto &locals = const_cast<LocalsTable &>(method->getFrameTemplate()->getLocals());
                     for (uint16 i = locals.getClosureStart(); i < locals.count(); i++) {
-                        const TableNode *node;
+                        NamedRef *ref;
                         switch (state->readByte()) {
                             case 0x01:  // Arg as closure
-                                node = &frame->getArgs().getArg(state->readByte());
+                                ref = frame->getArgs().getArg(state->readByte());
                                 break;
                             case 0x02:  // Local as closure
-                                node = &frame->getLocals().getLocal(state->readShort());
+                                ref = frame->getLocals().getLocal(state->readShort());
                                 break;
                             default:
                                 throw Unreachable();
                         }
-                        locals.addClosure(const_cast<TableNode *>(node));
+                        locals.addClosure(ref);
                     }
                     break;
                 }
@@ -678,10 +701,6 @@ Obj *SpadeVM::run(Thread *thread) {
                     break;
                 case Opcode::NUM_OPCODES:
                     // No use
-                    break;
-                case Opcode::ARRPACK:
-                    break;
-                case Opcode::NRET:
                     break;
             }
         } catch (const ThrowSignal &signal) {

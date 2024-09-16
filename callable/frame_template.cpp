@@ -1,18 +1,18 @@
 #include "frame_template.hpp"
 
-Frame *FrameTemplate::initialize() {
-    auto frame = new Frame;
-    frame->codeCount = codeCount;
-    frame->ip = frame->code = code;
-    frame->stack = new Obj *[maxStack];
-    frame->sp = frame->stack;
-    frame->args = args.copy();
-    frame->locals = locals.copy();
-    frame->exceptions = exceptions;
-    frame->lines = lines;
-    frame->lambdas = lambdas;
-    frame->matches = matches;
-    frame->method = method;
+Frame FrameTemplate::initialize() {
+    Frame frame{};
+    frame.codeCount = codeCount;
+    frame.ip = frame.code = code;
+    frame.stack = new Obj *[maxStack];
+    frame.sp = frame.stack;
+    frame.args = args.copy();
+    frame.locals = locals.copy();
+    frame.exceptions = exceptions;
+    frame.lines = lines;
+    frame.lambdas = lambdas;
+    frame.matches = matches;
+    frame.method = method;
     return frame;
 }
 

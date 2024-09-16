@@ -31,7 +31,7 @@ int SpadeVM::start(ObjMethod *entry, ObjArray *args) {
     auto state = new VMState(this);
     Thread thread{state, [&](auto thr) {
         thr->setStatus(Thread::RUNNING);
-        entry->call(thr, {args});
+        entry->call({args});
         run(thr);
     }};
     threads.insert(&thread);
@@ -51,7 +51,7 @@ ThrowSignal SpadeVM::runtimeError(const string &str) {
 Obj *SpadeVM::getSymbol(const string &sign) const {
     Sign symbolSign{sign};
     vector<SignElement> elements = symbolSign.getElements();
-    if (elements.empty())return Obj::alloc<ObjNull>(manager);
+    if (elements.empty())return ObjNull::value();
     Obj *acc;
     try {
         acc = modules.at(elements[0].toString());

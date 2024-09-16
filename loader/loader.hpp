@@ -1,7 +1,6 @@
 #ifndef VELOCITY_LOADER_HPP
 #define VELOCITY_LOADER_HPP
 
-#include "elpops/elpdef.hpp"
 #include "../utils/common.hpp"
 #include "../objects/obj.hpp"
 #include "../callable/method.hpp"
@@ -66,9 +65,9 @@ private:
 
     MatchTable readMatch(MethodInfo::MatchInfo match);
 
-    Local readLocal(MethodInfo::LocalInfo &local);
+    NamedRef* readLocal(MethodInfo::LocalInfo &local);
 
-    Arg readArg(MethodInfo::ArgInfo &arg);
+    NamedRef* readArg(MethodInfo::ArgInfo &arg);
 
     /**
      * Reads the constant pool

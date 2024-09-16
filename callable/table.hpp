@@ -10,70 +10,52 @@
 /**
  * Represents the base class for nodes used in arg tables, local tables, etc.
  */
-class TableNode {
+class NamedRef {
 protected:
     string name;
     Obj *value;
+    bool noCopy;
     Table<string> meta;
 public:
-    TableNode(const string &name, Obj *value, const Table<string> &meta) : name(name), value(value), meta(meta) {}
+    NamedRef(const string &name, Obj *value, const Table<string> &meta) : name(name), value(value), meta(meta) {}
 
-    TableNode &operator=(const TableNode &arg) = default;
+    NamedRef *copy();
 
     /**
-     * Sets the value of the node
+     * Sets the value of the named ref
      * @param val
      */
     void setValue(Obj *val) { value = val; }
 
     /**
-     * @return The name attached to the node
-     */
-    const string &getName() const { return name; }
-
-    /**
-     * @return The value of the node
+     * @return The value of the named ref
      */
     Obj *getValue() const { return value; }
 
     /**
-     * @return The meta data associated to the node
+     * @return if the named ref is not copiable
+     */
+    bool isNoCopy() const { return noCopy; }
+
+    /**
+     * @param noCopy_ sets the named ref not copiable or not
+     */
+    void setNoCopy(bool noCopy_) { noCopy = noCopy_; }
+
+    /**
+     * @return The name attached to the named ref
+     */
+    const string &getName() const { return name; }
+
+    /**
+     * @return The meta data associated to the named ref
      */
     const Table<string> &getMeta() const { return meta; }
 
     /**
-     * @return The string representation of the node
+     * @return The string representation of the named ref
      */
     virtual string toString() const { return name; }
-};
-
-/**
- * Represents a function argument
- */
-class Arg : public TableNode {
-    friend class SpadeVM;
-
-public:
-    Arg(string name, Obj *value, Table<string> meta)
-            : TableNode(name, value, meta) {}
-
-    Arg &operator=(const Arg &arg) = default;
-};
-
-/**
- * Represents a local
- */
-class Local : public TableNode {
-    bool this_;
-public:
-    Local(string name, Obj *value, Table<string> meta)
-            : TableNode(name, value, meta) {}
-
-    Local &operator=(const Local &local) = default;
-
-    bool isThis() const { return this_; }
-
-    void setThis(bool this__) { this_ = this__; }
 };
 
 /**
@@ -161,7 +143,7 @@ class ArgsTable {
     friend class FrameTemplate;
 
 private:
-    vector<Arg> args;
+    vector<NamedRef *> args;
 public:
     ArgsTable() : args() {}
 
@@ -186,13 +168,19 @@ public:
      * Adds a new argument at the end of the table
      * @param arg the argument to be added
      */
-    void addArg(const Arg &arg) { args.push_back(arg); }
+    void addArg(NamedRef *arg) { args.push_back(arg); }
 
     /**
      * @return The argument at index i
      * @param i the argument index
      */
-    const Arg &getArg(uint8 i) const { return args[i]; }
+    const NamedRef *getArg(uint8 i) const { return args[i]; }
+
+    /**
+     * @return The argument at index i
+     * @param i the argument index
+     */
+    NamedRef *getArg(uint8 i) { return args[i]; }
 
     ArgsTable copy() const;
 
@@ -216,10 +204,9 @@ class LocalsTable {
     friend class FrameTemplate;
 
 private:
-    uint16 thisLocal = -1;
     uint16 closureStart;
-    vector<Local> locals;
-    vector<TableNode *> closures;
+    vector<NamedRef *> locals;
+    vector<NamedRef *> closures;
 
 public:
     explicit LocalsTable(uint16 closureStart) : closureStart(closureStart), locals() {}
@@ -251,31 +238,31 @@ public:
      * Adds a new local at the end of the table
      * @param local the local to be added
      */
-    void addLocal(const Local &local) { locals.push_back(local); }
+    void addLocal(NamedRef *local) { locals.push_back(local); }
 
     /**
      * Adds a new closure at the end of the table
      * @param closure the closure to be added
      */
-    void addClosure(TableNode *closure) { closures.push_back(closure); }
+    void addClosure(NamedRef *closure) { closures.push_back(closure); }
 
     /**
      * @return The local at index i
      * @param i the local index
      */
-    const Local &getLocal(uint16 i) const;
+    const NamedRef *getLocal(uint16 i) const;
 
     /**
      * @return The local at index i
      * @param i the local index
      */
-    Local &getLocal(uint16 i);
+    NamedRef *getLocal(uint16 i);
 
     /**
      * @return The closure at index i
      * @param i the closure index
      */
-    TableNode *getClosure(uint16 i) const;
+    NamedRef *getClosure(uint16 i) const;
 
     LocalsTable copy() const;
 

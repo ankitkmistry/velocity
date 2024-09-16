@@ -4,6 +4,8 @@
 #include "common.hpp"
 #include "exceptions.hpp"
 
+string cpp_demangle(string str);
+
 /**
  * Casts a value of type From to a value of type To.
  * @throws CastError if casting fails
@@ -16,7 +18,7 @@ template<class To, class From>
 To cast(From val) {
     auto castVal = dynamic_cast<To>(val);
     if (castVal == null)
-        throw CastError(typeid(From).name(), typeid(To).name());
+        throw CastError(cpp_demangle(typeid(From).name()), cpp_demangle(typeid(To).name()));
     return castVal;
 }
 

@@ -11,9 +11,9 @@ public:
     ObjForeign(const Sign &sign, Kind kind, Type *type, ObjModule *module)
             : ObjCallable(sign, kind, type, module) {}
 
-    void call(Thread *thread, vector<Obj *> args) override;
+    void call(vector<Obj *> args) override;
 
-    void call(Thread *thread, Obj **args) override;
+    void call(Obj **args) override;
 
     void linkLibrary();
 

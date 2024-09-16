@@ -14,6 +14,7 @@
 #include <functional>
 #include <filesystem>
 #include <sstream>
+#include <sputils.hpp>
 #include "constants.hpp"
 
 // TODO: For debug only
