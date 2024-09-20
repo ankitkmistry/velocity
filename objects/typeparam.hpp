@@ -14,10 +14,12 @@ namespace spade {
                 : Type(sign, Kind::TYPE_PARAM, {}, {}, {}, module) {}
 
         /**
-         * Reifies the type parameter to the specified \p type
+         * Changes the type parameter to the specified \p type
          * @param type the final type
          */
-        void reify(Type *type) { placeholder = type; }
+        void setPlaceholder(Type *type) { placeholder = type; }
+
+        Type *getPlaceholder() const { return placeholder; }
 
         Kind getKind() const override;
 

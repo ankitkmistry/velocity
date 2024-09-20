@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "ee/vm.hpp"
-#include "memory/basic/manager.hpp"
+#include "memory/basic/basic_manager.hpp"
 
 using namespace spade;
 

@@ -1,4 +1,4 @@
-#include "memory.hpp"
+#include "manager.hpp"
 #include "../ee/vm.hpp"
 
 namespace spade {

@@ -136,6 +136,9 @@ namespace spade {
         }
         if (is<ObjCallable *>(value)) {
             cast<ObjCallable *>(value)->setSelf(this);
+            if (is<ObjMethod *>(value)) {
+                cast<ObjMethod *>(value)->setType(type);
+            }
         }
     }
 
@@ -150,7 +153,7 @@ namespace spade {
     }
 
     Obj *Obj::copy() const {
-        auto copyObj = Obj::alloc<Obj>(info.manager, sign, type, module);
+        auto copyObj = halloc<Obj>(info.manager, sign, type, module);
         for (auto [name, slot]: memberSlots) {
             copyObj->setMember(name, Obj::createCopy(slot.getValue()));
         }
@@ -162,26 +165,26 @@ namespace spade {
     }
 
     ObjBool *ComparableObj::operator<(const Obj *rhs) const {
-        return Obj::alloc<ObjBool>(info.manager, compare(rhs) < 0);
+        return halloc<ObjBool>(info.manager, compare(rhs) < 0);
     }
 
     ObjBool *ComparableObj::operator>(const Obj *rhs) const {
-        return Obj::alloc<ObjBool>(info.manager, compare(rhs) > 0);
+        return halloc<ObjBool>(info.manager, compare(rhs) > 0);
     }
 
     ObjBool *ComparableObj::operator<=(const Obj *rhs) const {
-        return Obj::alloc<ObjBool>(info.manager, compare(rhs) <= 0);
+        return halloc<ObjBool>(info.manager, compare(rhs) <= 0);
     }
 
     ObjBool *ComparableObj::operator>=(const Obj *rhs) const {
-        return Obj::alloc<ObjBool>(info.manager, compare(rhs) >= 0);
+        return halloc<ObjBool>(info.manager, compare(rhs) >= 0);
     }
 
     ObjBool *ComparableObj::operator==(const Obj *rhs) const {
-        return Obj::alloc<ObjBool>(info.manager, compare(rhs) == 0);
+        return halloc<ObjBool>(info.manager, compare(rhs) == 0);
     }
 
     ObjBool *ComparableObj::operator!=(const Obj *rhs) const {
-        return Obj::alloc<ObjBool>(info.manager, compare(rhs) != 0);
+        return halloc<ObjBool>(info.manager, compare(rhs) != 0);
     }
 }

@@ -128,7 +128,7 @@ namespace spade {
         });
         vm->setMetadata(sign.toString(), readMeta(elp.meta));
 
-        auto module = Obj::alloc<ObjModule>(manager, sign, path, constPool, deps, elp);
+        auto module = halloc<ObjModule>(manager, sign, path, constPool, deps, elp);
         module->setState(ObjModule::State::READ);
         // Insert the module to the module table
         modules[absolutePath] = module;
@@ -210,7 +210,7 @@ namespace spade {
                 // Get the signature of the type parameter
                 auto paramSign = typeParam->toString();
                 // Make it an unresolved reference
-                auto type = Obj::alloc<TypeParam>(manager, Sign{paramSign}, getCurrentModule());
+                auto type = halloc<TypeParam>(manager, Sign{paramSign}, getCurrentModule());
                 // Remember the type params
                 typeParams.push_back(type);
                 // Put it in the ref pool
@@ -294,7 +294,7 @@ namespace spade {
                 // Get the signature of the type parameter
                 auto paramSign = typeParam->toString();
                 // Make it an unresolved reference
-                auto type = Obj::alloc<TypeParam>(manager, Sign{paramSign}, getCurrentModule());
+                auto type = halloc<TypeParam>(manager, Sign{paramSign}, getCurrentModule());
                 // Remember the type params
                 typeParams.push_back(type);
                 // Put it in the ref pool
@@ -342,7 +342,7 @@ namespace spade {
                 args, locals, exceptions,
                 lines, lambdas, matches
         };
-        auto methodObj = Obj::alloc<ObjMethod>(
+        auto methodObj = halloc<ObjMethod>(
                 manager, sign, kind, frameTemplate, null, typeParams, getCurrentModule());
         return methodObj;
     }
@@ -376,7 +376,7 @@ namespace spade {
         auto type = findType(constPool[local.type]->toString());
         auto meta = readMeta(local.meta);
         auto obj = makeObj(constPool[local.type]->toString(), type);
-        return new NamedRef{name, obj, meta};
+        return halloc<NamedRef>(manager, name, obj, meta);
     }
 
     NamedRef *Loader::readArg(MethodInfo::ArgInfo &arg) {
@@ -385,7 +385,7 @@ namespace spade {
         auto type = findType(constPool[arg.type]->toString());
         auto meta = readMeta(arg.meta);
         auto obj = makeObj(constPool[arg.type]->toString(), type);
-        return new NamedRef{name, obj, meta};
+        return halloc<NamedRef>(manager, name, obj, meta);
     }
 
     vector<Obj *> Loader::readConstPool(CpInfo *constantPool, uint16 count) {
@@ -400,22 +400,22 @@ namespace spade {
     Obj *Loader::readCp(CpInfo &cpInfo) {
         switch (cpInfo.tag) {
             case 0x00:
-                return Obj::alloc<ObjNull>(manager, getCurrentModule());
+                return halloc<ObjNull>(manager, getCurrentModule());
             case 0x01:
-                return Obj::alloc<ObjBool>(manager, true, getCurrentModule());
+                return halloc<ObjBool>(manager, true, getCurrentModule());
             case 0x02:
-                return Obj::alloc<ObjBool>(manager, false, getCurrentModule());
+                return halloc<ObjBool>(manager, false, getCurrentModule());
             case 0x03:
-                return Obj::alloc<ObjChar>(manager, (char) cpInfo._char, getCurrentModule());
+                return halloc<ObjChar>(manager, (char) cpInfo._char, getCurrentModule());
             case 0x04:
-                return Obj::alloc<ObjInt>(manager, unsignedToSigned(cpInfo._int), getCurrentModule());
+                return halloc<ObjInt>(manager, unsignedToSigned(cpInfo._int), getCurrentModule());
             case 0x05:
-                return Obj::alloc<ObjFloat>(manager, rawToDouble(cpInfo._float), getCurrentModule());
+                return halloc<ObjFloat>(manager, rawToDouble(cpInfo._float), getCurrentModule());
             case 0x06:
-                return Obj::alloc<ObjString>(manager, cpInfo._string.bytes, cpInfo._string.len, getCurrentModule());
+                return halloc<ObjString>(manager, cpInfo._string.bytes, cpInfo._string.len, getCurrentModule());
             case 0x07: {
                 auto con = cpInfo._array;
-                auto array = Obj::alloc<ObjArray>(manager, con.len, getCurrentModule());
+                auto array = halloc<ObjArray>(manager, con.len, getCurrentModule());
                 for (int i = 0; i < con.len; ++i) {
                     array->set(i, readCp(con.items[i]));
                 }
@@ -470,39 +470,39 @@ namespace spade {
             *unresolved = type;
             return unresolved;
         } else {
-            return Obj::alloc<Type>(manager, type);
+            return halloc<Type>(manager, type);
         }
     }
 
     Obj *Loader::makeObj(string typeSign, Sign objSign, Type *type) {
         static map<string, function<Obj *()>> objMap = {
-                {"array",  [&] { return Obj::alloc<ObjArray>(manager, 0, getCurrentModule()); }},
-                {"bool",   [&] { return Obj::alloc<ObjBool>(manager, false, getCurrentModule()); }},
-                {"char",   [&] { return Obj::alloc<ObjChar>(manager, '\0', getCurrentModule()); }},
-                {"float",  [&] { return Obj::alloc<ObjFloat>(manager, 0, getCurrentModule()); }},
-                {"int",    [&] { return Obj::alloc<ObjInt>(manager, 0, getCurrentModule()); }},
-                {"string", [&] { return Obj::alloc<ObjString>(manager, "", getCurrentModule()); }}
+                {"array",  [&] { return halloc<ObjArray>(manager, 0, getCurrentModule()); }},
+                {"bool",   [&] { return halloc<ObjBool>(manager, false, getCurrentModule()); }},
+                {"char",   [&] { return halloc<ObjChar>(manager, '\0', getCurrentModule()); }},
+                {"float",  [&] { return halloc<ObjFloat>(manager, 0, getCurrentModule()); }},
+                {"int",    [&] { return halloc<ObjInt>(manager, 0, getCurrentModule()); }},
+                {"string", [&] { return halloc<ObjString>(manager, "", getCurrentModule()); }}
         };
         try {
             return objMap.at(typeSign)();
         } catch (std::out_of_range &) {
-            return Obj::alloc<Obj>(manager, objSign, type, getCurrentModule());
+            return halloc<Obj>(manager, objSign, type, getCurrentModule());
         }
     }
 
     Obj *Loader::makeObj(string typeSign, Type *type) {
         static map<string, function<Obj *()>> objMap = {
-                {".array",  [&] { return Obj::alloc<ObjArray>(manager, 0, getCurrentModule()); }},
-                {".bool",   [&] { return Obj::alloc<ObjBool>(manager, false, getCurrentModule()); }},
-                {".char",   [&] { return Obj::alloc<ObjChar>(manager, '\0', getCurrentModule()); }},
-                {".float",  [&] { return Obj::alloc<ObjFloat>(manager, 0, getCurrentModule()); }},
-                {".int",    [&] { return Obj::alloc<ObjInt>(manager, 0, getCurrentModule()); }},
-                {".string", [&] { return Obj::alloc<ObjString>(manager, "", getCurrentModule()); }}
+                {".array",  [&] { return halloc<ObjArray>(manager, 0, getCurrentModule()); }},
+                {".bool",   [&] { return halloc<ObjBool>(manager, false, getCurrentModule()); }},
+                {".char",   [&] { return halloc<ObjChar>(manager, '\0', getCurrentModule()); }},
+                {".float",  [&] { return halloc<ObjFloat>(manager, 0, getCurrentModule()); }},
+                {".int",    [&] { return halloc<ObjInt>(manager, 0, getCurrentModule()); }},
+                {".string", [&] { return halloc<ObjString>(manager, "", getCurrentModule()); }}
         };
         try {
             return objMap.at(typeSign)();
         } catch (const std::out_of_range &) {
-            return Obj::alloc<Obj>(manager, Sign(""), type, getCurrentModule());
+            return halloc<Obj>(manager, Sign(""), type, getCurrentModule());
         }
     }
 

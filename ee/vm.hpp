@@ -6,7 +6,7 @@
 #include "settings.hpp"
 #include "../objects/inbuilt_types.hpp"
 #include "../loader/loader.hpp"
-#include "../memory/memory.hpp"
+#include "../memory/manager.hpp"
 
 namespace spade {
     class SpadeVM {

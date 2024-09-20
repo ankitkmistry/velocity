@@ -1,4 +1,4 @@
-#include "collector.hpp"
+#include "basic_collector.hpp"
 #include "../../ee/vm.hpp"
 
 namespace spade::basic {
@@ -83,25 +83,28 @@ namespace spade::basic {
         }
     }
 
-    void BasicCollector::mark(Obj *obj) {
-        if (obj == null)return;
-        if (obj->getInfo().marked)return;
-        obj->getInfo().marked = true;
-        grayMaterial.push_back(obj);
-        mark(obj->getModule());
-        mark((Obj *) obj->getType());
+    void BasicCollector::mark(Collectible *collectible) {
+        if (collectible == null)return;
+        if (collectible->getInfo().marked)return;
+        collectible->getInfo().marked = true;
+        grayMaterial.push_back(collectible);
+        if (is<Obj *>(collectible)) {
+            auto obj = cast<Obj *>(collectible);
+            mark(obj->getModule());
+            mark((Obj *) obj->getType());
+        }
     }
 
     void BasicCollector::traceReferences() {
-        for (auto obj: grayMaterial) {
-            if (is<ObjArray *>(obj)) {
-                auto array = cast<ObjArray *>(obj);
+        for (auto material: grayMaterial) {
+            if (is<ObjArray *>(material)) {
+                auto array = cast<ObjArray *>(material);
                 array->foreach([&](auto val) {
                     // mark every value of the array
                     mark(val);
                 });
-            } else if (is<Type *>(obj)) {
-                auto type = cast<Type *>(obj);
+            } else if (is<Type *>(material)) {
+                auto type = cast<Type *>(material);
                 for (auto typeParam: type->getTypeParams()) {
                     // mark every type param
                     mark((Obj *) typeParam);
@@ -114,11 +117,15 @@ namespace spade::basic {
                     // mark every member
                     mark(member.getValue());
                 }
-            } else {
+            } else if (is<Obj *>(material)) {
+                auto obj = cast<Obj *>(material);
                 for (auto [name, member]: obj->getMemberSlots()) {
                     // mark every member
                     mark(member.getValue());
                 }
+            } else {
+                auto ref = cast<NamedRef *>(material);
+                mark(ref->getValue());
             }
         }
     }
@@ -137,7 +144,7 @@ namespace spade::basic {
                 auto unreached = current;
                 current = current->next;
                 if (previous != null) previous->next = current;
-                Obj::free(unreached->data);
+                hfree(unreached->data);
                 manager->deallocate(unreached);
             }
         }

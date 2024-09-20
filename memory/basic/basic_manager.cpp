@@ -1,5 +1,5 @@
-#include "manager.hpp"
-#include "collector.hpp"
+#include "basic_manager.hpp"
+#include "basic_collector.hpp"
 
 namespace spade::basic {
     void *BasicMemoryManager::allocate(size_t size) {
@@ -7,7 +7,7 @@ namespace spade::basic {
         return p;
     }
 
-    void BasicMemoryManager::postAllocation(Obj *obj) {
+    void BasicMemoryManager::postAllocation(Collectible *obj) {
         if (head == null || last == null) {
             auto node = new LNode;
             node->data = obj;

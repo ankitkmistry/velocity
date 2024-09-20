@@ -57,8 +57,8 @@ namespace spade {
     }
 
     Obj *TypeParam::copy() const {
-        auto newTypeParam = Obj::alloc<TypeParam>(info.manager, sign, module);
-        newTypeParam->reify(placeholder);
+        auto newTypeParam = halloc<TypeParam>(info.manager, sign, module);
+        newTypeParam->setPlaceholder(placeholder);
         return newTypeParam;
     }
 

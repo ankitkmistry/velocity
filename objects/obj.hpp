@@ -2,16 +2,13 @@
 #define OOP_OBJ_HPP_
 
 #include "../utils/common.hpp"
-#include "../memory/memory.hpp"
+#include "../memory/manager.hpp"
 #include "../utils/exceptions.hpp"
 #include "../utils/utils.hpp"
+#include "../memory/memory.hpp"
 
 namespace spade {
-    struct MemoryInfo {
-        bool marked = false;
-        uint32 life = 0;
-        MemoryManager *manager = null;
-    };
+
 
     class Type;
 
@@ -104,10 +101,8 @@ namespace spade {
 /**
  * The abstract description of an object in the virtual machine
  */
-    class Obj {
+    class Obj : public Collectible {
     protected:
-        /// Memory header of the object
-        MemoryInfo info{};
         /// Module where this object belongs to
         ObjModule *module;
         /// Signature of the object
@@ -127,15 +122,6 @@ namespace spade {
         static void reify(Obj **pObj, vector<TypeParam *> old_, vector<TypeParam *> new_);
 
     public:
-        template<typename T, typename ...Args>
-        static T *alloc(MemoryManager *manager, Args ...args);
-
-        inline static void free(Obj *obj) {
-            auto manager = obj->info.manager;
-            obj->~Obj();
-            manager->deallocate(obj);
-        }
-
         /**
          * Creates a deep copy of \p obj.
          * This function is more safe than Obj::copy as this prevents
@@ -170,11 +156,6 @@ namespace spade {
          * @return a string representation of this object for VM context only
          */
         virtual string toString() const;
-
-        /**
-         * @return the memory information of the object
-         */
-        MemoryInfo &getInfo() { return info; }
 
         /**
          * @return the encapsulating module of the object
@@ -227,19 +208,6 @@ namespace spade {
          */
         virtual const Table<string> &getMeta() const;
     };
-
-    template<typename T, typename... Args>
-    T *Obj::alloc(MemoryManager *manager, Args... args) {
-        size_t size = sizeof(T);
-        void *memory = manager->allocate(size);
-        if (memory == null) {
-            throw MemoryError(size);
-        }
-        T *obj = new(memory) T(args...);
-        obj->info.manager = manager;
-        manager->postAllocation(obj);
-        return (T *) obj;
-    }
 
     class ObjBool;
 

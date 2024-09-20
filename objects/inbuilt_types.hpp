@@ -3,7 +3,7 @@
 
 #include "../utils/common.hpp"
 #include "../objects/obj.hpp"
-#include "../memory/memory.hpp"
+#include "../memory/manager.hpp"
 
 namespace spade {
     class ObjBool : public ComparableObj {
@@ -29,7 +29,7 @@ namespace spade {
         int32 compare(const Obj *rhs) const override;
 
         ObjBool *operator!() const {
-            return Obj::alloc<ObjBool>(info.manager, !value, module);
+            return halloc<ObjBool>(info.manager, !value, module);
         }
     };
 

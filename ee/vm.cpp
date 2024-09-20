@@ -21,9 +21,9 @@ namespace spade {
     }
 
     ObjArray *SpadeVM::argsRepr(const vector<string> &args) {
-        auto array = Obj::alloc<ObjArray>(manager, args.size());
+        auto array = halloc<ObjArray>(manager, args.size());
         for (int i = 0; i < args.size(); ++i) {
-            array->set(i, Obj::alloc<ObjString>(manager, args[i]));
+            array->set(i, halloc<ObjString>(manager, args[i]));
         }
         return array;
     }
@@ -46,7 +46,7 @@ namespace spade {
     }
 
     ThrowSignal SpadeVM::runtimeError(const string &str) {
-        return ThrowSignal{Obj::alloc<ObjString>(manager, str)};
+        return ThrowSignal{halloc<ObjString>(manager, str)};
     }
 
     Obj *SpadeVM::getSymbol(const string &sign) const {

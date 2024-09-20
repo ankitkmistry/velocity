@@ -11,7 +11,7 @@ namespace spade {
 /**
  * Represents the base class for nodes used in arg tables, local tables, etc.
  */
-    class NamedRef {
+    class NamedRef : public Collectible {
     protected:
         string name;
         Obj *value;

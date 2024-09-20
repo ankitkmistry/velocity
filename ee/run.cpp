@@ -96,10 +96,12 @@ namespace spade {
                         state->push(frame->getMethod()->getTypeParams()[state->readByte()]);
                         break;
                     case Opcode::TSTORE:
-                        frame->getMethod()->getTypeParams()[state->readByte()]->reify(cast<Type *>(state->peek()));
+                        frame->getMethod()->getTypeParams()[state->readByte()]->setPlaceholder(
+                                cast<Type *>(state->peek()));
                         break;
                     case Opcode::PTSTORE:
-                        frame->getMethod()->getTypeParams()[state->readByte()]->reify(cast<Type *>(state->pop()));
+                        frame->getMethod()->getTypeParams()[state->readByte()]->setPlaceholder(
+                                cast<Type *>(state->pop()));
                         break;
                     case Opcode::MLOAD: {
                         auto object = state->pop();
@@ -185,7 +187,7 @@ namespace spade {
                     }
                     case Opcode::OBJLOAD: {
                         auto type = cast<Type *>(state->pop());
-                        auto object = Obj::alloc<Obj>(manager, Sign(""), type, frame->getMethod()->getModule());
+                        auto object = halloc<Obj>(manager, Sign(""), type, frame->getMethod()->getModule());
                         state->push(object);
                         break;
                     }
@@ -198,7 +200,7 @@ namespace spade {
                     }
                     case Opcode::ARRPACK: {
                         auto count = state->readByte();
-                        auto array = Obj::alloc<ObjArray>(manager, count);
+                        auto array = halloc<ObjArray>(manager, count);
                         frame->sp -= count;
                         for (int i = 0; i < count; ++i) {
                             array->set(i, frame->sp[i]);
@@ -208,13 +210,13 @@ namespace spade {
                     }
                     case Opcode::ARRBUILD: {
                         auto count = state->readShort();
-                        auto array = Obj::alloc<ObjArray>(manager, count);
+                        auto array = halloc<ObjArray>(manager, count);
                         state->push(array);
                         break;
                     }
                     case Opcode::ARRFBUILD: {
                         auto count = state->readByte();
-                        auto array = Obj::alloc<ObjArray>(manager, count);
+                        auto array = halloc<ObjArray>(manager, count);
                         state->push(array);
                         break;
                     }
@@ -240,7 +242,7 @@ namespace spade {
                     }
                     case Opcode::ARRLEN: {
                         auto array = cast<ObjArray *>(state->pop());
-                        state->push(Obj::alloc<ObjInt>(manager, array->count()));
+                        state->push(halloc<ObjInt>(manager, array->count()));
                         break;
                     }
                     case Opcode::INVOKE: {
@@ -382,7 +384,7 @@ namespace spade {
                         break;
                     }
                     case Opcode::CALLSUB: {
-                        auto address = Obj::alloc<ObjInt>(manager, frame->ip - frame->code);
+                        auto address = halloc<ObjInt>(manager, frame->ip - frame->code);
                         state->push(address);
                         auto offset = state->readShort();
                         state->adjust(offset);
@@ -602,20 +604,20 @@ namespace spade {
                     case Opcode::IS: {
                         auto b = state->pop();
                         auto a = state->pop();
-                        state->push(Obj::alloc<ObjBool>(manager, a == b));
+                        state->push(halloc<ObjBool>(manager, a == b));
                         break;
                     }
                     case Opcode::NIS: {
                         auto b = state->pop();
                         auto a = state->pop();
-                        state->push(Obj::alloc<ObjBool>(manager, a != b));
+                        state->push(halloc<ObjBool>(manager, a != b));
                         break;
                     }
                     case Opcode::ISNULL:
-                        state->push(Obj::alloc<ObjBool>(manager, is<ObjNull *>(state->pop())));
+                        state->push(halloc<ObjBool>(manager, is<ObjNull *>(state->pop())));
                         break;
                     case Opcode::NISNULL:
-                        state->push(Obj::alloc<ObjBool>(manager, !is<ObjNull *>(state->pop())));
+                        state->push(halloc<ObjBool>(manager, !is<ObjNull *>(state->pop())));
                         break;
                     case Opcode::ENTERMONITOR:
                         // todo: implement
@@ -666,7 +668,7 @@ namespace spade {
                             state->push(cast<Type *>(obj)->getReified(args, count));
                         } else
                             throw runtimeError(
-                                    format("cannot reify value of type %s", obj->getType()->toString().c_str()));
+                                    format("cannot setPlaceholder value of type %s", obj->getType()->toString().c_str()));
                         break;
                     }
                     case Opcode::THROW: {
@@ -693,7 +695,7 @@ namespace spade {
                         state->popFrame();
                         // Return if encountered end of execution
                         if (topFrame == currentFrame) {
-                            return Obj::alloc<ObjNull>(getMemoryManager());
+                            return halloc<ObjNull>(getMemoryManager());
                         }
                         break;
                     }
@@ -726,6 +728,6 @@ namespace spade {
                 abort();
             }
         }
-        return Obj::alloc<ObjNull>(getMemoryManager());
+        return halloc<ObjNull>(getMemoryManager());
     }
 }

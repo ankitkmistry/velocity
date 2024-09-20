@@ -14,7 +14,7 @@ namespace spade {
         for (auto typeParam: typeParams) {
             newTypeParams.push_back(cast<TypeParam *>(typeParam->copy()));
         }
-        Obj *newMethod = Obj::alloc<ObjMethod>(info.manager,
+        Obj *newMethod = halloc<ObjMethod>(info.manager,
                                                sign, kind, frameTemplate->copy(),
                                                type, newTypeParams, module);
         Obj::reify(&newMethod, typeParams, newTypeParams);
@@ -79,7 +79,7 @@ namespace spade {
             auto method = cast<ObjMethod *>(copy());
             auto &params = method->getTypeParams();
             for (int i = 0; i < count; i++) {
-                params[i]->reify(typeArgs[i]);
+                params[i]->setPlaceholder(typeArgs[i]);
             }
             reified[typeArgs] = method;
             return method;

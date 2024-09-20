@@ -18,7 +18,7 @@ namespace spade {
             newTypeParams.push_back(cast<TypeParam *>(typeParam->copy()));
         }
         // Create new type object
-        Obj *newType = Obj::alloc<Type>(info.manager, sign, kind, newTypeParams, supers, memberSlots, module);
+        Obj *newType = halloc<Type>(info.manager, sign, kind, newTypeParams, supers, memberSlots, module);
         // Reify the type params
         Obj::reify(&newType, typeParams, newTypeParams);
         return newType;
@@ -80,7 +80,7 @@ namespace spade {
     }
 
     Type *Type::SENTINEL_(const string &sign, MemoryManager *manager) {
-        return Obj::alloc<Type>(manager, Sign(sign), Kind::UNRESOLVED,
+        return halloc<Type>(manager, Sign(sign), Kind::UNRESOLVED,
                                 vector<TypeParam *>{}, Table<Type *>{}, Table<MemberSlot>{}, null);
     }
 
@@ -110,7 +110,7 @@ namespace spade {
             auto type = cast<Type *>(copy());
             auto &params = type->getTypeParams();
             for (int i = 0; i < count; i++) {
-                params[i]->reify(typeArgs[i]);
+                params[i]->setPlaceholder(typeArgs[i]);
             }
             reified[typeArgs] = type;
             return type;

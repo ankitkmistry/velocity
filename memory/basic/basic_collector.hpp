@@ -1,7 +1,7 @@
 #ifndef VELOCITY_MEMORY_BASIC_COLLECTOR_HPP
 #define VELOCITY_MEMORY_BASIC_COLLECTOR_HPP
 
-#include "manager.hpp"
+#include "basic_manager.hpp"
 #include "../../objects/obj.hpp"
 #include "../../ee/thread.hpp"
 #include "../../callable/frame.hpp"
@@ -10,13 +10,13 @@ namespace spade::basic {
     class BasicCollector {
     private:
         BasicMemoryManager *manager;
-        vector<Obj *> grayMaterial;
+        vector<Collectible *> grayMaterial;
 
         void markRoots();
 
         void markTable(const Table<Obj *> &table);
 
-        void mark(Obj *obj);
+        void mark(Collectible *collectible);
 
         void markThread(Thread *thread);
 

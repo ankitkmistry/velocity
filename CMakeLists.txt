@@ -24,9 +24,9 @@ add_executable(velocity main.cpp
         loader/verifier.cpp
         loader/loader.cpp
         loader/foreign_loader.cpp
-        memory/basic/manager.cpp
-        memory/basic/collector.cpp
-        memory/memory.cpp
+        memory/basic/basic_manager.cpp
+        memory/basic/basic_collector.cpp
+        memory/manager.cpp
         objects/type.cpp
         objects/inbuilt_types.cpp
         objects/obj.cpp
@@ -37,6 +37,7 @@ add_executable(velocity main.cpp
         objects/int.hpp
         objects/float.cpp
         objects/float.hpp
+        memory/memory.hpp
 )
 
 include_directories("../sputils")

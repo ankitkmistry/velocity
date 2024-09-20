@@ -18,7 +18,7 @@ namespace spade {
     }
 
     ObjNull *ObjNull::value() {
-        static thread_local ObjNull *nullRef = Obj::alloc<ObjNull>(MemoryManager::current());
+        static thread_local ObjNull *nullRef = halloc<ObjNull>(MemoryManager::current());
         return nullRef;
     }
 
@@ -33,7 +33,7 @@ namespace spade {
     }
 
     Obj *ObjArray::copy() const {
-        auto arr = Obj::alloc<ObjArray>(info.manager, length);
+        auto arr = halloc<ObjArray>(info.manager, length);
         for (uint16 i = 0; i < length; ++i)
             arr->set(i, Obj::createCopy(array[i]));
         return arr;
@@ -48,14 +48,14 @@ namespace spade {
 
     Obj *ObjArray::get(int64 i) const {
         if (i >= length) throw IndexError("array", i);
-        if (array == null)return Obj::alloc<ObjNull>(info.manager, module);
+        if (array == null)return halloc<ObjNull>(info.manager, module);
         return array[i >= 0 ? i : length + i];
     }
 
     void ObjArray::set(int64 i, Obj *value) {
         // Initialize the array if it is not initialized yet
         if (array == null) {
-            array = new Obj *[length]{Obj::alloc<ObjNull>(info.manager)};
+            array = new Obj *[length]{halloc<ObjNull>(info.manager)};
         }
         if (i >= length) throw IndexError("array", i);
         array[i >= 0 ? i : length + i] = value;

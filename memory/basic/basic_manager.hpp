@@ -1,12 +1,13 @@
 #ifndef VELOCITY_MEMORY_BASIC_MANAGER_HPP
 #define VELOCITY_MEMORY_BASIC_MANAGER_HPP
 
+#include "../manager.hpp"
 #include "../memory.hpp"
 
 namespace spade::basic {
     struct LNode {
         LNode *prev = null;
-        Obj *data = null;
+        Collectible *data = null;
         LNode *next = null;
     };
 
@@ -20,7 +21,7 @@ namespace spade::basic {
 
         void *allocate(size_t size) override;
 
-        void postAllocation(Obj *obj) override;
+        void postAllocation(Collectible *obj) override;
 
         void deallocate(void *pointer) override;
 

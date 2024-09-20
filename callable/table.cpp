@@ -3,7 +3,7 @@
 
 namespace spade {
     NamedRef *NamedRef::copy() {
-        return new NamedRef(name, noCopy ? value : Obj::createCopy(value), meta);
+        return halloc<NamedRef>(null, name, noCopy ? value : Obj::createCopy(value), meta);
     }
 
     Obj *ArgsTable::get(uint8 i) const {

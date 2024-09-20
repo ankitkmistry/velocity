@@ -16,35 +16,35 @@ namespace spade {
     }
 
     ObjInt *ObjInt::operator~() const {
-        return Obj::alloc<ObjInt>(info.manager, ~val);
+        return halloc<ObjInt>(info.manager, ~val);
     }
 
     ObjInt *ObjInt::operator<<(const ObjInt &n) const {
-        return Obj::alloc<ObjInt>(info.manager, val << n.val);
+        return halloc<ObjInt>(info.manager, val << n.val);
     }
 
     ObjInt *ObjInt::operator>>(const ObjInt &n) const {
-        return Obj::alloc<ObjInt>(info.manager, val >> n.val);
+        return halloc<ObjInt>(info.manager, val >> n.val);
     }
 
     ObjInt *ObjInt::unsignedRightShift(const ObjInt &n) const {
-        return Obj::alloc<ObjInt>(info.manager, val & 0x7fffffff >> n.val);
+        return halloc<ObjInt>(info.manager, val & 0x7fffffff >> n.val);
     }
 
     ObjInt *ObjInt::operator%(const ObjInt &n) const {
-        return Obj::alloc<ObjInt>(info.manager, val % n.val);
+        return halloc<ObjInt>(info.manager, val % n.val);
     }
 
     ObjInt *ObjInt::operator&(const ObjInt &n) const {
-        return Obj::alloc<ObjInt>(info.manager, val & n.val);
+        return halloc<ObjInt>(info.manager, val & n.val);
     }
 
     ObjInt *ObjInt::operator|(const ObjInt &n) const {
-        return Obj::alloc<ObjInt>(info.manager, val | n.val);
+        return halloc<ObjInt>(info.manager, val | n.val);
     }
 
     ObjInt *ObjInt::operator^(const ObjInt &n) const {
-        return Obj::alloc<ObjInt>(info.manager, val ^ n.val);
+        return halloc<ObjInt>(info.manager, val ^ n.val);
     }
 
     int32 ObjInt::compare(const Obj *rhs) const {
@@ -53,26 +53,26 @@ namespace spade {
     }
 
     Obj *ObjInt::operator-() const {
-        return Obj::alloc<ObjInt>(info.manager, -val);
+        return halloc<ObjInt>(info.manager, -val);
     }
 
     Obj *ObjInt::power(const ObjNumber *n) const {
-        return Obj::alloc<ObjFloat>(info.manager, pow(val, cast<const ObjInt *>(n)->val));
+        return halloc<ObjFloat>(info.manager, pow(val, cast<const ObjInt *>(n)->val));
     }
 
     Obj *ObjInt::operator+(const ObjNumber *n) const {
-        return Obj::alloc<ObjInt>(info.manager, val + cast<const ObjInt *>(n)->val);
+        return halloc<ObjInt>(info.manager, val + cast<const ObjInt *>(n)->val);
     }
 
     Obj *ObjInt::operator-(const ObjNumber *n) const {
-        return Obj::alloc<ObjInt>(info.manager, val - cast<const ObjInt *>(n)->val);
+        return halloc<ObjInt>(info.manager, val - cast<const ObjInt *>(n)->val);
     }
 
     Obj *ObjInt::operator*(const ObjNumber *n) const {
-        return Obj::alloc<ObjInt>(info.manager, val * cast<const ObjInt *>(n)->val);
+        return halloc<ObjInt>(info.manager, val * cast<const ObjInt *>(n)->val);
     }
 
     Obj *ObjInt::operator/(const ObjNumber *n) const {
-        return Obj::alloc<ObjInt>(info.manager, val / cast<const ObjInt *>(n)->val);
+        return halloc<ObjInt>(info.manager, val / cast<const ObjInt *>(n)->val);
     }
 }
