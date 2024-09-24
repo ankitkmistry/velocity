@@ -6,22 +6,34 @@
 #include "../ee/vm.hpp"
 
 namespace spade {
+    static Table<MemberSlot> Type_getAllNonStaticMembers(Type *type) {
+        Table<MemberSlot> result;
+        for (auto [_, super]: type->getSupers()) {
+            for (auto [name, member]: Type_getAllNonStaticMembers(super)) {
+                if (!member.getFlags().isStatic()) {
+                    result[name] = MemberSlot{Obj::createCopy(member.getValue()), member.getFlags()};
+                }
+            }
+        }
+        for (auto [name, member]: type->getMemberSlots()) {
+            if (!member.getFlags().isStatic()) {
+                result[name] = MemberSlot{Obj::createCopy(member.getValue()), member.getFlags()};
+            }
+        }
+        return result;
+    }
+
     Obj::Obj(Sign sign, Type *type, ObjModule *module) :
             sign(sign), type(type), module(module) {
         if (this->module == null) {
             this->module = ObjModule::current();
         }
         if (type != null) {
-            for (auto [name, slot]: type->getMemberSlots()) {
-                if (slot.getFlags().isStatic())continue;
+            memberSlots = Type_getAllNonStaticMembers(type);
+            for (auto [name, slot]: memberSlots) {
                 Obj *value = slot.getValue();
-                if (is<ObjCallable *>(value) &&
-                    cast<ObjCallable *>(value)->getKind() != ObjCallable::Kind::CONSTRUCTOR) {
-                    auto newMethod = cast<ObjCallable *>(value->copy());
-                    newMethod->setSelf(this);
-                    memberSlots[name] = newMethod;
-                } else {
-                    memberSlots[name] = Obj::createCopy(slot.getValue());
+                if (is<ObjCallable *>(value)) {
+                    cast<ObjCallable *>(value->copy())->setSelf(this);
                 }
             }
         }
@@ -128,7 +140,7 @@ namespace spade {
                 getMemberSlots()[name] = MemberSlot{value, 0b0001000000000000};
             } else {
                 try {
-                    type->getStaticMember(name);
+                    type->setStaticMember(name, value);
                 } catch (const IllegalAccessError &) {
                     getMemberSlots()[name] = MemberSlot{value, 0b0001000000000000};
                 }

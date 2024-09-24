@@ -17,9 +17,14 @@ namespace spade {
         return 0;
     }
 
-    ObjNull *ObjNull::value() {
-        static thread_local ObjNull *nullRef = halloc<ObjNull>(MemoryManager::current());
-        return nullRef;
+    ObjNull *ObjNull::value(MemoryManager* manager) {
+        manager = manager == null ? MemoryManager::current() : manager;
+        static map<MemoryManager *, ObjNull *> nulls;
+        try{
+            return nulls.at(manager);
+        } catch (const std::out_of_range &) {
+            return nulls[manager] = halloc<ObjNull>(manager);
+        }
     }
 
     ObjString::ObjString(uint8 *bytes, uint16 len, ObjModule *module) :

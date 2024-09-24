@@ -61,7 +61,7 @@ namespace spade {
         ObjNull(ObjModule *module = null)
                 : ComparableObj(Sign("null"), null, module) {}
 
-        static ObjNull *value();
+        static ObjNull *value(MemoryManager *manager = null);
 
         bool truth() const override {
             return false;

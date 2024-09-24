@@ -668,7 +668,8 @@ namespace spade {
                             state->push(cast<Type *>(obj)->getReified(args, count));
                         } else
                             throw runtimeError(
-                                    format("cannot setPlaceholder value of type %s", obj->getType()->toString().c_str()));
+                                    format("cannot setPlaceholder value of type %s",
+                                           obj->getType()->toString().c_str()));
                         break;
                     }
                     case Opcode::THROW: {
@@ -695,7 +696,7 @@ namespace spade {
                         state->popFrame();
                         // Return if encountered end of execution
                         if (topFrame == currentFrame) {
-                            return halloc<ObjNull>(getMemoryManager());
+                            return ObjNull::value(manager);
                         }
                         break;
                     }
@@ -728,6 +729,6 @@ namespace spade {
                 abort();
             }
         }
-        return halloc<ObjNull>(getMemoryManager());
+        return ObjNull::value(manager);
     }
 }
