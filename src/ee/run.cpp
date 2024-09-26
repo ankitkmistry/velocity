@@ -707,6 +707,14 @@ namespace spade {
                     case Opcode::NUM_OPCODES:
                         // No use
                         break;
+                    case Opcode::SPLOAD:
+                        break;
+                    case Opcode::SPFLOAD:
+                        break;
+                    case Opcode::SPINVOKE:
+                        break;
+                    case Opcode::SPFINVOKE:
+                        break;
                 }
             } catch (const ThrowSignal &signal) {
                 auto value = signal.getValue();

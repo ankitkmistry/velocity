@@ -2,7 +2,7 @@
 #define OOP_OBJECTS_HPP_
 
 #include "../utils/common.hpp"
-#include "../objects/obj.hpp"
+#include "obj.hpp"
 #include "../memory/manager.hpp"
 
 namespace spade {

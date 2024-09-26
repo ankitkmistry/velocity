@@ -1,3 +1,7 @@
 /build
 /build-debug
 /build-wsl
+/.vs
+/.vscode
+/.idea
+/out
