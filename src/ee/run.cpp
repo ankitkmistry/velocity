@@ -1,9 +1,11 @@
 #include "vm.hpp"
 
 #include "../debug/debug.hpp"
+#include "../objects/float.hpp"
 #include "../objects/int.hpp"
 
-namespace spade {
+namespace spade
+{
     Obj *SpadeVM::run(Thread *thread) {
         auto state = thread->getState();
         auto topFrame = state->getFrame();
@@ -228,7 +230,7 @@ namespace spade {
                     }
                     case Opcode::ARRUNPACK: {
                         auto array = cast<ObjArray *>(state->pop());
-                        array->foreach([&state](auto item) {
+                        array->foreach ([&state](auto item) {
                             state->push(item);
                         });
                         break;
@@ -696,16 +698,16 @@ namespace spade {
                         for (uint16 i = locals.getClosureStart(); i < locals.count(); i++) {
                             NamedRef *ref;
                             switch (state->readByte()) {
-                                case 0x00:  // Arg as closure
+                                case 0x00:    // Arg as closure
                                     ref = frame->getArgs().getArg(state->readByte());
                                     break;
-                                case 0x01:  // Local as closure
+                                case 0x01:    // Local as closure
                                     ref = frame->getLocals().getLocal(state->readShort());
                                     break;
-                                case 0x02:  // Type param as closure
+                                case 0x02:    // Type param as closure
                                     ref = frame
-                                            ->getMethod()
-                                            ->captureTypeParam(state->loadConst(state->readShort())->toString());
+                                                  ->getMethod()
+                                                  ->captureTypeParam(state->loadConst(state->readShort())->toString());
                                     break;
                                 default:
                                     throw Unreachable();
@@ -765,6 +767,24 @@ namespace spade {
                     case Opcode::NUM_OPCODES:
                         // No use
                         break;
+                    case Opcode::I2F:
+                        state->push(halloc<ObjFloat>(manager, (double) cast<ObjInt *>(state->pop())->value()));
+                        break;
+                    case Opcode::F2I:
+                        state->push(halloc<ObjInt>(manager, (int64) cast<ObjFloat *>(state->pop())->value()));
+                        break;
+                    case Opcode::I2B:
+                        state->push(ObjBool::value(cast<ObjInt *>(state->pop())->value() != 0, manager));
+                        break;
+                    case Opcode::B2I:
+                        state->push(halloc<ObjInt>(manager, cast<ObjBool *>(state->pop())->truth() ? 1 : 0));
+                        break;
+                    case Opcode::O2B:
+                        state->push(ObjBool::value(state->pop()->truth(), manager));
+                        break;
+                    case Opcode::O2S:
+                        state->push(halloc<ObjString>(manager, state->pop()->toString()));
+                        break;
                 }
             } catch (const ThrowSignal &signal) {
                 auto value = signal.getValue();
@@ -789,4 +809,4 @@ namespace spade {
         }
         return ObjNull::value(manager);
     }
-}
+}    // namespace spade
