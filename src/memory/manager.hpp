@@ -3,7 +3,8 @@
 
 #include "../utils/common.hpp"
 
-namespace spade {
+namespace spade
+{
     class SpadeVM;
 
     class Obj;
@@ -11,10 +12,10 @@ namespace spade {
     class Collectible;
 
     class MemoryManager {
-    protected:
+      protected:
         SpadeVM *vm;
 
-    public:
+      public:
         MemoryManager() {}
 
         /**
@@ -53,6 +54,6 @@ namespace spade {
          */
         static MemoryManager *current();
     };
-}
+}    // namespace spade
 
-#endif //VELOCITY_MANAGER_HPP
+#endif    // VELOCITY_MANAGER_HPP

@@ -4,23 +4,25 @@
 #include "../objects/obj.hpp"
 #include "../objects/type.hpp"
 
-namespace spade {
+namespace spade
+{
     class ObjCallable : public Obj {
-    public:
+      public:
         enum class Kind {
             FUNCTION,
             METHOD,
             CONSTRUCTOR,
             FOREIGN
         };
-    protected:
+
+      protected:
         Kind kind;
 
         void validateCallSite();
 
-    public:
+      public:
         ObjCallable(const Sign &sign, Kind kind, Type *type, ObjModule *module = null)
-                : Obj(sign, type, module), kind(kind) {}
+            : Obj(sign, type, module), kind(kind) {}
 
         /**
          * Calls this method with \p args on the current thread
@@ -55,6 +57,6 @@ namespace spade {
 
         bool truth() const override { return true; }
     };
-}
+}    // namespace spade
 
-#endif //VELOCITY_CALLABLE_HPP
+#endif    // VELOCITY_CALLABLE_HPP

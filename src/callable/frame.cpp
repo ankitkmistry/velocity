@@ -1,8 +1,9 @@
 #include "frame.hpp"
-#include "method.hpp"
 #include "../objects/module.hpp"
+#include "method.hpp"
 
-namespace spade {
+namespace spade
+{
     void Frame::push(Obj *val) { *sp++ = val; }
 
     Obj *Frame::pop() { return *--sp; }
@@ -14,4 +15,4 @@ namespace spade {
     uint32 Frame::getCodeCount() const { return codeCount; }
 
     const vector<Obj *> &Frame::getConstPool() const { return method->getModule()->getConstantPool(); }
-}
+}    // namespace spade

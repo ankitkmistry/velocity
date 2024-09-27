@@ -1,6 +1,7 @@
 #include "frame_template.hpp"
 
-namespace spade {
+namespace spade
+{
     Frame FrameTemplate::initialize() {
         Frame frame{};
         frame.codeCount = codeCount;
@@ -21,4 +22,4 @@ namespace spade {
         return new FrameTemplate(codeCount, code, maxStack, args, locals, exceptions, lines, lambdas,
                                  matches, method);
     }
-}
+}    // namespace spade

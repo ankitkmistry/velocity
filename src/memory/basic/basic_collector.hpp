@@ -1,14 +1,15 @@
 #ifndef VELOCITY_MEMORY_BASIC_COLLECTOR_HPP
 #define VELOCITY_MEMORY_BASIC_COLLECTOR_HPP
 
-#include "basic_manager.hpp"
-#include "../../objects/obj.hpp"
-#include "../../ee/thread.hpp"
 #include "../../callable/frame.hpp"
+#include "../../ee/thread.hpp"
+#include "../../objects/obj.hpp"
+#include "basic_manager.hpp"
 
-namespace spade::basic {
+namespace spade::basic
+{
     class BasicCollector {
-    private:
+      private:
         BasicMemoryManager *manager;
         vector<Collectible *> grayMaterial;
 
@@ -26,11 +27,11 @@ namespace spade::basic {
 
         void sweep();
 
-    public:
+      public:
         explicit BasicCollector(BasicMemoryManager *manager) : manager(manager) {}
 
         void gc();
     };
-}
+}    // namespace spade::basic
 
-#endif //VELOCITY_MEMORY_BASIC_COLLECTOR_HPP
+#endif    // VELOCITY_MEMORY_BASIC_COLLECTOR_HPP

@@ -1,11 +1,12 @@
 #ifndef VELOCITY_FRAME_HPP
 #define VELOCITY_FRAME_HPP
 
-#include "../utils/common.hpp"
 #include "../objects/obj.hpp"
+#include "../utils/common.hpp"
 #include "table.hpp"
 
-namespace spade {
+namespace spade
+{
     class ObjMethod;
 
     class Frame {
@@ -13,14 +14,16 @@ namespace spade {
 
         friend class FrameTemplate;
 
-    private:
+      private:
         uint32 codeCount = 0;
-    public:
+
+      public:
         uint8 *code = null;
         uint8 *ip = null;
         Obj **stack = null;
         Obj **sp = null;
-    private:
+
+      private:
         ArgsTable args;
         LocalsTable locals{0};
         ExceptionTable exceptions;
@@ -31,7 +34,7 @@ namespace spade {
 
         Frame() = default;
 
-    public:
+      public:
         Frame(const Frame &frame) = default;
 
         Frame &operator=(const Frame &frame) = default;
@@ -130,6 +133,6 @@ namespace spade {
          */
         uint32 getCodeCount() const;
     };
-}
+}    // namespace spade
 
-#endif //VELOCITY_FRAME_HPP
+#endif    // VELOCITY_FRAME_HPP

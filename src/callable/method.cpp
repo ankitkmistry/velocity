@@ -1,11 +1,11 @@
 #include "method.hpp"
 #include "../ee/thread.hpp"
 
-namespace spade {
+namespace spade
+{
     ObjMethod::ObjMethod(const Sign &sign, Kind kind, FrameTemplate *frame, Type *type,
                          Table<NamedRef *> typeParams, ObjModule *module)
-        : ObjCallable(sign, kind, type, module), typeParams(typeParams),
-          frameTemplate(frame) {
+        : ObjCallable(sign, kind, type, module), typeParams(typeParams), frameTemplate(frame) {
         frameTemplate->setMethod(this);
     }
 
@@ -117,4 +117,4 @@ namespace spade {
             throw IllegalAccessError(format("cannot find typeparam %s in %s", name.c_str(), toString().c_str()));
         }
     }
-}// namespace spade
+}    // namespace spade

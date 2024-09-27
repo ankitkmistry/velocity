@@ -1,12 +1,13 @@
 #include "foreign.hpp"
 #include "../ee/vm.hpp"
 
-namespace spade {
+namespace spade
+{
     void ObjForeign::linkLibrary() {
         auto foreignAnnoType = SpadeVM::current()->getSymbol("spade::foreign.Foreign");
         auto annos = cast<ObjArray *>(getMember("$annotations"));
         Obj *foreignAnno;
-        annos->foreach([foreignAnnoType, &foreignAnno](Obj *anno) {
+        annos->foreach ([foreignAnnoType, &foreignAnno](Obj *anno) {
             if (anno->getType() == foreignAnnoType) {
                 foreignAnno = anno;
             }
@@ -33,8 +34,8 @@ namespace spade {
         validateCallSite();
         Obj *result = null;
         Thread *thread = Thread::current();
-        // TODO: Uncomment this later
-        #include "foreign_switch.txt"
+// TODO: Uncomment this later
+#include "foreign_switch.txt"
         thread->getState()->push(result);
     }
 
@@ -42,12 +43,11 @@ namespace spade {
         static string kindNames[] = {
                 "function",
                 "method",
-                "constructor"
-        };
+                "constructor"};
         return format("<foreign %s '%s'>", kindNames[static_cast<int>(kind)].c_str(), sign.toString().c_str());
     }
 
     void ObjForeign::setSelf(Obj *selfObj) {
         this->self = selfObj;
     }
-}
+}    // namespace spade

@@ -1,6 +1,7 @@
 #include "table.hpp"
 
-namespace spade {
+namespace spade
+{
     DataTable::DataTable(const string &title, const vector<string> &args) : title(title), keys(args), data(), width(0) {
         for (const auto &arg: args) {
             data[arg] = {};
@@ -53,10 +54,11 @@ namespace spade {
                 auto value = values[i];
                 out += format(" %s ",
                               (isNumber(value)
-                               ? padRight(value, maxes[k]) // If number then pad right
-                               : padLeft(value, maxes[k]) // If not then pad left
-                              ).c_str())
-                       + '|';
+                                       ? padRight(value, maxes[k])    // If number then pad right
+                                       : padLeft(value, maxes[k])     // If not then pad left
+                               )
+                                      .c_str()) +
+                       '|';
                 k++;
             }
             out += '\n';
@@ -68,4 +70,4 @@ namespace spade {
     std::ostream &operator<<(std::ostream &os, const DataTable &table) {
         return os << table.toString() << '\n';
     }
-}
+}    // namespace spade

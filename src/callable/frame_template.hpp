@@ -1,13 +1,14 @@
 #ifndef VELOCITY_FRAME_TEMPLATE_HPP
 #define VELOCITY_FRAME_TEMPLATE_HPP
 
-#include "../utils/common.hpp"
 #include "../objects/obj.hpp"
-#include "table.hpp"
-#include "frame.hpp"
 #include "../objects/typeparam.hpp"
+#include "../utils/common.hpp"
+#include "frame.hpp"
+#include "table.hpp"
 
-namespace spade {
+namespace spade
+{
     class ObjMethod;
 
     class FrameTemplate {
@@ -22,7 +23,7 @@ namespace spade {
         vector<MatchTable> matches;
         ObjMethod *method;
 
-    public:
+      public:
         FrameTemplate(uint32 codeCount,
                       uint8 *code,
                       uint32 maxStack,
@@ -33,15 +34,16 @@ namespace spade {
                       vector<ObjMethod *> lambdas,
                       vector<MatchTable> matches,
                       ObjMethod *method = null)
-                : codeCount(codeCount),
-                  code(code),
-                  maxStack(maxStack),
-                  args(args), locals(locals),
-                  exceptions(exceptions),
-                  lines(lines),
-                  method(method),
-                  lambdas(lambdas),
-                  matches(matches) {}
+            : codeCount(codeCount),
+              code(code),
+              maxStack(maxStack),
+              args(args),
+              locals(locals),
+              exceptions(exceptions),
+              lines(lines),
+              method(method),
+              lambdas(lambdas),
+              matches(matches) {}
 
         Frame initialize();
 
@@ -81,6 +83,6 @@ namespace spade {
 
         void setMethod(ObjMethod *method_) { method = method_; }
     };
-}
+}    // namespace spade
 
-#endif //VELOCITY_FRAME_TEMPLATE_HPP
+#endif    // VELOCITY_FRAME_TEMPLATE_HPP

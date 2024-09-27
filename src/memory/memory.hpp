@@ -4,7 +4,8 @@
 #include "../utils/exceptions.hpp"
 #include "manager.hpp"
 
-namespace spade {
+namespace spade
+{
     struct MemoryInfo {
         bool marked = false;
         uint32 life = 0;
@@ -12,9 +13,10 @@ namespace spade {
     };
 
     class Collectible {
-    protected:
+      protected:
         MemoryInfo info;
-    public:
+
+      public:
         explicit Collectible(MemoryInfo info = {}) : info(info) {}
 
         virtual ~Collectible() = default;
@@ -38,8 +40,8 @@ namespace spade {
      * @param args arguments for object constructor
      * @return the allocated object
      */
-    template<typename T, typename...Args>
-    inline T *halloc(MemoryManager *manager, Args...args) {
+    template<typename T, typename... Args>
+    inline T *halloc(MemoryManager *manager, Args... args) {
         if (manager == null) {
             manager = MemoryManager::current();
         }
@@ -50,7 +52,7 @@ namespace spade {
         if (memory == null) {
             throw MemoryError(sizeof(T));
         }
-        Collectible *obj = new(memory) T(args...);
+        Collectible *obj = new (memory) T(args...);
         obj->getInfo().manager = manager;
         manager->postAllocation(obj);
         return (T *) obj;
@@ -65,6 +67,6 @@ namespace spade {
         obj->~Collectible();
         manager->deallocate(obj);
     }
-}
+}    // namespace spade
 
-#endif //VELOCITY_MEMORY_HPP
+#endif    // VELOCITY_MEMORY_HPP

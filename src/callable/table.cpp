@@ -1,7 +1,8 @@
 #include "table.hpp"
 #include "../objects/int.hpp"
 
-namespace spade {
+namespace spade
+{
     NamedRef *NamedRef::copy() {
         return halloc<NamedRef>(null, name, noCopy ? value : Obj::createCopy(value), meta);
     }
@@ -67,8 +68,7 @@ namespace spade {
 
     Exception ExceptionTable::getTarget(uint32 pc, Type *type) const {
         for (auto &exception: exceptions) {
-            if (exception.getFrom() <= pc && pc < exception.getTo()
-                && exception.getType() == type) {
+            if (exception.getFrom() <= pc && pc < exception.getTo() && exception.getType() == type) {
                 return exception;
             }
         }
@@ -80,7 +80,7 @@ namespace spade {
             lineInfos.back().byteEnd += times;
         } else {
             uint16 end = lineInfos.empty() ? 0 : lineInfos.back().byteEnd;
-            lineInfos.push_back(LineInfo{.sourceLine=sourceLine, .byteStart=end, .byteEnd=(uint16) (end + times)});
+            lineInfos.push_back(LineInfo{.sourceLine = sourceLine, .byteStart = end, .byteEnd = (uint16) (end + times)});
         }
     }
 
@@ -105,4 +105,4 @@ namespace spade {
         }
         return defaultLocation;
     }
-}
+}    // namespace spade

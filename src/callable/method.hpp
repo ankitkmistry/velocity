@@ -4,13 +4,15 @@
 #include "callable.hpp"
 #include "frame_template.hpp"
 
-namespace spade {
+namespace spade
+{
     class ObjMethod final : public ObjCallable {
-    private:
+      private:
         FrameTemplate *frameTemplate;
         map<vector<Type *>, ObjMethod *> reified;
         Table<NamedRef *> typeParams;
-    public:
+
+      public:
         ObjMethod(const Sign &sign,
                   Kind kind,
                   FrameTemplate *frame,
@@ -46,6 +48,6 @@ namespace spade {
         const map<vector<Type *>, ObjMethod *> &getReifiedMethods() const { return reified; }
         NamedRef *captureTypeParam(string name);
     };
-}
+}    // namespace spade
 
-#endif //VELOCITY_METHOD_HPP
+#endif    // VELOCITY_METHOD_HPP

@@ -48,39 +48,39 @@ namespace spade {
         Flags(uint16 raw = 0) : raw(raw) {}
 
         bool isStatic() const {
-            return raw & 0b00000001;
+            return raw & 0b0000'0001;
         }
 
         bool isAbstract() const {
-            return raw & 0b00000010;
+            return raw & 0b0000'0010;
         }
 
         bool isFinal() const {
-            return raw & 0b00000100;
+            return raw & 0b0000'0100;
         }
 
         bool isOperator() const {
-            return raw & 0b00001000;
+            return raw & 0b0000'1000;
         }
 
         bool isPrivate() const {
-            return (raw >> 8) & 0b00000001;
+            return (raw >> 8) & 0b0000'0001;
         }
 
         bool isInternal() const {
-            return (raw >> 8) & 0b00000010;
+            return (raw >> 8) & 0b0000'0010;
         }
 
         bool isPackagePrivate() const {
-            return (raw >> 8) & 0b00000100;
+            return (raw >> 8) & 0b0000'0100;
         }
 
         bool isProtected() const {
-            return (raw >> 8) & 0b00001000;
+            return (raw >> 8) & 0b0000'1000;
         }
 
         bool isPublic() const {
-            return (raw >> 8) & 0b00010000;
+            return (raw >> 8) & 0b0001'0000;
         }
     };
 

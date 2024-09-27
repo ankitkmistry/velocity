@@ -34,10 +34,7 @@ add_executable(velocity src/main.cpp
         src/objects/typeparam.cpp
         src/utils/utils.cpp
         src/objects/int.cpp
-        src/objects/int.hpp
         src/objects/float.cpp
-        src/objects/float.hpp
-        src/memory/memory.hpp
 )
 
 include_directories(../sputils/src)

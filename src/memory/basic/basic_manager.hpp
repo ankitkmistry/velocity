@@ -4,7 +4,8 @@
 #include "../manager.hpp"
 #include "../memory.hpp"
 
-namespace spade::basic {
+namespace spade::basic
+{
     struct LNode {
         LNode *prev = null;
         Collectible *data = null;
@@ -16,7 +17,8 @@ namespace spade::basic {
 
         LNode *head = null;
         LNode *last = null;
-    public:
+
+      public:
         BasicMemoryManager() : MemoryManager() {}
 
         void *allocate(size_t size) override;
@@ -27,6 +29,6 @@ namespace spade::basic {
 
         void collectGarbage() override;
     };
-}
+}    // namespace spade::basic
 
-#endif //VELOCITY_MEMORY_BASIC_MANAGER_HPP
+#endif    // VELOCITY_MEMORY_BASIC_MANAGER_HPP

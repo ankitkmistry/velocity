@@ -1,9 +1,17 @@
-# Generated from CLion C/C++ Code Style settings
 BasedOnStyle: LLVM
-AccessModifierOffset: -4
+Language: Cpp
+Standard: c++20
+
+
 AlignAfterOpenBracket: Align
+AlignArrayOfStructures: Left
 AlignConsecutiveAssignments: None
+AlignConsecutiveBitFields: AcrossEmptyLines
+AlignConsecutiveMacros: AcrossEmptyLines
 AlignOperands: Align
+AlignEscapedNewlines: Right
+
+
 AllowAllArgumentsOnNextLine: false
 AllowAllConstructorInitializersOnNextLine: false
 AllowAllParametersOfDeclarationOnNextLine: false
@@ -15,6 +23,8 @@ AllowShortLambdasOnASingleLine: All
 AllowShortLoopsOnASingleLine: true
 AlwaysBreakAfterReturnType: None
 AlwaysBreakTemplateDeclarations: Yes
+
+
 BreakBeforeBraces: Custom
 BraceWrapping:
   AfterCaseLabel: false
@@ -22,45 +32,72 @@ BraceWrapping:
   AfterControlStatement: Never
   AfterEnum: false
   AfterFunction: false
-  AfterNamespace: false
+  AfterNamespace: true
   AfterUnion: false
+  AfterStruct: false
+  AfterExternBlock: false
   BeforeCatch: false
   BeforeElse: false
+  BeforeLambdaBody: false
+  BeforeWhile: false
   IndentBraces: false
   SplitEmptyFunction: false
   SplitEmptyRecord: true
+
+
 BreakBeforeBinaryOperators: None
 BreakBeforeTernaryOperators: true
 BreakConstructorInitializers: BeforeColon
 BreakInheritanceList: BeforeColon
+
+
+EmptyLineAfterAccessModifier: Never
+EmptyLineBeforeAccessModifier: LogicalBlock
+FixNamespaceComments: true
 ColumnLimit: 0
 CompactNamespaces: false
 ContinuationIndentWidth: 8
+
+IndentAccessModifiers: false
+IndentCaseBlocks: false
 IndentCaseLabels: true
-IndentPPDirectives: None
+IndentExternBlock: Indent
+IndentGotoLabels: false
+IndentPPDirectives: AfterHash
 IndentWidth: 4
-KeepEmptyLinesAtTheStartOfBlocks: true
+
+LambdaBodyIndentation: Signature
 MaxEmptyLinesToKeep: 2
 NamespaceIndentation: All
-ObjCSpaceAfterProperty: false
-ObjCSpaceBeforeProtocolList: true
+PackConstructorInitializers: NextLine
 PointerAlignment: Right
-ReflowComments: false
+ReferenceAlignment: Pointer
+ReflowComments: true
+SortIncludes: CaseInsensitive
+
+
 SpaceAfterCStyleCast: true
 SpaceAfterLogicalNot: false
 SpaceAfterTemplateKeyword: false
+SpaceAroundPointerQualifiers: Default
 SpaceBeforeAssignmentOperators: true
+SpaceBeforeCaseColon: false
 SpaceBeforeCpp11BracedList: false
 SpaceBeforeCtorInitializerColon: true
 SpaceBeforeInheritanceColon: true
 SpaceBeforeParens: ControlStatements
+SpaceBeforeSquareBrackets: false
 SpaceBeforeRangeBasedForLoopColon: false
-SpaceInEmptyParentheses: false
-SpacesBeforeTrailingComments: 0
+SpacesBeforeTrailingComments: 4
 SpacesInAngles: false
-SpacesInCStyleCastParentheses: false
+SpaceInEmptyBlock: false
+SpaceInEmptyParentheses: false
 SpacesInContainerLiterals: false
-SpacesInParentheses: false
+SpacesInLineCommentPrefix:
+  Minimum: 1
+  Maximum: -1
 SpacesInSquareBrackets: false
+
 TabWidth: 4
 UseTab: Never
+UseCRLF: false

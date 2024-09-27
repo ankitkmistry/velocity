@@ -1,7 +1,8 @@
 #include "basic_manager.hpp"
 #include "basic_collector.hpp"
 
-namespace spade::basic {
+namespace spade::basic
+{
     void *BasicMemoryManager::allocate(size_t size) {
         auto p = new char[size]{0};
         return p;
@@ -51,4 +52,4 @@ namespace spade::basic {
         BasicCollector collector{this};
         collector.gc();
     }
-}
+}    // namespace spade::basic

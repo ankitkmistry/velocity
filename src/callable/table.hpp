@@ -1,21 +1,23 @@
 #ifndef VELOCITY_FRAME_TABLE_HPP
 #define VELOCITY_FRAME_TABLE_HPP
 
-#include "../utils/utils.hpp"
-#include "../objects/obj.hpp"
 #include "../objects/inbuilt_types.hpp"
+#include "../objects/obj.hpp"
+#include "../utils/utils.hpp"
 
-namespace spade {
+namespace spade
+{
     /**
      * Represents the base class for nodes used in arg tables, local tables, etc.
      */
     class NamedRef : public Collectible {
-    protected:
+      protected:
         string name;
         Obj *value;
         bool noCopy = false;
         Table<string> meta;
-    public:
+
+      public:
         NamedRef(const string &name, Obj *value, const Table<string> &meta) : name(name), value(value), meta(meta) {}
 
         NamedRef *copy();
@@ -57,20 +59,18 @@ namespace spade {
         virtual string toString() const { return name; }
     };
 
-/**
- * Represents an exception in the exception table
- */
+    /**
+     * Represents an exception in the exception table
+     */
     class Exception {
-    private:
+      private:
         uint32 from, to, target;
         Type *type;
         Table<string> meta;
-    public:
+
+      public:
         Exception(uint32 from, uint32 to, uint32 target, Type *type, Table<string> meta)
-                : from(from), to(to),
-                  target(target),
-                  type(type),
-                  meta(std::move(meta)) {}
+            : from(from), to(to), target(target), type(type), meta(std::move(meta)) {}
 
         Exception &operator=(const Exception &exception) = default;
 
@@ -110,14 +110,15 @@ namespace spade {
         static bool IS_NO_EXCEPTION(const Exception &exception) { return exception.type == null; }
     };
 
-/**
- * Represents a case in a check statement
- */
+    /**
+     * Represents a case in a check statement
+     */
     class Case {
-    private:
+      private:
         Obj *value;
         uint32 location;
-    public:
+
+      public:
         Case(Obj *value, uint32 location) : value(value), location(location) {}
 
         Case &operator=(const Case &exception) = default;
@@ -133,17 +134,18 @@ namespace spade {
         uint32 getLocation() const { return location; }
     };
 
-/**
- * Represents the argument table
- */
+    /**
+     * Represents the argument table
+     */
     class ArgsTable {
         friend class BasicCollector;
 
         friend class FrameTemplate;
 
-    private:
+      private:
         vector<NamedRef *> args;
-    public:
+
+      public:
         ArgsTable() : args() {}
 
         ArgsTable(const ArgsTable &table) = default;
@@ -188,20 +190,20 @@ namespace spade {
         string toString() const { return "(" + listToString(args) + ")"; }
     };
 
-/**
- * Represents the locals table
- */
+    /**
+     * Represents the locals table
+     */
     class LocalsTable {
         friend class BasicCollector;
 
         friend class FrameTemplate;
 
-    private:
+      private:
         uint16 closureStart;
         vector<NamedRef *> locals;
         vector<NamedRef *> closures;
 
-    public:
+      public:
         explicit LocalsTable(uint16 closureStart) : closureStart(closureStart), locals() {}
 
         LocalsTable(const LocalsTable &table) = default;
@@ -269,9 +271,10 @@ namespace spade {
 
         friend class FrameTemplate;
 
-    private:
+      private:
         vector<Exception> exceptions;
-    public:
+
+      public:
         ExceptionTable() : exceptions() {}
 
         ExceptionTable(const ExceptionTable &table) = default;
@@ -303,21 +306,22 @@ namespace spade {
         Exception getTarget(uint32 pc, Type *type) const;
     };
 
-/**
- * Represents a table which stores the corresponding line numbers
- * of the source code and byte code. It is used for printing stack trace and debugging purposes
- */
+    /**
+     * Represents a table which stores the corresponding line numbers
+     * of the source code and byte code. It is used for printing stack trace and debugging purposes
+     */
     class LineNumberTable {
-    public:
+      public:
         struct LineInfo {
             uint32 sourceLine;
             uint16 byteStart;
             uint16 byteEnd;
         };
-    private:
+
+      private:
         vector<LineInfo> lineInfos;
 
-    public:
+      public:
         LineNumberTable() {}
 
         /**
@@ -336,16 +340,17 @@ namespace spade {
         const vector<LineInfo> &getLineInfos() const { return lineInfos; }
     };
 
-/**
- * Represents a check table
- */
+    /**
+     * Represents a check table
+     */
     class MatchTable {
         friend class BasicCollector;
 
-    private:
+      private:
         vector<Case> cases;
         uint32 defaultLocation;
-    public:
+
+      public:
         MatchTable(const vector<Case> &cases, uint32 defaultLocation) : cases(cases),
                                                                         defaultLocation(defaultLocation) {}
 
@@ -377,6 +382,6 @@ namespace spade {
          */
         uint32 perform(Obj *value);
     };
-}
+}    // namespace spade
 
-#endif //VELOCITY_FRAME_TABLE_HPP
+#endif    // VELOCITY_FRAME_TABLE_HPP

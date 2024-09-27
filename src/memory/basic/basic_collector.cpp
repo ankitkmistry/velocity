@@ -1,7 +1,8 @@
 #include "basic_collector.hpp"
 #include "../../ee/vm.hpp"
 
-namespace spade::basic {
+namespace spade::basic
+{
     void BasicCollector::gc() {
         markRoots();
         traceReferences();
@@ -86,8 +87,8 @@ namespace spade::basic {
     }
 
     void BasicCollector::mark(Collectible *collectible) {
-        if (collectible == null)return;
-        if (collectible->getInfo().marked)return;
+        if (collectible == null) return;
+        if (collectible->getInfo().marked) return;
         collectible->getInfo().marked = true;
         grayMaterial.push_back(collectible);
         if (is<Obj *>(collectible)) {
@@ -101,7 +102,7 @@ namespace spade::basic {
         for (auto material: grayMaterial) {
             if (is<ObjArray *>(material)) {
                 auto array = cast<ObjArray *>(material);
-                array->foreach([&](auto val) {
+                array->foreach ([&](auto val) {
                     // mark every value of the array
                     mark(val);
                 });
@@ -204,4 +205,4 @@ namespace spade::basic {
         }
     }
 
-}
+}    // namespace spade::basic

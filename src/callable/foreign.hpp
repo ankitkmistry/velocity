@@ -1,17 +1,19 @@
 #ifndef VELOCITY_FOREIGN_HPP
 #define VELOCITY_FOREIGN_HPP
 
-#include "callable.hpp"
 #include "../loader/foreign_loader.hpp"
+#include "callable.hpp"
 
-namespace spade {
+namespace spade
+{
     class ObjForeign final : public ObjCallable {
         Library *library;
         string name;
         Obj *self;
-    public:
+
+      public:
         ObjForeign(const Sign &sign, Kind kind, Type *type, ObjModule *module)
-                : ObjCallable(sign, kind, type, module) {}
+            : ObjCallable(sign, kind, type, module) {}
 
         void linkLibrary();
 
@@ -25,6 +27,6 @@ namespace spade {
 
         string toString() const override;
     };
-}
+}    // namespace spade
 
-#endif //VELOCITY_FOREIGN_HPP
+#endif    // VELOCITY_FOREIGN_HPP

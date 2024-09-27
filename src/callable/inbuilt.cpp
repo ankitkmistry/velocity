@@ -1,5 +1,6 @@
 #include "inbuilt.hpp"
 
-namespace spade {
+namespace spade
+{
 
 }

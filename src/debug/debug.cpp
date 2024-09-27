@@ -1,8 +1,9 @@
 #include "debug.hpp"
-#include "table.hpp"
 #include "../ee/vm.hpp"
+#include "table.hpp"
 
-namespace spade {
+namespace spade
+{
     void DebugOp::clearConsole() {
 #if defined(OS_WINDOWS)
         system("cls");
@@ -21,7 +22,8 @@ namespace spade {
         // Print the current frameTemplate
         printFrame(state->getFrame());
         // Print the output
-        cout << "Output\n" << state->getVM()->getOutput() << "\n";
+        cout << "Output\n"
+             << state->getVM()->getOutput() << "\n";
         // Wait for input
         std::getline(cin, dummy);
     }
@@ -61,7 +63,7 @@ namespace spade {
     }
 
     void DebugOp::printExceptions(ExceptionTable exceptions) {
-        if (exceptions.count() == 0)return;
+        if (exceptions.count() == 0) return;
         ExcTable table;
         for (int i = 0; i < exceptions.count(); ++i) {
             auto const &exception = exceptions.get(i);
@@ -72,7 +74,7 @@ namespace spade {
 
     void DebugOp::printCode(const uint8 *code, const uint8 *ip, const uint32 codeCount, const vector<Obj *> &pool,
                             LineNumberTable lineTable) {
-        if (codeCount == 0)return;
+        if (codeCount == 0) return;
         auto byteLineMaxLen = std::to_string(codeCount - 1).length();
         auto sourceLineMaxLen = std::to_string(lineTable.getLineInfos().back().sourceLine).length() + 2;
         uint32 sourceLine = 0;
@@ -95,8 +97,8 @@ namespace spade {
                 case 1: {
                     auto num = code[i++];
                     string valStr = OpcodeInfo::takeFromConstPool(opcode)
-                                    ? format("(%s)", pool[num]->toString().c_str())
-                                    : "";
+                                            ? format("(%s)", pool[num]->toString().c_str())
+                                            : "";
                     param = format("%d %s", num, valStr.c_str());
                     break;
                 }
@@ -105,8 +107,8 @@ namespace spade {
                     auto num2 = code[i++];
                     auto num = (num1 << 8) | num2;
                     string valStr = OpcodeInfo::takeFromConstPool(opcode)
-                                    ? format("(%s)", pool[num]->toString().c_str())
-                                    : "";
+                                            ? format("(%s)", pool[num]->toString().c_str())
+                                            : "";
                     param = format("%d %s", num, valStr.c_str());
                     break;
                 }
@@ -125,7 +127,7 @@ namespace spade {
     }
 
     void DebugOp::printLocals(LocalsTable locals) {
-        if (locals.count() == 0)return;
+        if (locals.count() == 0) return;
         LocalVarTable table{locals.getClosureStart()};
         ClosureTable closure;
         uint8 i;
@@ -143,7 +145,7 @@ namespace spade {
     }
 
     void DebugOp::printArgs(ArgsTable args) {
-        if (args.count() == 0)return;
+        if (args.count() == 0) return;
         ArgumentTable table;
         for (uint8 i = 0; i < args.count(); ++i) {
             auto arg = args.getArg(i);
@@ -153,7 +155,7 @@ namespace spade {
     }
 
     void DebugOp::printConstPool(const vector<Obj *> &pool) {
-        if (pool.empty())return;
+        if (pool.empty()) return;
         auto max = std::to_string(pool.size() - 1).length();
         cout << "Constant Pool\n";
         cout << "-------------\n";
@@ -163,7 +165,7 @@ namespace spade {
                            pool.at(i)->toString().c_str());
         }
     }
-}
+}    // namespace spade
 /*void DebugOp::printMemory(const Space &space) {
     if (space.getTotalSpace() == 0)return;
     switch (space.getType()) {
@@ -182,9 +184,3 @@ namespace spade {
     cout << "total space:     " << space.getTotalSpace() << " bytes\n";
     cout << "\n";
 }*/
-
-
-
-
-
-

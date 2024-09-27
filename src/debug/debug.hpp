@@ -1,13 +1,14 @@
 #ifndef VELOCITY_DEBUG_HPP
 #define VELOCITY_DEBUG_HPP
 
-#include "../utils/common.hpp"
-#include "../ee/state.hpp"
 #include "../callable/frame.hpp"
+#include "../ee/state.hpp"
+#include "../utils/common.hpp"
 
-namespace spade {
+namespace spade
+{
     class DebugOp {
-    private:
+      private:
         static void clearConsole();
 
         static void printCallStack(VMState *state);
@@ -27,11 +28,11 @@ namespace spade {
 
         static void printConstPool(const vector<Obj *> &pool);
 
-    public:
+      public:
         static void printVMState(VMState *state);
 
-//    static void printMemory(const Space &space);
+        //    static void printMemory(const Space &space);
     };
-}
+}    // namespace spade
 
-#endif //VELOCITY_DEBUG_HPP
+#endif    // VELOCITY_DEBUG_HPP
