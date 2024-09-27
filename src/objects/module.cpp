@@ -1,4 +1,5 @@
 #include "module.hpp"
+#include "../ee/thread.hpp"
 
 namespace spade {
     string ObjModule::getAbsolutePath() {

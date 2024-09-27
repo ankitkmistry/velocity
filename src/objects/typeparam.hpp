@@ -11,7 +11,7 @@ namespace spade {
 
     public:
         TypeParam(Sign sign, ObjModule *module = null)
-                : Type(sign, Kind::TYPE_PARAM, {}, {}, {}, module) {}
+            : Type(sign, Kind::TYPE_PARAM, {}, {}, {}, module) {}
 
         /**
          * Changes the type parameter to the specified \p type
@@ -23,13 +23,13 @@ namespace spade {
 
         Kind getKind() const override;
 
-        const vector<TypeParam *> &getTypeParams() const override;
+        const Table<NamedRef *> &getTypeParams() const override;
 
         const Table<Type *> &getSupers() const override;
 
         const Table<MemberSlot> &getMemberSlots() const override;
 
-        vector<TypeParam *> &getTypeParams() override;
+        Table<NamedRef *> &getTypeParams() override;
 
         Table<Type *> &getSupers() override;
 
@@ -43,8 +43,24 @@ namespace spade {
 
         Type *getType() const override;
 
+        Obj *getMember(string name) const override;
+
+        void setMember(string name, Obj *value) override;
+
+        ObjMethod *getSuperClassMethod(string sign) override;
+
+        Obj *getStaticMember(string name) const override;
+
+        void setStaticMember(string name, Obj *value) override;
+
+        Type *getReified(Obj **args, uint8 count) override;
+
+        TypeParam *getTypeParam(string name) const override;
+
+        NamedRef *captureTypeParam(string name) override;
+
         Obj *copy() const override;
     };
-}
+}// namespace spade
 
-#endif //VELOCITY_TYPEPARAM_HPP
+#endif//VELOCITY_TYPEPARAM_HPP

@@ -17,9 +17,11 @@ namespace spade {
     public:
         explicit Collectible(MemoryInfo info = {}) : info(info) {}
 
-        virtual const MemoryInfo &getInfo() const { return info; }
+        virtual ~Collectible() = default;
 
-        virtual MemoryInfo &getInfo() { return info; }
+        const MemoryInfo &getInfo() const { return info; }
+
+        MemoryInfo &getInfo() { return info; }
     };
 
     /**

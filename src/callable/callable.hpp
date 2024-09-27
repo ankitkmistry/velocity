@@ -1,10 +1,8 @@
 #ifndef VELOCITY_CALLABLE_HPP
 #define VELOCITY_CALLABLE_HPP
 
-#include "../utils/common.hpp"
 #include "../objects/obj.hpp"
 #include "../objects/type.hpp"
-#include "../ee/thread.hpp"
 
 namespace spade {
     class ObjCallable : public Obj {

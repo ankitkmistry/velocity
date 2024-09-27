@@ -1,22 +1,26 @@
 #include "method.hpp"
-#include "../objects/typeparam.hpp"
+#include "../ee/thread.hpp"
 
 namespace spade {
     ObjMethod::ObjMethod(const Sign &sign, Kind kind, FrameTemplate *frame, Type *type,
-                         vector<TypeParam *> typeParams, ObjModule *module)
-            : ObjCallable(sign, kind, type, module), typeParams(typeParams),
-              frameTemplate(frame) {
+                         Table<NamedRef *> typeParams, ObjModule *module)
+        : ObjCallable(sign, kind, type, module), typeParams(typeParams),
+          frameTemplate(frame) {
         frameTemplate->setMethod(this);
     }
 
     Obj *ObjMethod::copy() const {
-        vector<TypeParam *> newTypeParams;
-        for (auto typeParam: typeParams) {
-            newTypeParams.push_back(cast<TypeParam *>(typeParam->copy()));
+        Table<NamedRef *> newTypeParams;
+        for (auto [name, typeParam]: typeParams) {
+            newTypeParams[name] = halloc<NamedRef>(
+                    info.manager,
+                    typeParam->getName(),
+                    typeParam->getValue()->copy(),
+                    typeParam->getMeta());
         }
         Obj *newMethod = halloc<ObjMethod>(info.manager,
-                                               sign, kind, frameTemplate->copy(),
-                                               type, newTypeParams, module);
+                                           sign, kind, frameTemplate->copy(),
+                                           type, newTypeParams, module);
         Obj::reify(&newMethod, typeParams, newTypeParams);
         return newMethod;
     }
@@ -55,8 +59,7 @@ namespace spade {
         static string kindNames[] = {
                 "function",
                 "method",
-                "constructor"
-        };
+                "constructor"};
         return format("<%s '%s'>", kindNames[static_cast<int>(kind)].c_str(), sign.toString().c_str());
     }
 
@@ -77,11 +80,12 @@ namespace spade {
         } catch (const std::out_of_range &) {
             // Always make a copy of the object when reifying
             auto method = cast<ObjMethod *>(copy());
-            auto &params = method->getTypeParams();
-            for (int i = 0; i < count; i++) {
-                params[i]->setPlaceholder(typeArgs[i]);
+            auto params = method->getTypeParams();
+            for (auto [name, typeparam]: params) {
+                method->typeParams[name] = typeparam;
             }
             reified[typeArgs] = method;
+            method->reified = reified;
             return method;
         }
     }
@@ -92,4 +96,25 @@ namespace spade {
         local->setValue(self);
         local->setNoCopy(true);
     }
-}
+
+    TypeParam *ObjMethod::getTypeParam(string name) const {
+        try {
+            return cast<TypeParam *>(typeParams.at(name)->getValue());
+        } catch (const std::out_of_range &) {
+            if (type != null) {
+                return type->getTypeParam(name);
+            }
+            throw IllegalAccessError(format("cannot find typeparam %s in %s", name.c_str(), toString().c_str()));
+        }
+    }
+    NamedRef *ObjMethod::captureTypeParam(string name) {
+        try {
+            return typeParams.at(name);
+        } catch (const std::out_of_range &) {
+            if (type != null) {
+                return type->captureTypeParam(name);
+            }
+            throw IllegalAccessError(format("cannot find typeparam %s in %s", name.c_str(), toString().c_str()));
+        }
+    }
+}// namespace spade

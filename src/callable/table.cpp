@@ -40,13 +40,7 @@ namespace spade {
             getLocal(i)->setValue(val);
     }
 
-    const NamedRef *LocalsTable::getLocal(uint16 i) const {
-        if (i >= locals.size())
-            throw IndexError("local", i);
-        return locals[i];
-    }
-
-    NamedRef *LocalsTable::getLocal(uint16 i) {
+    NamedRef *LocalsTable::getLocal(uint16 i) const {
         if (i >= locals.size())
             throw IndexError("local", i);
         return locals[i];

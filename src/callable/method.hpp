@@ -9,13 +9,13 @@ namespace spade {
     private:
         FrameTemplate *frameTemplate;
         map<vector<Type *>, ObjMethod *> reified;
-        vector<TypeParam *> typeParams;
+        Table<NamedRef *> typeParams;
     public:
         ObjMethod(const Sign &sign,
                   Kind kind,
                   FrameTemplate *frame,
                   Type *type,
-                  vector<TypeParam *> typeParams,
+                  Table<NamedRef *> typeParams,
                   ObjModule *module = null);
 
         void call(vector<Obj *> args) override;
@@ -31,15 +31,20 @@ namespace spade {
          */
         ObjMethod *getReified(Obj **args, uint8 count);
 
+        TypeParam *getTypeParam(string name) const;
+
         Obj *copy() const override;
 
         string toString() const override;
 
         const FrameTemplate *getFrameTemplate() const { return frameTemplate; }
 
-        const vector<TypeParam *> &getTypeParams() const { return typeParams; }
+        const Table<NamedRef *> &getTypeParams() const { return typeParams; }
 
-        vector<TypeParam *> &getTypeParams() { return typeParams; }
+        Table<NamedRef *> &getTypeParams() { return typeParams; }
+
+        const map<vector<Type *>, ObjMethod *> &getReifiedMethods() const { return reified; }
+        NamedRef *captureTypeParam(string name);
     };
 }
 

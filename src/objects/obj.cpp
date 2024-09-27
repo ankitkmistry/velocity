@@ -6,10 +6,10 @@
 #include "../ee/vm.hpp"
 
 namespace spade {
-    static Table<MemberSlot> Type_getAllNonStaticMembers(Type *type) {
+    static Table<MemberSlot> Type_getAllNonStaticMembers(Type *type, Table<ObjMethod *> &superMethods) {
         Table<MemberSlot> result;
         for (auto [_, super]: type->getSupers()) {
-            for (auto [name, member]: Type_getAllNonStaticMembers(super)) {
+            for (auto [name, member]: Type_getAllNonStaticMembers(super, superMethods)) {
                 if (!member.getFlags().isStatic()) {
                     result[name] = MemberSlot{Obj::createCopy(member.getValue()), member.getFlags()};
                 }
@@ -17,6 +17,12 @@ namespace spade {
         }
         for (auto [name, member]: type->getMemberSlots()) {
             if (!member.getFlags().isStatic()) {
+                // Save methods that are being overrode
+                if (is<ObjMethod *>(member.getValue())
+                    && result.find(name) != result.end()) {
+                    auto method = cast<ObjMethod *>(member.getValue());
+                    superMethods[method->getSign().toString()] = method;
+                }
                 result[name] = MemberSlot{Obj::createCopy(member.getValue()), member.getFlags()};
             }
         }
@@ -29,7 +35,7 @@ namespace spade {
             this->module = ObjModule::current();
         }
         if (type != null) {
-            memberSlots = Type_getAllNonStaticMembers(type);
+            memberSlots = Type_getAllNonStaticMembers(type, superClassMethods);
             for (auto [name, slot]: memberSlots) {
                 Obj *value = slot.getValue();
                 if (is<ObjCallable *>(value)) {
@@ -39,7 +45,7 @@ namespace spade {
         }
     }
 
-    void Obj::reify(Obj **pObj, vector<TypeParam *> old_, vector<TypeParam *> new_) {
+    void Obj::reify(Obj **pObj, Table<NamedRef *> old_, Table<NamedRef *> new_) {
 #define REIFY(pObj) reify(pObj, old_, new_)
         if (*pObj == null) return;
         if (old_.empty() || new_.empty()) return;
@@ -88,9 +94,9 @@ namespace spade {
             }
         } else if (auto tp = dynamic_cast<TypeParam *>(*pObj); tp != null) {
             // Change type params accordingly
-            for (int i = 0; i < old_.size(); ++i) {
-                if (*pObj == old_[i]) {
-                    *pObj = new_[i];
+            for (auto [name, param]: old_) {
+                if (*pObj == param->getValue()) {
+                    *pObj = new_[name]->getValue();
                     break;
                 }
             }
@@ -174,6 +180,15 @@ namespace spade {
 
     string Obj::toString() const {
         return format("<object %s : '%s'>", type->getSign().toString().c_str(), sign.toString().c_str());
+    }
+
+    ObjMethod *Obj::getSuperClassMethod(string mSign) {
+        try {
+            return superClassMethods[mSign];
+        } catch (const std::out_of_range &) {
+            throw IllegalAccessError(format("cannot find superclass method: %s in %s",
+                                            mSign.c_str(), toString().c_str()));
+        }
     }
 
     ObjBool *ComparableObj::operator<(const Obj *rhs) const {

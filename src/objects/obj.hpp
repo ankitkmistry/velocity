@@ -8,13 +8,15 @@
 #include "../memory/memory.hpp"
 
 namespace spade {
-
-
     class Type;
 
     class TypeParam;
 
     class ObjModule;
+
+    class ObjMethod;
+
+    class NamedRef;
 
     /*
      *   raw             = 0x 00000000 00000000
@@ -111,6 +113,8 @@ namespace spade {
         Type *type;
         /// Member slots of the object
         Table<MemberSlot> memberSlots = {};
+        /// Methods of superclass which have been overrode
+        Table<ObjMethod *> superClassMethods = {};
 
         /**
          * Changes pointer to type params @p pObj specified in @p old_ to pointers specified in @p new_.
@@ -119,7 +123,7 @@ namespace spade {
          * @param old_ old type parameters
          * @param new_ new type parameters
          */
-        static void reify(Obj **pObj, vector<TypeParam *> old_, vector<TypeParam *> new_);
+        static void reify(Obj **pObj, Table<NamedRef *> old_, Table<NamedRef *> new_);
 
     public:
         /**
@@ -202,6 +206,13 @@ namespace spade {
          * @param value value to be set to
          */
         virtual void setMember(string name, Obj *value);
+
+        /**
+         * @throws IllegalAccessError if the superclass method cannot be found
+         * @param mSign complete signature of the method
+         * @return the method of the superclass has been overrode by this object
+         */
+        virtual ObjMethod *getSuperClassMethod(string mSign);
 
         /**
          * @return the meta information of the object

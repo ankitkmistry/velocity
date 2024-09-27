@@ -26,7 +26,7 @@ namespace spade {
                         state->pop();
                         break;
                     case Opcode::NPOP: {
-                        auto count = state->readByte();
+                        uint8 count = (uint8) state->readByte();
                         frame->sp -= count;
                         break;
                     }
@@ -34,7 +34,7 @@ namespace spade {
                         state->push(state->peek());
                         break;
                     case Opcode::NDUP: {
-                        auto count = state->readByte();
+                        uint8 count = (uint8) state->readByte();
                         for (int i = 0; i < count; ++i) {
                             frame->sp[i] = frame->sp[-1];
                         }
@@ -56,6 +56,12 @@ namespace spade {
                     case Opcode::BLOAD:
                         state->push(frame->getLambdas()[state->readShort()]);
                         break;
+                    case Opcode::SPLOAD: {
+                        auto obj = state->pop();
+                        auto sign = state->loadConst(state->readShort())->toString();
+                        state->push(obj->getSuperClassMethod(sign));
+                        break;
+                    }
                     case Opcode::GFLOAD:
                         state->push(getSymbol(state->loadConst(state->readByte())->toString()));
                         break;
@@ -71,6 +77,12 @@ namespace spade {
                     case Opcode::BFLOAD:
                         state->push(frame->getLambdas()[state->readByte()]);
                         break;
+                    case Opcode::SPFLOAD: {
+                        auto obj = state->pop();
+                        auto sign = state->loadConst(state->readByte())->toString();
+                        state->push(obj->getSuperClassMethod(sign));
+                        break;
+                    }
                     case Opcode::PGSTORE:
                         setSymbol(state->loadConst(state->readShort())->toString(), state->pop());
                         break;
@@ -93,15 +105,38 @@ namespace spade {
                         frame->getArgs().set(state->readByte(), state->pop());
                         break;
                     case Opcode::TLOAD:
-                        state->push(frame->getMethod()->getTypeParams()[state->readByte()]);
+                        state->push(frame
+                                            ->getMethod()
+                                            ->getTypeParam(state->loadConst(state->readShort())->toString()));
+                        break;
+                    case Opcode::TFLOAD:
+                        state->push(frame
+                                            ->getMethod()
+                                            ->getTypeParam(state->loadConst(state->readByte())->toString()));
                         break;
                     case Opcode::TSTORE:
-                        frame->getMethod()->getTypeParams()[state->readByte()]->setPlaceholder(
-                                cast<Type *>(state->peek()));
+                        frame
+                                ->getMethod()
+                                ->getTypeParam(state->loadConst(state->readShort())->toString())
+                                ->setPlaceholder(cast<Type *>(state->peek()));
+                        break;
+                    case Opcode::TFSTORE:
+                        frame
+                                ->getMethod()
+                                ->getTypeParam(state->loadConst(state->readByte())->toString())
+                                ->setPlaceholder(cast<Type *>(state->peek()));
                         break;
                     case Opcode::PTSTORE:
-                        frame->getMethod()->getTypeParams()[state->readByte()]->setPlaceholder(
-                                cast<Type *>(state->pop()));
+                        frame
+                                ->getMethod()
+                                ->getTypeParam(state->loadConst(state->readShort())->toString())
+                                ->setPlaceholder(cast<Type *>(state->pop()));
+                        break;
+                    case Opcode::PTFSTORE:
+                        frame
+                                ->getMethod()
+                                ->getTypeParam(state->loadConst(state->readByte())->toString())
+                                ->setPlaceholder(cast<Type *>(state->pop()));
                         break;
                     case Opcode::MLOAD: {
                         auto object = state->pop();
@@ -199,7 +234,7 @@ namespace spade {
                         break;
                     }
                     case Opcode::ARRPACK: {
-                        auto count = state->readByte();
+                        uint8 count = (uint8) state->readByte();
                         auto array = halloc<ObjArray>(manager, count);
                         frame->sp -= count;
                         for (int i = 0; i < count; ++i) {
@@ -209,13 +244,13 @@ namespace spade {
                         break;
                     }
                     case Opcode::ARRBUILD: {
-                        auto count = state->readShort();
+                        uint8 count = (uint8) state->readShort();
                         auto array = halloc<ObjArray>(manager, count);
                         state->push(array);
                         break;
                     }
                     case Opcode::ARRFBUILD: {
-                        auto count = state->readByte();
+                        uint8 count = (uint8) state->readByte();
                         auto array = halloc<ObjArray>(manager, count);
                         state->push(array);
                         break;
@@ -247,7 +282,7 @@ namespace spade {
                     }
                     case Opcode::INVOKE: {
                         // Get the count
-                        auto count = state->readByte();
+                        uint8 count = (uint8) state->readByte();
                         // Pop the arguments
                         frame->sp -= count;
                         // Get the method
@@ -262,7 +297,7 @@ namespace spade {
                         // Get name of the method
                         auto name = sign.getName();
                         // Get the arg count
-                        auto count = sign.getParams().size();
+                        uint8 count = (uint8) sign.getParams().size();
 
                         // Pop the arguments
                         frame->sp -= count;
@@ -280,7 +315,7 @@ namespace spade {
                         // Get name of the method
                         auto name = sign.getName();
                         // Get the arg count
-                        auto count = sign.getParams().size();
+                        uint8 count = (uint8) sign.getParams().size();
 
                         // Pop the arguments
                         frame->sp -= count;
@@ -292,11 +327,29 @@ namespace spade {
                         method->call(frame->sp + 1);
                         break;
                     }
+                    case Opcode::SPINVOKE: {
+                        auto method = cast<ObjMethod *>(getSymbol(state->loadConst(state->readShort())->toString()));
+                        uint8 count = method->getFrameTemplate()->getArgs().count();
+                        frame->sp -= count;
+                        Obj *obj = state->pop();
+                        method->call(frame->sp + 1);
+                        state->getFrame()->getLocals().set(0, obj);
+                        break;
+                    }
+                    case Opcode::SPFINVOKE: {
+                        auto method = cast<ObjMethod *>(getSymbol(state->loadConst(state->readByte())->toString()));
+                        uint8 count = method->getFrameTemplate()->getArgs().count();
+                        frame->sp -= count;
+                        Obj *obj = state->pop();
+                        method->call(frame->sp + 1);
+                        state->getFrame()->getLocals().set(0, obj);
+                        break;
+                    }
                     case Opcode::LINVOKE: {
                         // Get the method
                         auto method = cast<ObjMethod *>(frame->getLocals().get(state->readShort()));
                         // Get the arg count
-                        auto count = method->getFrameTemplate()->getArgs().count();
+                        uint8 count = (uint8) method->getFrameTemplate()->getArgs().count();
                         // Pop the arguments
                         frame->sp -= count;
                         // Call it
@@ -307,7 +360,7 @@ namespace spade {
                         // Get the method
                         auto method = cast<ObjMethod *>(getSymbol(state->loadConst(state->readShort())->toString()));
                         // Get the arg count
-                        auto count = method->getFrameTemplate()->getArgs().count();
+                        uint8 count = (uint8) method->getFrameTemplate()->getArgs().count();
                         // Pop the arguments
                         frame->sp -= count;
                         // Call it
@@ -320,7 +373,7 @@ namespace spade {
                         // Get name of the method
                         auto name = sign.getName();
                         // Get the arg count
-                        auto count = sign.getParams().size();
+                        uint8 count = (uint8) sign.getParams().size();
 
                         // Pop the arguments
                         frame->sp -= count;
@@ -338,7 +391,7 @@ namespace spade {
                         // Get name of the method
                         auto name = sign.getName();
                         // Get the arg count
-                        auto count = sign.getParams().size();
+                        uint8 count = (uint8) sign.getParams().size();
 
                         // Pop the arguments
                         frame->sp -= count;
@@ -354,7 +407,7 @@ namespace spade {
                         // Get the method
                         auto method = cast<ObjMethod *>(frame->getLocals().get(state->readByte()));
                         // Get the arg count
-                        auto count = method->getFrameTemplate()->getArgs().count();
+                        uint8 count = (uint8) method->getFrameTemplate()->getArgs().count();
                         // Pop the arguments
                         frame->sp -= count;
                         // Call it
@@ -365,7 +418,7 @@ namespace spade {
                         // Get the method
                         auto method = cast<ObjMethod *>(getSymbol(state->loadConst(state->readByte())->toString()));
                         // Get the arg count
-                        auto count = method->getFrameTemplate()->getArgs().count();
+                        uint8 count = (uint8) method->getFrameTemplate()->getArgs().count();
                         // Pop the arguments
                         frame->sp -= count;
                         // Call it
@@ -376,7 +429,7 @@ namespace spade {
                         // Get the method
                         auto method = cast<ObjMethod *>(frame->getArgs().get(state->readByte()));
                         // Get the arg count
-                        auto count = method->getFrameTemplate()->getArgs().count();
+                        uint8 count = (uint8) method->getFrameTemplate()->getArgs().count();
                         // Pop the arguments
                         frame->sp -= count;
                         // Call it
@@ -638,16 +691,21 @@ namespace spade {
                         break;
                     }
                     case Opcode::CLOSURELOAD: {
-                        auto method = cast<ObjMethod *>(state->pop());
+                        auto method = cast<ObjMethod *>(state->pop()->copy());
                         auto &locals = const_cast<LocalsTable &>(method->getFrameTemplate()->getLocals());
                         for (uint16 i = locals.getClosureStart(); i < locals.count(); i++) {
                             NamedRef *ref;
                             switch (state->readByte()) {
-                                case 0x01:  // Arg as closure
+                                case 0x00:  // Arg as closure
                                     ref = frame->getArgs().getArg(state->readByte());
                                     break;
-                                case 0x02:  // Local as closure
+                                case 0x01:  // Local as closure
                                     ref = frame->getLocals().getLocal(state->readShort());
+                                    break;
+                                case 0x02:  // Type param as closure
+                                    ref = frame
+                                            ->getMethod()
+                                            ->captureTypeParam(state->loadConst(state->readShort())->toString());
                                     break;
                                 default:
                                     throw Unreachable();
@@ -657,7 +715,7 @@ namespace spade {
                         break;
                     }
                     case Opcode::REIFIEDLOAD: {
-                        auto count = state->readByte();
+                        uint8 count = (uint8) state->readByte();
                         // Pop the arguments
                         for (int i = 0; i < count; i++) state->pop();
                         auto args = frame->sp;
@@ -706,14 +764,6 @@ namespace spade {
                         break;
                     case Opcode::NUM_OPCODES:
                         // No use
-                        break;
-                    case Opcode::SPLOAD:
-                        break;
-                    case Opcode::SPFLOAD:
-                        break;
-                    case Opcode::SPINVOKE:
-                        break;
-                    case Opcode::SPFINVOKE:
                         break;
                 }
             } catch (const ThrowSignal &signal) {

@@ -11,8 +11,8 @@ namespace spade::basic {
     void BasicCollector::markRoots() {
         auto vm = manager->getVM();
         // mark the globals
-        for (auto [key, object]: vm->getModules()) {
-            mark(object);
+        for (auto [key, module]: vm->getModules()) {
+            mark(module);
         }
         // mark the threads
         for (auto thread: vm->getThreads()) markThread(thread);
@@ -46,27 +46,33 @@ namespace spade::basic {
         }
         // mark args
         for (int i = 0; i < frame->getArgs().count(); ++i) {
-            const auto &arg = frame->getArgs().getArg(i);
+            auto arg = frame->getArgs().getArg(i);
             auto obj = arg->getValue();
+            mark(arg);
             mark(obj);
         }
-        // mark locals
+        // mark locals and closures
         for (int i = 0; i < frame->getLocals().count(); ++i) {
-            const auto &local = frame->getLocals().getLocal(i);
-            auto obj = local->getValue();
-            mark(obj);
-        }
-        // mark closures
-        for (int i = 0; i < frame->getLocals().count(); ++i) {
-            const auto &closure = frame->getLocals().getClosure(i);
-            auto obj = closure->getValue();
-            mark(obj);
+            if (i < frame->getLocals().getClosureStart()) {
+                auto local = frame->getLocals().getLocal(i);
+                auto obj = local->getValue();
+                mark(local);
+                mark(obj);
+            } else {
+                auto closure = frame->getLocals().getClosure(i);
+                auto obj = closure->getValue();
+                mark(closure);
+                mark(obj);
+            }
         }
         // mark exceptions
         for (int i = 0; i < frame->getExceptions().count(); ++i) {
             const auto &exception = frame->getExceptions().get(i);
             auto obj = exception.getType();
             mark((Obj *) obj);
+        }
+        for (auto lambda: frame->getLambdas()) {
+            mark(lambda);
         }
         for (const auto &match: frame->getMatches()) {
             // mark every check
@@ -77,10 +83,6 @@ namespace spade::basic {
             }
         }
         mark((Obj *) frame->getMethod());
-        for (auto typeParam: frame->getMethod()->getTypeParams()) {
-            // mark every type param
-            mark((Obj *) typeParam);
-        }
     }
 
     void BasicCollector::mark(Collectible *collectible) {
@@ -103,9 +105,61 @@ namespace spade::basic {
                     // mark every value of the array
                     mark(val);
                 });
+            } else if (is<ObjMethod *>(material)) {
+                auto method = cast<ObjMethod *>(material);
+                const FrameTemplate *frameTemplate = method->getFrameTemplate();
+                // mark args
+                for (int i = 0; i < frameTemplate->getArgs().count(); ++i) {
+                    auto arg = frameTemplate->getArgs().getArg(i);
+                    auto obj = arg->getValue();
+                    mark((Collectible *) arg);
+                    mark(obj);
+                }
+                // mark locals and closures
+                for (int i = 0; i < frameTemplate->getLocals().count(); ++i) {
+                    if (i < frameTemplate->getLocals().getClosureStart()) {
+                        auto local = frameTemplate->getLocals().getLocal(i);
+                        auto obj = local->getValue();
+                        mark(local);
+                        mark(obj);
+                    } else {
+                        auto closure = frameTemplate->getLocals().getClosure(i);
+                        auto obj = closure->getValue();
+                        mark(closure);
+                        mark(obj);
+                    }
+                }
+                // mark exceptions
+                for (int i = 0; i < frameTemplate->getExceptions().count(); ++i) {
+                    const auto &exception = frameTemplate->getExceptions().get(i);
+                    auto obj = exception.getType();
+                    mark((Obj *) obj);
+                }
+                // mark lambdas
+                for (auto lambda: frameTemplate->getLambdas()) {
+                    mark(lambda);
+                }
+                // mark matches
+                for (const auto &match: frameTemplate->getMatches()) {
+                    for (const auto &kase: match.getCases()) {
+                        // mark every case value
+                        auto obj = kase.getValue();
+                        mark(obj);
+                    }
+                }
+                // mark reified objects
+                for (auto [typeArgs, reified]: method->getReifiedMethods()) {
+                    for (auto typeArg: typeArgs) mark(typeArg);
+                    mark(reified);
+                }
+                // mark type params
+                for (auto [name, typeParam]: method->getTypeParams()) {
+                    mark(typeParam);
+                    mark(typeParam->getValue());
+                }
             } else if (is<Type *>(material)) {
                 auto type = cast<Type *>(material);
-                for (auto typeParam: type->getTypeParams()) {
+                for (auto [name, typeParam]: type->getTypeParams()) {
                     // mark every type param
                     mark((Obj *) typeParam);
                 }
@@ -149,4 +203,5 @@ namespace spade::basic {
             }
         }
     }
+
 }

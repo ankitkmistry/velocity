@@ -18,7 +18,7 @@ namespace spade {
     }
 
     FrameTemplate *FrameTemplate::copy() {
-        return new FrameTemplate(codeCount, code, maxStack, args, locals, exceptions, lines, vector<ObjMethod *>(),
-                                 vector<MatchTable>(), method);
+        return new FrameTemplate(codeCount, code, maxStack, args, locals, exceptions, lines, lambdas,
+                                 matches, method);
     }
 }

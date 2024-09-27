@@ -203,19 +203,18 @@ namespace spade {
                 throw Unreachable();
         }
         auto sign = getSign(klass.thisClass);
-        vector<TypeParam *> typeParams;
-        auto typeParamsObj = constPool[klass.typeParams];
-        if (is<ObjArray *>(typeParamsObj))
-            cast<ObjArray *>(typeParamsObj)->foreach([this, &typeParams](auto typeParam) {
-                // Get the signature of the type parameter
-                auto paramSign = typeParam->toString();
-                // Make it an unresolved reference
-                auto type = halloc<TypeParam>(manager, Sign{paramSign}, getCurrentModule());
-                // Remember the type params
-                typeParams.push_back(type);
-                // Put it in the ref pool
-                referencePool[paramSign] = type;
-            });
+
+        Table<NamedRef *> typeParams;
+        for (int i = 0; i < klass.typeParamCount; ++i) {
+            auto paramName = constPool[klass.typeParams[i].name]->toString();
+            auto typeParam = halloc<NamedRef>(manager,
+                                              paramName,
+                                              halloc<TypeParam>(manager, Sign{paramName}, getCurrentModule()),
+                                              Table<string>{});
+            typeParams[paramName] = typeParam;
+            referencePool[paramName] = cast<Type *>(typeParam->getValue());
+        }
+
         Table<Type *> supers;
         cast<ObjArray *>(constPool[klass.supers])->foreach([this, &supers](auto super) {
             auto str = super->toString();
@@ -241,9 +240,9 @@ namespace spade {
         vm->setMetadata(sign.toString(), meta);
 
         // Resolve the type params
-        for (auto const &key: typeParams) {
+        for (auto [name, _]: typeParams) {
             // Remove the unresolved types from ref pool
-            referencePool.erase(key->getSign().toString());
+            referencePool.erase(name);
         }
         // Resolve the type
         auto type = resolveType(sign.toString(), {sign, kind, typeParams, supers, members, getCurrentModule()});
@@ -287,19 +286,16 @@ namespace spade {
                 throw Unreachable();
         }
         auto sign = getSign(method.thisMethod);
-        vector<TypeParam *> typeParams;
-        auto typeParamsObj = constPool[method.typeParams];
-        if (is<ObjArray *>(typeParamsObj))
-            cast<ObjArray *>(typeParamsObj)->foreach([this, &typeParams](auto typeParam) {
-                // Get the signature of the type parameter
-                auto paramSign = typeParam->toString();
-                // Make it an unresolved reference
-                auto type = halloc<TypeParam>(manager, Sign{paramSign}, getCurrentModule());
-                // Remember the type params
-                typeParams.push_back(type);
-                // Put it in the ref pool
-                referencePool[paramSign] = type;
-            });
+        Table<NamedRef *> typeParams;
+        for (int i = 0; i < method.typeParamCount; ++i) {
+            auto paramName = constPool[method.typeParams[i].name]->toString();
+            auto typeParam = halloc<NamedRef>(manager,
+                                              paramName,
+                                              halloc<TypeParam>(manager, Sign{paramName}, getCurrentModule()),
+                                              Table<string>{});
+            typeParams[paramName] = typeParam;
+            referencePool[paramName] = cast<Type *>(typeParam->getValue());
+        }
         ArgsTable args{};
         for (int i = 0; i < method.argsCount; ++i) {
             args.addArg(readArg(method.args[i]));
@@ -332,9 +328,9 @@ namespace spade {
         vm->setMetadata(sign.toString(), meta);
 
         // Resolve the type params
-        for (auto const &key: typeParams) {
+        for (auto [name, _]: typeParams) {
             // Remove the unresolved types from ref pool
-            referencePool.erase(key->getSign().toString());
+            referencePool.erase(name);
         }
         // Create the frame template
         auto frameTemplate = new FrameTemplate{

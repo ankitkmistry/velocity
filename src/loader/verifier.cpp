@@ -69,7 +69,9 @@ namespace spade {
         if (method.type != 0x01 && method.type != 0x02) {
             throw corrupt();
         }
-        checkRange(method.typeParams, cpCount);
+        for (int i = 0; i < method.typeParamCount; ++i) {
+            checkRange(method.typeParams[i].name, cpCount);
+        }
         for (int i = 0; i < method.argsCount; i++) {
             checkArg(method.args[i], cpCount);
         }
@@ -142,4 +144,4 @@ namespace spade {
             }
         }
     }
-}
+}// namespace spade

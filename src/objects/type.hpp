@@ -22,18 +22,20 @@ namespace spade {
             /// Represents an unresolved type
             UNRESOLVED
         };
+
     protected:
         Kind kind;
         Table<Type *> supers;
-        vector<TypeParam *> typeParams;
+        Table<NamedRef *> typeParams;
         map<vector<Type *>, Type *> reified;
+
     public:
-        Type(const Sign &sign, Kind kind, vector<TypeParam *> typeParams, const Table<Type *> &supers,
+        Type(const Sign &sign, Kind kind, const Table<NamedRef *> &typeParams, const Table<Type *> &supers,
              const Table<MemberSlot> &memberSlots, ObjModule *module = null)
-                : Obj(sign, null, module),
-                  kind(kind),
-                  supers(supers),
-                  typeParams(typeParams) {
+            : Obj(sign, null, module),
+              kind(kind),
+              supers(supers),
+              typeParams(typeParams) {
             this->memberSlots = memberSlots;
         }
 
@@ -43,24 +45,26 @@ namespace spade {
 
         virtual const Table<Type *> &getSupers() const { return supers; }
 
-        virtual const vector<TypeParam *> &getTypeParams() const { return typeParams; }
+        virtual const Table<NamedRef *> &getTypeParams() const { return typeParams; }
 
         virtual Table<Type *> &getSupers() { return supers; }
 
-        virtual vector<TypeParam *> &getTypeParams() { return typeParams; }
+        virtual Table<NamedRef *> &getTypeParams() { return typeParams; }
 
-        Obj *getMember(string name) const override;
+        virtual Obj *getStaticMember(string name) const;
 
-        Obj *getStaticMember(string name) const;
-
-        void setStaticMember(string name, Obj *value);
+        virtual void setStaticMember(string name, Obj *value);
 
         /**
          * @param args the type args
          * @param count count of type args
          * @return a newly reified type or previously reified type
          */
-        Type *getReified(Obj **args, uint8 count);
+        virtual Type *getReified(Obj **args, uint8 count);
+
+        virtual TypeParam *getTypeParam(string name) const;
+
+        virtual NamedRef *captureTypeParam(string name);
 
         Obj *copy() const override;
 
@@ -70,6 +74,6 @@ namespace spade {
 
         static Type *SENTINEL_(const string &sign, MemoryManager *manager);
     };
-}
+}// namespace spade
 
-#endif //VELOCITY_TYPE_HPP
+#endif//VELOCITY_TYPE_HPP

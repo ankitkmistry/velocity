@@ -1,21 +1,19 @@
 #ifndef VELOCITY_FRAME_TABLE_HPP
 #define VELOCITY_FRAME_TABLE_HPP
 
-#include <utility>
-
 #include "../utils/utils.hpp"
 #include "../objects/obj.hpp"
 #include "../objects/inbuilt_types.hpp"
 
 namespace spade {
-/**
- * Represents the base class for nodes used in arg tables, local tables, etc.
- */
+    /**
+     * Represents the base class for nodes used in arg tables, local tables, etc.
+     */
     class NamedRef : public Collectible {
     protected:
         string name;
         Obj *value;
-        bool noCopy;
+        bool noCopy = false;
         Table<string> meta;
     public:
         NamedRef(const string &name, Obj *value, const Table<string> &meta) : name(name), value(value), meta(meta) {}
@@ -175,13 +173,7 @@ namespace spade {
          * @return The argument at index i
          * @param i the argument index
          */
-        const NamedRef *getArg(uint8 i) const { return args[i]; }
-
-        /**
-         * @return The argument at index i
-         * @param i the argument index
-         */
-        NamedRef *getArg(uint8 i) { return args[i]; }
+        NamedRef *getArg(uint8 i) const { return args[i]; }
 
         ArgsTable copy() const;
 
@@ -251,13 +243,7 @@ namespace spade {
          * @return The local at index i
          * @param i the local index
          */
-        const NamedRef *getLocal(uint16 i) const;
-
-        /**
-         * @return The local at index i
-         * @param i the local index
-         */
-        NamedRef *getLocal(uint16 i);
+        NamedRef *getLocal(uint16 i) const;
 
         /**
          * @return The closure at index i

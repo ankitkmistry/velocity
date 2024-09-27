@@ -40,8 +40,8 @@ add_executable(velocity src/main.cpp
         src/memory/memory.hpp
 )
 
-include_directories("../sputils")
-target_include_directories(velocity PRIVATE "../sputils")
+include_directories(../sputils/src)
+target_include_directories(velocity PUBLIC ../sputils/src)
 if (WIN32)
     target_link_libraries(velocity "D:\\Programming (Ankit)\\Projects\\spade\\1.0\\sputils\\build-debug\\libsputils.a")
 else ()
