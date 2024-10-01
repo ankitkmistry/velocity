@@ -19,7 +19,7 @@ namespace spade::basic
         LNode *last = null;
 
       public:
-        BasicMemoryManager() : MemoryManager() {}
+        BasicMemoryManager(SpadeVM *vm = null) : MemoryManager(vm) {}
 
         void *allocate(size_t size) override;
 
@@ -29,6 +29,6 @@ namespace spade::basic
 
         void collectGarbage() override;
     };
-}    // namespace spade::basic
+} // namespace spade::basic
 
-#endif    // VELOCITY_MEMORY_BASIC_MANAGER_HPP
+#endif // VELOCITY_MEMORY_BASIC_MANAGER_HPP

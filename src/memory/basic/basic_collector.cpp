@@ -148,11 +148,6 @@ namespace spade::basic
                         mark(obj);
                     }
                 }
-                // mark reified objects
-                for (auto [typeArgs, reified]: method->getReifiedMethods()) {
-                    for (auto typeArg: typeArgs) mark(typeArg);
-                    mark(reified);
-                }
                 // mark type params
                 for (auto [name, typeParam]: method->getTypeParams()) {
                     mark(typeParam);

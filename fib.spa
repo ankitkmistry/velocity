@@ -1,23 +1,21 @@
 module: fib
 
-entry method "fib.main(.array)":
+entry method fib.main(.array):
     args:
-        "args": ".array"
-    ;
-    maxstack: 2;
+        "args": .array
+
+    maxstack: 2
     code:
         const            5
-        ginvoke          "fib.fib(.int)"
+        ginvoke          fib.fib(.int)
         println
         vret
-    ;
-;
+	end
 
-method "fib.fib(.int)":
+method fib.fib(.int):
     args:
-        "n": ".int"
-    ;
-    maxstack: 8;
+        n: .int
+    maxstack: 8
     code:
         aload            0
         const            1
@@ -30,15 +28,14 @@ method "fib.fib(.int)":
         aload            0
         const            1
         sub
-        ginvoke          "fib.fib(.int)"
+        ginvoke          fib.fib(.int)
         aload            0
         const            2
         sub
-        ginvoke          "fib.fib(.int)"
+        ginvoke          fib.fib(.int)
         add
         ret
 
 $body:  const            1
         ret
-    ;
-;
+	end

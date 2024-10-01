@@ -91,7 +91,7 @@ namespace spade {
         placeholder->setStaticMember(name, value);
     }
 
-    Type *TypeParam::getReified(Obj **args, uint8 count) {
+    Type *TypeParam::getReified(Obj **args, uint8 count) const {
         checkPlaceholder();
         return placeholder->getReified(args, count);
     }

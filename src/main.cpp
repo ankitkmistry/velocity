@@ -31,7 +31,7 @@ int runVM() {
 #if defined(OS_LINUX)
         return vm.start("../test_code/fib.elp", {});
 #elif defined(OS_WINDOWS)
-        return vm.start("..\\test_code\\fib.elp", {});
+        return vm.start("..\\fib.elp", {});
 #endif
     } catch (const FatalError &error) {
         cout << "VM Error: " << error.what();
@@ -42,6 +42,6 @@ int runVM() {
 int main() {
     std::ios_base::sync_with_stdio(true);
     cout << std::boolalpha;
+    signTest();
     return runVM();
-    //    signTest();
 }

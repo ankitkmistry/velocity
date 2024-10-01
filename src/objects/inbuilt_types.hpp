@@ -5,114 +5,87 @@
 #include "../utils/common.hpp"
 #include "obj.hpp"
 
-namespace spade {
+namespace spade
+{
     class ObjBool : public ComparableObj {
-    private:
+      private:
         bool b;
 
-    public:
-        ObjBool(bool value, ObjModule *module = null)
-            : ComparableObj(Sign("bool"), null, module), b(value) {}
+      public:
+        ObjBool(bool value, ObjModule *module = null) : ComparableObj(Sign("bool"), null, module), b(value) {}
 
         static ObjBool *value(bool b, MemoryManager *manager = null);
 
-        bool truth() const override {
-            return b;
-        }
+        bool truth() const override { return b; }
 
-        string toString() const override {
-            return b ? "true" : "false";
-        }
+        string toString() const override { return b ? "true" : "false"; }
 
-        Obj *copy() const override {
-            return (Obj *) this;
-        }
+        Obj *copy() const override { return (Obj *) this; }
 
         int32 compare(const Obj *rhs) const override;
 
-        ObjBool *operator!() const {
-            return halloc<ObjBool>(info.manager, !b, module);
-        }
+        ObjBool *operator!() const { return halloc<ObjBool>(info.manager, !b, module); }
     };
 
     class ObjChar : public ComparableObj {
-    private:
+      private:
         char c;
 
-    public:
-        ObjChar(const char c, ObjModule *module = null)
-            : ComparableObj(Sign("char"), null, module), c(c) {}
+      public:
+        ObjChar(const char c, ObjModule *module = null) : ComparableObj(Sign("char"), null, module), c(c) {}
 
-        bool truth() const override {
-            return c != '\0';
-        }
+        bool truth() const override { return c != '\0'; }
 
-        string toString() const override {
-            return string({c});
-        }
+        string toString() const override { return string({c}); }
 
-        Obj *copy() const override {
-            return (Obj *) this;
-        }
+        Obj *copy() const override { return (Obj *) this; }
 
         int32 compare(const Obj *rhs) const override;
     };
 
     class ObjNull : public ComparableObj {
-    public:
-        ObjNull(ObjModule *module = null)
-            : ComparableObj(Sign("null"), null, module) {}
+      public:
+        ObjNull(ObjModule *module = null) : ComparableObj(Sign("null"), null, module) {}
 
         static ObjNull *value(MemoryManager *manager = null);
 
-        bool truth() const override {
-            return false;
-        }
+        bool truth() const override { return false; }
 
-        string toString() const override {
-            return "null";
-        }
+        string toString() const override { return "null"; }
 
-        Obj *copy() const override {
-            return (Obj *) this;
-        }
+        Obj *copy() const override { return (Obj *) this; }
 
         int32 compare(const Obj *rhs) const override;
     };
 
     class ObjString : public ComparableObj {
-    private:
+      private:
         string str;
 
-    public:
-        ObjString(string str, ObjModule *module = null)
-            : ComparableObj(Sign("string"), null, module), str(str) {}
+      public:
+        ObjString(string str, ObjModule *module = null) : ComparableObj(Sign("string"), null, module), str(str) {}
 
         ObjString(uint8 *bytes, uint16 len, ObjModule *module = null);
 
-        bool truth() const override {
-            return !str.empty();
-        }
+        bool truth() const override { return !str.empty(); }
 
-        string toString() const override {
-            return str;
-        }
+        string toString() const override { return str; }
 
-        Obj *copy() const override {
-            return (Obj *) this;
-        }
+        Obj *copy() const override { return (Obj *) this; }
 
         int32 compare(const Obj *rhs) const override;
     };
 
     class ObjArray final : public ComparableObj {
-    private:
+      private:
         Obj **array;
         uint16 length;
 
-    public:
+      public:
         explicit ObjArray(uint16 length, ObjModule *module = null)
-            : ComparableObj(Sign("array"), null, module), length(length) {}
+            : ComparableObj(Sign("array"), null, module), length(length) {
+            array = length == 0 ? null : new Obj *[length] { null };
+        }
 
         void foreach (function<void(Obj *)> func) const;
 
@@ -133,9 +106,8 @@ namespace spade {
     };
 
     class ObjNumber : public ComparableObj {
-    public:
-        ObjNumber(Sign sign, ObjModule *module = null)
-            : ComparableObj(sign, null, module) {}
+      public:
+        ObjNumber(Sign sign, ObjModule *module = null) : ComparableObj(sign, null, module) {}
 
         virtual Obj *operator-() const = 0;
 
@@ -149,5 +121,5 @@ namespace spade {
 
         virtual Obj *operator/(const ObjNumber *n) const = 0;
     };
-}// namespace spade
+} // namespace spade
 #endif /* OOP_OBJECTS_HPP_ */

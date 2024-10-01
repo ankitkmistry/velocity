@@ -3,15 +3,15 @@
 
 #include "type.hpp"
 
-namespace spade {
+namespace spade
+{
     class TypeParam : public Type {
         Type *placeholder = null;
 
         void checkPlaceholder() const;
 
-    public:
-        TypeParam(Sign sign, ObjModule *module = null)
-            : Type(sign, Kind::TYPE_PARAM, {}, {}, {}, module) {}
+      public:
+        TypeParam(Sign sign, ObjModule *module = null) : Type(sign, Kind::TYPE_PARAM, {}, {}, {}, module) {}
 
         /**
          * Changes the type parameter to the specified \p type
@@ -53,7 +53,7 @@ namespace spade {
 
         void setStaticMember(string name, Obj *value) override;
 
-        Type *getReified(Obj **args, uint8 count) override;
+        Type *getReified(Obj **args, uint8 count) const override;
 
         TypeParam *getTypeParam(string name) const override;
 
@@ -61,6 +61,6 @@ namespace spade {
 
         Obj *copy() const override;
     };
-}// namespace spade
+} // namespace spade
 
-#endif//VELOCITY_TYPEPARAM_HPP
+#endif // VELOCITY_TYPEPARAM_HPP

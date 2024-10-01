@@ -54,7 +54,7 @@ BreakInheritanceList: BeforeColon
 EmptyLineAfterAccessModifier: Never
 EmptyLineBeforeAccessModifier: LogicalBlock
 FixNamespaceComments: true
-ColumnLimit: 0
+ColumnLimit: 128
 CompactNamespaces: false
 ContinuationIndentWidth: 8
 
@@ -73,6 +73,7 @@ PackConstructorInitializers: NextLine
 PointerAlignment: Right
 ReferenceAlignment: Pointer
 ReflowComments: true
+SeparateDefinitionBlocks: Always
 SortIncludes: CaseInsensitive
 
 
@@ -88,7 +89,7 @@ SpaceBeforeInheritanceColon: true
 SpaceBeforeParens: ControlStatements
 SpaceBeforeSquareBrackets: false
 SpaceBeforeRangeBasedForLoopColon: false
-SpacesBeforeTrailingComments: 4
+SpacesBeforeTrailingComments: 1
 SpacesInAngles: false
 SpaceInEmptyBlock: false
 SpaceInEmptyParentheses: false

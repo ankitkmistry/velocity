@@ -35,6 +35,7 @@ add_executable(velocity src/main.cpp
         src/utils/utils.cpp
         src/objects/int.cpp
         src/objects/float.cpp
+        src/callable/foreign_call.cpp
 )
 
 include_directories(../sputils/src)

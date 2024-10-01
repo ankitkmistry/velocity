@@ -3,11 +3,12 @@
 
 #include "obj.hpp"
 
-namespace spade {
+namespace spade
+{
     class TypeParam;
 
     class Type : public Obj {
-    public:
+      public:
         enum class Kind {
             /// Represents a class
             CLASS,
@@ -23,19 +24,20 @@ namespace spade {
             UNRESOLVED
         };
 
-    protected:
+      protected:
         Kind kind;
         Table<Type *> supers;
         Table<NamedRef *> typeParams;
-        map<vector<Type *>, Type *> reified;
 
-    public:
+      private:
+        static Table<map<Table<Type *>, Type *>> reificationTable;
+
+        Type *returnReified(Table<Type *> typeParams) const;
+
+      public:
         Type(const Sign &sign, Kind kind, const Table<NamedRef *> &typeParams, const Table<Type *> &supers,
              const Table<MemberSlot> &memberSlots, ObjModule *module = null)
-            : Obj(sign, null, module),
-              kind(kind),
-              supers(supers),
-              typeParams(typeParams) {
+            : Obj(sign, null, module), kind(kind), supers(supers), typeParams(typeParams) {
             this->memberSlots = memberSlots;
         }
 
@@ -56,11 +58,33 @@ namespace spade {
         virtual void setStaticMember(string name, Obj *value);
 
         /**
+         * Reifies this type and returns the reified type.
+         * The returned type may be newly reified or previously reified
+         * so as to maintain type uniqueness. The type to be reified not always
+         * has to be a generic type. The objects in the array \p args
+         * must be positioned according to the type params present in the signature
+         * @throws ArgumentError if count is not correct
+         * @throws CastError if objects in the array are not types
          * @param args the type args
          * @param count count of type args
-         * @return a newly reified type or previously reified type
+         * @return the reified type
          */
-        virtual Type *getReified(Obj **args, uint8 count);
+        virtual Type *getReified(Obj **args, uint8 count) const;
+
+        /**
+         * Reifies this type and returns the reified type.
+         * The returned type may be newly reified or previously reified
+         * so as to maintain type uniqueness. The type to be reified not always
+         * has to be a generic type. The objects in the array \p args
+         * must be positioned according to the type params present in the signature
+         * @throws ArgumentError if args.size() > 256
+         * @throws ArgumentError if number of arguments provided is not correct
+         * @throws CastError if objects in the array are not types
+         * @param args the type args
+         * @param count count of type args
+         * @return the reified type
+         */
+        Type *getReified(vector<Type*> args) const;
 
         virtual TypeParam *getTypeParam(string name) const;
 
@@ -74,6 +98,6 @@ namespace spade {
 
         static Type *SENTINEL_(const string &sign, MemoryManager *manager);
     };
-}// namespace spade
+} // namespace spade
 
-#endif//VELOCITY_TYPE_HPP
+#endif // VELOCITY_TYPE_HPP

@@ -16,7 +16,7 @@ namespace spade
         SpadeVM *vm;
 
       public:
-        MemoryManager() {}
+        MemoryManager(SpadeVM *vm) : vm(vm) {}
 
         /**
          * Allocates a block of memory
@@ -54,6 +54,6 @@ namespace spade
          */
         static MemoryManager *current();
     };
-}    // namespace spade
+} // namespace spade
 
-#endif    // VELOCITY_MANAGER_HPP
+#endif // VELOCITY_MANAGER_HPP
