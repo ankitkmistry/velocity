@@ -10,7 +10,7 @@ namespace spade
     /**
      * Represents the base class for nodes used in arg tables, local tables, etc.
      */
-    class NamedRef : public Collectible {
+    class NamedRef final : public Collectible {
       protected:
         string name;
         Obj *value;
@@ -20,7 +20,7 @@ namespace spade
       public:
         NamedRef(const string &name, Obj *value, const Table<string> &meta) : name(name), value(value), meta(meta) {}
 
-        NamedRef *copy();
+        NamedRef *copy() const;
 
         /**
          * Sets the value of the named ref
@@ -34,12 +34,12 @@ namespace spade
         Obj *getValue() const { return value; }
 
         /**
-         * @return if the named ref is not copiable
+         * @return if the named ref is not copyable
          */
         bool isNoCopy() const { return noCopy; }
 
         /**
-         * @param noCopy_ sets the named ref not copiable or not
+         * @param noCopy_ sets the named ref not copyable or not
          */
         void setNoCopy(bool noCopy_) { noCopy = noCopy_; }
 
@@ -49,14 +49,14 @@ namespace spade
         const string &getName() const { return name; }
 
         /**
-         * @return The meta data associated to the named ref
+         * @return The metadata associated to the named ref
          */
         const Table<string> &getMeta() const { return meta; }
 
         /**
          * @return The string representation of the named ref
          */
-        virtual string toString() const { return name; }
+        string toString() const { return name; }
     };
 
     /**
@@ -72,7 +72,11 @@ namespace spade
         Exception(uint32 from, uint32 to, uint32 target, Type *type, Table<string> meta)
             : from(from), to(to), target(target), type(type), meta(std::move(meta)) {}
 
-        Exception &operator=(const Exception &exception) = default;
+        Exception(const Exception &other) = default;
+        Exception(Exception &&other) noexcept = default;
+        Exception &operator=(const Exception &other) = default;
+        Exception &operator=(Exception &&other) noexcept = default;
+        ~Exception() = default;
 
         /**
          * @return The starting point <i>(of the try statement in code)</i>
@@ -101,11 +105,11 @@ namespace spade
         void setType(Type *type_) { type = type_; }
 
         /**
-         * @return The meta data associated to the node
+         * @return The metadata associated to the node
          */
         Table<string> getMeta() const { return meta; }
 
-        static Exception NO_EXCEPTION() { return Exception(0, 0, 0, null, {}); }
+        static Exception NO_EXCEPTION() { return {0, 0, 0, null, {}}; }
 
         static bool IS_NO_EXCEPTION(const Exception &exception) { return exception.type == null; }
     };
@@ -121,7 +125,11 @@ namespace spade
       public:
         Case(Obj *value, uint32 location) : value(value), location(location) {}
 
-        Case &operator=(const Case &exception) = default;
+        Case(const Case &other) = default;
+        Case(Case &&other) noexcept = default;
+        Case &operator=(const Case &other) = default;
+        Case &operator=(Case &&other) noexcept = default;
+        ~Case() = default;
 
         /**
          * @return The value to be matched
@@ -146,11 +154,12 @@ namespace spade
         vector<NamedRef *> args;
 
       public:
-        ArgsTable() : args() {}
-
-        ArgsTable(const ArgsTable &table) = default;
-
-        ArgsTable &operator=(const ArgsTable &argsTable) = default;
+        ArgsTable() = default;
+        ArgsTable(const ArgsTable &other) = default;
+        ArgsTable(ArgsTable &&other) noexcept = default;
+        ArgsTable &operator=(const ArgsTable &other) = default;
+        ArgsTable &operator=(ArgsTable &&other) noexcept = default;
+        ~ArgsTable() = default;
 
         /**
          * Sets the value of the argument at index i to val
@@ -182,7 +191,7 @@ namespace spade
         /**
          * @return The total number of arguments present
          */
-        uint8 count() const { return args.size(); }
+        uint8 count() const { return args.size() & 0xff; }
 
         /**
          * @return The string representation of the table
@@ -206,9 +215,11 @@ namespace spade
       public:
         explicit LocalsTable(uint16 closureStart) : closureStart(closureStart), locals() {}
 
-        LocalsTable(const LocalsTable &table) = default;
-
-        LocalsTable &operator=(const LocalsTable &localsTable) = default;
+        LocalsTable(const LocalsTable &other) = default;
+        LocalsTable(LocalsTable &&other) noexcept = default;
+        LocalsTable &operator=(const LocalsTable &other) = default;
+        LocalsTable &operator=(LocalsTable &&other) noexcept = default;
+        ~LocalsTable() = default;
 
         /**
          * @return The index of the locals table starting from which closures are stored up to the end of the table
@@ -258,7 +269,7 @@ namespace spade
         /**
          * @return The total number of locals and closures present
          */
-        uint16 count() const { return locals.size() + closures.size(); }
+        uint16 count() const { return locals.size() + closures.size() & 0xffff; }
 
         /**
          * @return The string representation of the table
@@ -275,11 +286,12 @@ namespace spade
         vector<Exception> exceptions;
 
       public:
-        ExceptionTable() : exceptions() {}
-
-        ExceptionTable(const ExceptionTable &table) = default;
-
-        ExceptionTable &operator=(const ExceptionTable &table) = default;
+        ExceptionTable() = default;
+        ExceptionTable(const ExceptionTable &other) = default;
+        ExceptionTable(ExceptionTable &&other) noexcept = default;
+        ExceptionTable &operator=(const ExceptionTable &other) = default;
+        ExceptionTable &operator=(ExceptionTable &&other) noexcept = default;
+        ~ExceptionTable() = default;
 
         /**
          * Adds a new exception at the end of the table
@@ -296,7 +308,7 @@ namespace spade
         /**
          * @return The total number of exceptions
          */
-        uint8 count() const { return exceptions.size(); }
+        uint8 count() const { return exceptions.size() & 0xff; }
 
         /**
          * @return The exception that catches the program execution at pc and a throwable of type
@@ -322,7 +334,12 @@ namespace spade
         vector<LineInfo> lineInfos;
 
       public:
-        LineNumberTable() {}
+        LineNumberTable() = default;
+        LineNumberTable(const LineNumberTable &other) = default;
+        LineNumberTable(LineNumberTable &&other) noexcept = default;
+        LineNumberTable &operator=(const LineNumberTable &other) = default;
+        LineNumberTable &operator=(LineNumberTable &&other) noexcept = default;
+        ~LineNumberTable() = default;
 
         /**
          * Adds a line info at the end of the table
@@ -351,8 +368,13 @@ namespace spade
         uint32 defaultLocation;
 
       public:
-        MatchTable(const vector<Case> &cases, uint32 defaultLocation) : cases(cases),
-                                                                        defaultLocation(defaultLocation) {}
+        MatchTable(const vector<Case> &cases, uint32 defaultLocation) : cases(cases), defaultLocation(defaultLocation) {}
+
+        MatchTable(const MatchTable &other) = default;
+        MatchTable(MatchTable &&other) noexcept = default;
+        MatchTable &operator=(const MatchTable &other) = default;
+        MatchTable &operator=(MatchTable &&other) noexcept = default;
+        ~MatchTable() = default;
 
         /**
          * @return The array of check cases
@@ -372,7 +394,7 @@ namespace spade
         /**
          * This function takes value and serially checks all the cases
          * and finds the case which matches with the value. Then the function returns
-         * the destination location of the the matched case.<br>
+         * the destination location of the matched case.<br>
          * The time complexity of this operation is O(n)
          * <br><br>
          * This function is optimized for integers and performs index search
@@ -380,8 +402,8 @@ namespace spade
          * @param value value to be matched
          * @return The destination location
          */
-        uint32 perform(Obj *value);
+        uint32 perform(Obj *value) const;
     };
-}    // namespace spade
+} // namespace spade
 
-#endif    // VELOCITY_FRAME_TABLE_HPP
+#endif // VELOCITY_FRAME_TABLE_HPP

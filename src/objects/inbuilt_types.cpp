@@ -45,10 +45,10 @@ namespace spade {
         return str.compare(cast<const ObjString *>(rhs)->str);
     }
 
-    Obj *ObjArray::copy() const {
+    Obj *ObjArray::copy() {
         auto arr = halloc<ObjArray>(info.manager, length);
         for (uint16 i = 0; i < length; ++i)
-            arr->set(i, Obj::createCopy(array[i]));
+            arr->set(i, createCopy(array[i]));
         return arr;
     }
 

@@ -29,7 +29,7 @@ namespace spade {
         std::stringstream out;
 
     public:
-        explicit SpadeVM(MemoryManager *manager, Settings settings = {});
+        explicit SpadeVM(MemoryManager *manager, const Settings &settings = {});
 
         /**
          * This function registers the action which will be executed
@@ -63,7 +63,7 @@ namespace spade {
          */
         Obj *run(Thread *thread);
 
-        ThrowSignal runtimeError(const string &str);
+        ThrowSignal runtimeError(const string &str) const;
 
         /**
          * @throws IllegalAccessError if the symbol cannot be found
@@ -83,7 +83,7 @@ namespace spade {
          * @param sign the sign of the symbol
          * @param meta the metadata to be set
          */
-        void setMetadata(const string &sign, Table<string> meta);
+        void setMetadata(const string &sign, const Table<string> &meta);
 
         /**
          * Set the value of the symbol corresponding to the signature \p sign
@@ -91,7 +91,7 @@ namespace spade {
          * @param sign the signature of the symbol
          * @param val the value
          */
-        void setSymbol(const string &sign, Obj *val);
+        void setSymbol(const string &sign, Obj *val) const;
 
         std::set<Thread *> &getThreads() { return threads; }
 
@@ -152,7 +152,7 @@ namespace spade {
          * @param args the vector
          * @return an array object containing the contents of args
          */
-        ObjArray *argsRepr(const vector<string> &args);
+        ObjArray *argsRepr(const vector<string> &args) const;
 
         /**
          * This function writes to the output

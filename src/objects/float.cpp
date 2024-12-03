@@ -2,7 +2,7 @@
 #include "float.hpp"
 
 namespace spade {
-    Obj *ObjFloat::copy() const {
+    Obj *ObjFloat::copy() {
         return (Obj *) this;
     }
 

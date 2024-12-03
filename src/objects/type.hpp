@@ -32,7 +32,7 @@ namespace spade
       private:
         static Table<map<Table<Type *>, Type *>> reificationTable;
 
-        Type *returnReified(Table<Type *> typeParams) const;
+        Type *returnReified(const Table<Type *>& typeParams);
 
       public:
         Type(const Sign &sign, Kind kind, const Table<NamedRef *> &typeParams, const Table<Type *> &supers,
@@ -41,7 +41,7 @@ namespace spade
             this->memberSlots = memberSlots;
         }
 
-        Type(Type &type);
+        Type(const Type &type);
 
         virtual Kind getKind() const { return kind; }
 
@@ -53,9 +53,9 @@ namespace spade
 
         virtual Table<NamedRef *> &getTypeParams() { return typeParams; }
 
-        virtual Obj *getStaticMember(string name) const;
+        virtual Obj *getStaticMember(const string& name) const;
 
-        virtual void setStaticMember(string name, Obj *value);
+        virtual void setStaticMember(const string& name, Obj *value);
 
         /**
          * Reifies this type and returns the reified type.
@@ -69,7 +69,7 @@ namespace spade
          * @param count count of type args
          * @return the reified type
          */
-        virtual Type *getReified(Obj **args, uint8 count) const;
+        virtual Type *getReified(Obj **args, uint8 count);
 
         /**
          * Reifies this type and returns the reified type.
@@ -84,13 +84,13 @@ namespace spade
          * @param count count of type args
          * @return the reified type
          */
-        Type *getReified(vector<Type*> args) const;
+        Type *getReified(const vector<Type *>& args);
 
-        virtual TypeParam *getTypeParam(string name) const;
+        virtual TypeParam *getTypeParam(const string& name) const;
 
-        virtual NamedRef *captureTypeParam(string name);
+        virtual NamedRef *captureTypeParam(const string& name);
 
-        Obj *copy() const override;
+        Obj *copy() override;
 
         bool truth() const override;
 

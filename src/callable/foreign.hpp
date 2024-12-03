@@ -19,11 +19,11 @@ namespace spade
 
         void setSelf(Obj *selfObj) override;
 
-        void call(vector<Obj *> args) override;
+        void call(const vector<Obj *>& args) override;
 
         void call(Obj **args) override;
 
-        Obj *copy() const override { return (Obj *) this; }
+        Obj *copy() override { return (Obj *) this; }
 
         string toString() const override;
     };

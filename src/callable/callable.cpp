@@ -11,7 +11,7 @@ namespace spade
 
     void ObjCallable::validateCallSite() {
         if (MemoryManager::current() == null || MemoryManager::current() != info.manager) {
-            throw IllegalAccessError(format("invalid call site, cannot call %s", toString().c_str()));
+            throw IllegalAccessError(std::format("invalid call site, cannot call {}", toString()));
         }
     }
-}    // namespace spade
+} // namespace spade

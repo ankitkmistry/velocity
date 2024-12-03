@@ -20,7 +20,7 @@ namespace spade
 
         string toString() const override { return b ? "true" : "false"; }
 
-        Obj *copy() const override { return (Obj *) this; }
+        Obj *copy() override { return (Obj *) this; }
 
         int32 compare(const Obj *rhs) const override;
 
@@ -38,7 +38,7 @@ namespace spade
 
         string toString() const override { return string({c}); }
 
-        Obj *copy() const override { return (Obj *) this; }
+        Obj *copy() override { return (Obj *) this; }
 
         int32 compare(const Obj *rhs) const override;
     };
@@ -53,7 +53,7 @@ namespace spade
 
         string toString() const override { return "null"; }
 
-        Obj *copy() const override { return (Obj *) this; }
+        Obj *copy() override { return (Obj *) this; }
 
         int32 compare(const Obj *rhs) const override;
     };
@@ -71,7 +71,7 @@ namespace spade
 
         string toString() const override { return str; }
 
-        Obj *copy() const override { return (Obj *) this; }
+        Obj *copy() override { return (Obj *) this; }
 
         int32 compare(const Obj *rhs) const override;
     };
@@ -99,7 +99,7 @@ namespace spade
 
         string toString() const override;
 
-        Obj *copy() const override;
+        Obj *copy() override;
 
         /// Does lexicographical comparison
         int32 compare(const Obj *rhs) const override;

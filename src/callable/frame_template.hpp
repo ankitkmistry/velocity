@@ -24,15 +24,8 @@ namespace spade
         ObjMethod *method;
 
       public:
-        FrameTemplate(uint32 codeCount,
-                      uint8 *code,
-                      uint32 maxStack,
-                      ArgsTable args,
-                      LocalsTable locals,
-                      ExceptionTable exceptions,
-                      LineNumberTable lines,
-                      vector<ObjMethod *> lambdas,
-                      vector<MatchTable> matches,
+        FrameTemplate(uint32 codeCount, uint8 *code, uint32 maxStack, ArgsTable args, LocalsTable locals,
+                      ExceptionTable exceptions, LineNumberTable lines, vector<ObjMethod *> lambdas, vector<MatchTable> matches,
                       ObjMethod *method = null)
             : codeCount(codeCount),
               code(code),
@@ -41,12 +34,11 @@ namespace spade
               locals(locals),
               exceptions(exceptions),
               lines(lines),
-              method(method),
               lambdas(lambdas),
-              matches(matches) {}
+              matches(matches),
+              method(method) {}
 
         Frame initialize();
-
         FrameTemplate *copy();
 
         uint32 getCodeCount() const { return codeCount; }
@@ -83,6 +75,6 @@ namespace spade
 
         void setMethod(ObjMethod *method_) { method = method_; }
     };
-}    // namespace spade
+} // namespace spade
 
-#endif    // VELOCITY_FRAME_TEMPLATE_HPP
+#endif // VELOCITY_FRAME_TEMPLATE_HPP

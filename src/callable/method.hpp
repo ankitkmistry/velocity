@@ -12,13 +12,13 @@ namespace spade
         FrameTemplate *frameTemplate;
         Table<NamedRef *> typeParams;
 
-        ObjMethod *returnReified(Table<Type *> tParams) const;
+        ObjMethod *returnReified(const Table<Type *>& tParams) const;
 
       public:
-        ObjMethod(const Sign &sign, Kind kind, FrameTemplate *frame, Type *type, Table<NamedRef *> typeParams,
+        ObjMethod(const Sign &sign, Kind kind, FrameTemplate *frame, Type *type, const Table<NamedRef *> &typeParams,
                   ObjModule *module = null);
 
-        void call(vector<Obj *> args) override;
+        void call(const vector<Obj *>& args) override;
 
         void call(Obj **args) override;
 
@@ -36,7 +36,7 @@ namespace spade
          * @param count count of type args
          * @return the reified type
          */
-        ObjMethod *getReified(Obj **args, uint8 count);
+        ObjMethod *getReified(Obj **args, uint8 count) const;
 
         /**
          * Reifies this type and returns the reified type.
@@ -51,11 +51,11 @@ namespace spade
          * @param count count of type args
          * @return the reified type
          */
-        ObjMethod *getReified(vector<Type *> args);
+        ObjMethod *getReified(const vector<Type *>& args) const;
 
-        TypeParam *getTypeParam(string name) const;
+        TypeParam *getTypeParam(const string& name) const;
 
-        Obj *copy() const override;
+        Obj *copy() override;
 
         string toString() const override;
 
@@ -65,7 +65,7 @@ namespace spade
 
         Table<NamedRef *> &getTypeParams() { return typeParams; }
 
-        NamedRef *captureTypeParam(string name);
+        NamedRef *captureTypeParam(const string& name) const;
     };
 } // namespace spade
 

@@ -5,13 +5,12 @@
 #include "../objects/type.hpp"
 #include "../utils/common.hpp"
 #include "../utils/exceptions.hpp"
-#include "../utils/utils.hpp"
 
 namespace spade
 {
     class DataTable {
       private:
-        const string title;
+        string title;
         // This field is done to maintain the insertion order which DataTable::data does not maintain
         vector<string> keys;
         map<string, vector<string>> data;
@@ -20,14 +19,13 @@ namespace spade
       protected:
         DataTable(const string &title, const vector<string> &args);
 
-        any get(const string &str) const { return data.at(str); }
+        const vector<string> &get(const string &str) const { return data.at(str); }
 
-        void set(vector<string> vals) {
-            if (vals.size() != data.size())
-                throw FatalError("not enough vals");
+        void set(const vector<string> &vals) {
+            if (vals.size() != data.size()) throw FatalError("not enough vals");
 
             size_t i = 0;
-            for (auto &[_, list]: data) {
+            for (auto &list: data | std::views::values) {
                 list.push_back(vals[i]);
                 i++;
             }
@@ -53,30 +51,22 @@ namespace spade
       public:
         ArgumentTable() : DataTable("Args Table", {"slot", "name", "value"}) {}
 
-        void add(uint8 slot, const string &name, Obj *value) {
-            set({std::to_string(slot), name, value->toString()});
-        }
+        void add(uint8 slot, const string &name, Obj *value) { set({std::to_string(slot), name, value->toString()}); }
     };
 
     class LocalVarTable : public DataTable {
       public:
-        explicit LocalVarTable(uint16 closureStart) : DataTable(format("Locals Table | closureStart: %d", closureStart),
-                                                                {"slot", "name", "value"}) {}
+        explicit LocalVarTable(uint16 closureStart)
+            : DataTable(std::format("Locals Table | closureStart: {}", closureStart), {"slot", "name", "value"}) {}
 
-        void add(uint8 slot, const string &name, Obj *value) {
-            set({std::to_string(slot), name, value->toString()});
-        }
+        void add(uint8 slot, const string &name, Obj *value) { set({std::to_string(slot), name, value->toString()}); }
     };
 
     class ClosureTable : public DataTable {
       public:
         ClosureTable() : DataTable("Closures", {"slot", "name", "value"}) {}
 
-        void add(uint8 slot, const string &name, Obj *value) {
-            set({std::to_string(slot),
-                 name,
-                 value->toString()});
-        }
+        void add(uint8 slot, const string &name, Obj *value) { set({std::to_string(slot), name, value->toString()}); }
     };
 
     class ExcTable : public DataTable {
@@ -92,10 +82,8 @@ namespace spade
       public:
         LineDataTable() : DataTable("Lines", {"bytecode range", "source lineno"}) {}
 
-        void add(string range, uint64 s) {
-            set({range, std::to_string(s)});
-        }
+        void add(string range, uint64 s) { set({range, std::to_string(s)}); }
     };
-}    // namespace spade
+} // namespace spade
 
-#endif    // VELOCITY_DEBUG_TABLE_HPP
+#endif // VELOCITY_DEBUG_TABLE_HPP

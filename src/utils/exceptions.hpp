@@ -2,18 +2,17 @@
 #define SOURCE_UTILS_EXCEPTIONS_HPP_
 
 #include "common.hpp"
-#include "format.hpp"
 
 namespace spade {
     class FatalError : public std::runtime_error {
     public:
-        explicit FatalError(const string &message)
+        explicit FatalError(const string&message)
                 : std::runtime_error(message) {}
     };
 
     class RuntimeError : public std::runtime_error {
     public:
-        explicit RuntimeError(const string &arg) : std::runtime_error(arg) {}
+        explicit RuntimeError(const string&arg) : std::runtime_error(arg) {}
     };
 
     class Obj;
@@ -33,30 +32,30 @@ namespace spade {
         string path;
 
     public:
-        explicit CorruptFileError(const string &path)
-                : FatalError(format("'%s' is corrupted", path.c_str())), path(path) {}
+        explicit CorruptFileError(const string&path)
+                : FatalError(std::format("'{}' is corrupted", path)), path(path) {}
 
-        string getPath() const { return path; }
+        const string& getPath() const { return path; }
     };
 
     class CastError : public FatalError {
     private:
-        const string from, to;
+        string from, to;
 
     public:
-        CastError(const string &from, const string &to)
-                : FatalError(format("cannot cast type '%s' to type '%s'", from.c_str(), to.c_str())),
+        CastError(const string&from, const string&to)
+                : FatalError(std::format("cannot cast type '{}' to type '{}'", from, to)),
                   from(from), to(to) {}
 
-        const string &getFrom() const { return from; }
+        const string&getFrom() const { return from; }
 
-        const string &getTo() const { return to; }
+        const string&getTo() const { return to; }
     };
 
     class MemoryError : public FatalError {
     public:
         explicit MemoryError(size_t size)
-                : FatalError(format("failed to allocate memory: %d bytes", size)) {}
+                : FatalError(std::format("failed to allocate memory: {} bytes", size)) {}
     };
 
     class Unreachable : public FatalError {
@@ -66,32 +65,32 @@ namespace spade {
 
     class IllegalAccessError : public FatalError {
     public:
-        explicit IllegalAccessError(const string &message)
+        explicit IllegalAccessError(const string&message)
                 : FatalError(message) {}
     };
 
     class IndexError : public IllegalAccessError {
     public:
         explicit IndexError(size_t index)
-                : IllegalAccessError(format("index out of bounds: %d", index)) {}
+                : IllegalAccessError(std::format("index out of bounds: {}", index)) {}
 
-        explicit IndexError(string index_of, size_t index)
-                : IllegalAccessError(format("index out of bounds: %d (%s)", index, index_of.c_str())) {}
+        explicit IndexError(const string& index_of, size_t index)
+                : IllegalAccessError(std::format("index out of bounds: {} ({})", index, index_of)) {}
     };
 
     class IllegalTypeParamAccessError : public FatalError {
     public:
-        explicit IllegalTypeParamAccessError(const string &sign)
-                : FatalError(format("tried to access empty type parameter: '%s'", sign.c_str())) {}
+        explicit IllegalTypeParamAccessError(const string&sign)
+                : FatalError(std::format("tried to access empty type parameter: '{}'", sign)) {}
     };
 
     class NativeLibraryError : public FatalError {
     public:
-        NativeLibraryError(string library, string msg)
-                : FatalError(format("in '%s': %s", library.c_str(), msg.c_str())) {}
+        NativeLibraryError(const string& library, const string& msg)
+                : FatalError(std::format("in '{}': {}", library, msg)) {}
 
-        NativeLibraryError(string library, string function, string msg)
-                : FatalError(format("function %s in '%s': %s", function.c_str(), library.c_str(), msg.c_str())) {}
+        NativeLibraryError(const string& library, const string& function, const string& msg)
+                : FatalError(std::format("function {} in '{}': {}", function, library, msg)) {}
     };
 
     class StackOverflowError : public FatalError {
@@ -102,8 +101,8 @@ namespace spade {
 
     class ArgumentError : public FatalError {
     public:
-        ArgumentError(string sign, string msg)
-                : FatalError(format("%s: %s", sign.c_str(), msg.c_str())) {}
+        ArgumentError(const string& sign, const string& msg)
+                : FatalError(std::format("{}: {}", sign, msg)) {}
     };
 }
 

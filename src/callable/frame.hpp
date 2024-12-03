@@ -36,7 +36,6 @@ namespace spade
 
       public:
         Frame(const Frame &frame) = default;
-
         Frame &operator=(const Frame &frame) = default;
 
         /**

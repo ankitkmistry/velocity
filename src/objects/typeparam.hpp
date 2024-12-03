@@ -43,23 +43,23 @@ namespace spade
 
         Type *getType() const override;
 
-        Obj *getMember(string name) const override;
+        Obj *getMember(const string& name) const override;
 
-        void setMember(string name, Obj *value) override;
+        void setMember(const string& name, Obj *value) override;
 
-        ObjMethod *getSuperClassMethod(string sign) override;
+        ObjMethod *getSuperClassMethod(const string& sign) override;
 
-        Obj *getStaticMember(string name) const override;
+        Obj *getStaticMember(const string& name) const override;
 
-        void setStaticMember(string name, Obj *value) override;
+        void setStaticMember(const string& name, Obj *value) override;
 
-        Type *getReified(Obj **args, uint8 count) const override;
+        Type *getReified(Obj **args, uint8 count) override;
 
-        TypeParam *getTypeParam(string name) const override;
+        TypeParam *getTypeParam(const string& name) const override;
 
-        NamedRef *captureTypeParam(string name) override;
+        NamedRef *captureTypeParam(const string& name) override;
 
-        Obj *copy() const override;
+        Obj *copy() override;
     };
 } // namespace spade
 

@@ -3,7 +3,7 @@
 #include "float.hpp"
 
 namespace spade {
-    Obj *ObjInt::copy() const {
+    Obj *ObjInt::copy() {
         return (Obj *) this;
     }
 

@@ -1,5 +1,7 @@
 #include "foreign_loader.hpp"
 
+#include <ranges>
+
 #if defined OS_WINDOWS
 
 string getErrorMessage(DWORD errorCode) {
@@ -57,7 +59,7 @@ void Library::unload() {
 
 Library *ForeignLoader::loadSimpleLibrary(string path) {
     // TODO: Add advanced lookup
-    HMODULE module = LoadLibraryA(path.c_str());
+    HMODULE module = LoadLibrary(path.c_str());
     if (module == null) {
         DWORD errorCode = GetLastError();
         auto errMsg = getErrorMessage(errorCode);
@@ -88,7 +90,7 @@ Library *ForeignLoader::loadSimpleLibrary(string path) {
 #endif
 
 void ForeignLoader::unloadLibraries() {
-    for (auto [_, library]: libraries) {
+    for (auto library: libraries | std::views::values) {
         library->unload();
     }
 }

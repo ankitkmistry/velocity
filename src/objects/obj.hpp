@@ -2,9 +2,6 @@
 #define OOP_OBJ_HPP_
 
 #include "../utils/common.hpp"
-#include "../memory/manager.hpp"
-#include "../utils/exceptions.hpp"
-#include "../utils/utils.hpp"
 #include "../memory/memory.hpp"
 
 namespace spade {
@@ -123,7 +120,7 @@ namespace spade {
          * @param old_ old type parameters
          * @param new_ new type parameters
          */
-        static void reify(Obj **pObj, Table<NamedRef *> old_, Table<NamedRef *> new_);
+        static void reify(Obj **pObj, const Table<NamedRef *>&old_, const Table<NamedRef *>& new_);
 
     public:
         /**
@@ -142,14 +139,14 @@ namespace spade {
          * @param type
          * @param module
          */
-        Obj(Sign sign, Type *type, ObjModule *module = null);
+        Obj(const Sign &sign, Type *type, ObjModule *module = null);
 
         /**
          * Performs a complete deep copy on the object.
          * @warning The user should not use this function except in exceptional cases
          * @return a copy of the object
          */
-        virtual Obj *copy() const;
+        virtual Obj *copy();
 
         /**
          * @return the corresponding truth value of the object
@@ -197,7 +194,7 @@ namespace spade {
          * @param name the name of the member
          * @return the member of this object, the member can be static also
          */
-        virtual Obj *getMember(string name) const;
+        virtual Obj *getMember(const string& name) const;
 
         /**
          * Sets the member of this object with \p name and sets it to \p value.
@@ -205,14 +202,14 @@ namespace spade {
          * @param name name of the member
          * @param value value to be set to
          */
-        virtual void setMember(string name, Obj *value);
+        virtual void setMember(const string& name, Obj *value);
 
         /**
          * @throws IllegalAccessError if the superclass method cannot be found
          * @param mSign complete signature of the method
          * @return the method of the superclass has been overrode by this object
          */
-        virtual ObjMethod *getSuperClassMethod(string mSign);
+        virtual ObjMethod *getSuperClassMethod(const string& mSign);
 
         /**
          * @return the meta information of the object

@@ -37,9 +37,7 @@ namespace spade
                         break;
                     case Opcode::NDUP: {
                         uint8 count = (uint8) state->readByte();
-                        for (int i = 0; i < count; ++i) {
-                            frame->sp[i] = frame->sp[-1];
-                        }
+                        for (int i = 0; i < count; ++i) { frame->sp[i] = frame->sp[-1]; }
                         frame->sp += count;
                         break;
                     }
@@ -107,36 +105,28 @@ namespace spade
                         frame->getArgs().set(state->readByte(), state->pop());
                         break;
                     case Opcode::TLOAD:
-                        state->push(frame
-                                            ->getMethod()
-                                            ->getTypeParam(state->loadConst(state->readShort())->toString()));
+                        state->push(frame->getMethod()->getTypeParam(state->loadConst(state->readShort())->toString()));
                         break;
                     case Opcode::TFLOAD:
-                        state->push(frame
-                                            ->getMethod()
-                                            ->getTypeParam(state->loadConst(state->readByte())->toString()));
+                        state->push(frame->getMethod()->getTypeParam(state->loadConst(state->readByte())->toString()));
                         break;
                     case Opcode::TSTORE:
-                        frame
-                                ->getMethod()
+                        frame->getMethod()
                                 ->getTypeParam(state->loadConst(state->readShort())->toString())
                                 ->setPlaceholder(cast<Type *>(state->peek()));
                         break;
                     case Opcode::TFSTORE:
-                        frame
-                                ->getMethod()
+                        frame->getMethod()
                                 ->getTypeParam(state->loadConst(state->readByte())->toString())
                                 ->setPlaceholder(cast<Type *>(state->peek()));
                         break;
                     case Opcode::PTSTORE:
-                        frame
-                                ->getMethod()
+                        frame->getMethod()
                                 ->getTypeParam(state->loadConst(state->readShort())->toString())
                                 ->setPlaceholder(cast<Type *>(state->pop()));
                         break;
                     case Opcode::PTFSTORE:
-                        frame
-                                ->getMethod()
+                        frame->getMethod()
                                 ->getTypeParam(state->loadConst(state->readByte())->toString())
                                 ->setPlaceholder(cast<Type *>(state->pop()));
                         break;
@@ -230,23 +220,19 @@ namespace spade
                     }
                     case Opcode::ARRUNPACK: {
                         auto array = cast<ObjArray *>(state->pop());
-                        array->foreach ([&state](auto item) {
-                            state->push(item);
-                        });
+                        array->foreach ([&state](auto item) { state->push(item); });
                         break;
                     }
                     case Opcode::ARRPACK: {
-                        uint8 count = (uint8) state->readByte();
+                        uint8 count = state->readByte();
                         auto array = halloc<ObjArray>(manager, count);
                         frame->sp -= count;
-                        for (int i = 0; i < count; ++i) {
-                            array->set(i, frame->sp[i]);
-                        }
+                        for (int i = 0; i < count; ++i) { array->set(i, frame->sp[i]); }
                         state->push(array);
                         break;
                     }
                     case Opcode::ARRBUILD: {
-                        uint8 count = (uint8) state->readShort();
+                        uint8 count = static_cast<uint8>(state->readShort());
                         auto array = halloc<ObjArray>(manager, count);
                         state->push(array);
                         break;
@@ -284,7 +270,7 @@ namespace spade
                     }
                     case Opcode::INVOKE: {
                         // Get the count
-                        uint8 count = (uint8) state->readByte();
+                        uint8 count = state->readByte();
                         // Pop the arguments
                         frame->sp -= count;
                         // Get the method
@@ -299,7 +285,7 @@ namespace spade
                         // Get name of the method
                         auto name = sign.getName();
                         // Get the arg count
-                        uint8 count = (uint8) sign.getParams().size();
+                        uint8 count = static_cast<uint8>(sign.getParams().size());
 
                         // Pop the arguments
                         frame->sp -= count;
@@ -317,7 +303,7 @@ namespace spade
                         // Get name of the method
                         auto name = sign.getName();
                         // Get the arg count
-                        uint8 count = (uint8) sign.getParams().size();
+                        uint8 count = static_cast<uint8>(sign.getParams().size());
 
                         // Pop the arguments
                         frame->sp -= count;
@@ -375,7 +361,7 @@ namespace spade
                         // Get name of the method
                         auto name = sign.getName();
                         // Get the arg count
-                        uint8 count = (uint8) sign.getParams().size();
+                        uint8 count = static_cast<uint8>(sign.getParams().size());
 
                         // Pop the arguments
                         frame->sp -= count;
@@ -393,7 +379,7 @@ namespace spade
                         // Get name of the method
                         auto name = sign.getName();
                         // Get the arg count
-                        uint8 count = (uint8) sign.getParams().size();
+                        uint8 count = static_cast<uint8>(sign.getParams().size());
 
                         // Pop the arguments
                         frame->sp -= count;
@@ -543,9 +529,8 @@ namespace spade
                             obj->setType(type);
                             state->push(obj);
                         } else
-                            runtimeError(format("object of type '%s' cannot be cast to object of type '%s'",
-                                                obj->getType()->getSign().toString().c_str(),
-                                                type->getSign().toString().c_str()));
+                            runtimeError(std::format("object of type '{}' cannot be cast to object of type '{}'",
+                                                     obj->getType()->getSign().toString(), type->getSign().toString()));
                         break;
                     }
                     case Opcode::POW: {
@@ -675,8 +660,6 @@ namespace spade
                         state->push(halloc<ObjBool>(manager, !is<ObjNull *>(state->pop())));
                         break;
                     case Opcode::ENTERMONITOR:
-                        // todo: implement
-                        break;
                     case Opcode::EXITMONITOR:
                         // todo: implement
                         break;
@@ -698,16 +681,15 @@ namespace spade
                         for (uint16 i = locals.getClosureStart(); i < locals.count(); i++) {
                             NamedRef *ref;
                             switch (state->readByte()) {
-                                case 0x00:    // Arg as closure
+                                case 0x00: // Arg as closure
                                     ref = frame->getArgs().getArg(state->readByte());
                                     break;
-                                case 0x01:    // Local as closure
+                                case 0x01: // Local as closure
                                     ref = frame->getLocals().getLocal(state->readShort());
                                     break;
-                                case 0x02:    // Type param as closure
-                                    ref = frame
-                                                  ->getMethod()
-                                                  ->captureTypeParam(state->loadConst(state->readShort())->toString());
+                                case 0x02: // Type param as closure
+                                    ref = frame->getMethod()->captureTypeParam(
+                                            state->loadConst(state->readShort())->toString());
                                     break;
                                 default:
                                     throw Unreachable();
@@ -717,7 +699,7 @@ namespace spade
                         break;
                     }
                     case Opcode::REIFIEDLOAD: {
-                        uint8 count = (uint8) state->readByte();
+                        uint8 count = state->readByte();
                         // Pop the arguments
                         for (int i = 0; i < count; i++) state->pop();
                         auto args = frame->sp;
@@ -728,8 +710,7 @@ namespace spade
                             state->push(cast<Type *>(obj)->getReified(args, count));
                         } else
                             throw runtimeError(
-                                    format("cannot setPlaceholder value of type %s",
-                                           obj->getType()->toString().c_str()));
+                                    std::format("cannot setPlaceholder value of type {}", obj->getType()->toString()));
                         break;
                     }
                     case Opcode::THROW: {
@@ -743,9 +724,7 @@ namespace spade
                         // Pop the current frame
                         state->popFrame();
                         // Return if encountered end of execution
-                        if (topFrame == currentFrame) {
-                            return val;
-                        }
+                        if (topFrame == currentFrame) { return val; }
                         // Push the return value
                         state->getFrame()->push(val);
                         break;
@@ -755,9 +734,7 @@ namespace spade
                         // Pop the current frame
                         state->popFrame();
                         // Return if encountered end of execution
-                        if (topFrame == currentFrame) {
-                            return ObjNull::value(manager);
-                        }
+                        if (topFrame == currentFrame) { return ObjNull::value(manager); }
                         break;
                     }
                     case Opcode::PRINTLN:
@@ -768,10 +745,10 @@ namespace spade
                         // No use
                         break;
                     case Opcode::I2F:
-                        state->push(halloc<ObjFloat>(manager, (double) cast<ObjInt *>(state->pop())->value()));
+                        state->push(halloc<ObjFloat>(manager, static_cast<double>(cast<ObjInt *>(state->pop())->value())));
                         break;
                     case Opcode::F2I:
-                        state->push(halloc<ObjInt>(manager, (int64) cast<ObjFloat *>(state->pop())->value()));
+                        state->push(halloc<ObjInt>(manager, static_cast<int64>(cast<ObjFloat *>(state->pop())->value())));
                         break;
                     case Opcode::I2B:
                         state->push(ObjBool::value(cast<ObjInt *>(state->pop())->value() != 0, manager));
@@ -791,8 +768,7 @@ namespace spade
                 while (state->getCallStackSize() > 0) {
                     frame = state->getFrame();
                     auto info = frame->getExceptions().getTarget(state->getPc(), value->getType());
-                    if (Exception::IS_NO_EXCEPTION(info))
-                        state->popFrame();
+                    if (Exception::IS_NO_EXCEPTION(info)) state->popFrame();
                     else {
                         state->setPc(info.getTarget());
                         state->push(value);
@@ -809,4 +785,4 @@ namespace spade
         }
         return ObjNull::value(manager);
     }
-}    // namespace spade
+} // namespace spade

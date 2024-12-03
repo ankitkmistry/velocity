@@ -1,55 +1,56 @@
 #include "loader.hpp"
-#include "verifier.hpp"
 #include "../ee/vm.hpp"
-#include "../objects/int.hpp"
 #include "../objects/float.hpp"
+#include "../objects/int.hpp"
+#include "verifier.hpp"
 
-namespace spade {
+namespace spade
+{
     Loader::Loader(SpadeVM *vm) : vm(vm), manager(vm->getMemoryManager()) {}
 
-    ObjMethod *Loader::load(string path) {
+    ObjMethod *Loader::load(const string &path) {
         vector<ObjModule *> toBeLoaded;
-        {   // Read
+        { // Read
+
             struct ModInfo {
                 vector<string> deps;
                 uint32 i;
             };
+
             vector<ModInfo> moduleStack;
             ObjModule *module = readModule(path);
-            ModInfo modInfo = {.deps=module->getDependencies(), .i=0};
+            ModInfo modInfo = {.deps = module->getDependencies(), .i = 0};
             moduleStack.push_back(modInfo);
             toBeLoaded.push_back(module);
             while (!moduleStack.empty()) {
                 modInfo = moduleStack.back();
-                if (modInfo.i >= modInfo.deps.size()) {
-                    moduleStack.pop_back();
-                }
+                if (modInfo.i >= modInfo.deps.size()) { moduleStack.pop_back(); }
                 for (; modInfo.i < modInfo.deps.size(); ++modInfo.i) {
                     string depPath = modInfo.deps[modInfo.i];
                     auto depModule = readModule(depPath);
                     if (depModule->getState() == ObjModule::State::NOT_READ) {
-                        ModInfo depModInfo = {.deps=module->getDependencies(), .i=0};
+                        ModInfo depModInfo = {.deps = module->getDependencies(), .i = 0};
                         moduleStack.push_back(depModInfo);
                         toBeLoaded.push_back(depModule);
                     }
                 }
             }
         }
-        {   // Load
+        { // Load
             for (auto module: toBeLoaded) {
                 current = module;
                 loadModule(module);
             }
             current = null;
             // Complain about the unresolved types
-            for (auto [sign, reference]: referencePool) {
+            for (const auto &[sign, reference]: referencePool) {
                 if (reference->getKind() == Type::Kind::UNRESOLVED) {
-                    throw IllegalAccessError(format("reference not found: '%s'", sign.c_str()));
+                    throw IllegalAccessError(std::format("reference not found: '{}'", sign));
                     // TODO give a detailed error message for all the unresolved references
                 }
             }
         }
-        {   // Init
+        { // Init
             for (auto module: toBeLoaded) {
                 ObjMethod *init = module->getInit();
                 if (init != null) {
@@ -77,39 +78,32 @@ namespace spade {
         fs::path path{pathStr};
         fs::path result;
 
-        if (path.is_absolute())result = path;
+        if (path.is_absolute()) result = path;
         else if (path.string()[0] == '.') {
             result = (getLoadPath() / path);
         } else {
-            for (fs::path dir: vm->getSettings().modPath) {
+            for (const auto &dir: vm->getSettings().modPath) {
                 result = dir / path;
-                if (fs::exists(result)) return result.string();
+                if (exists(result)) return result.string();
             }
             result = getLoadPath() / path;
-            if (fs::exists(result)) return result.string();
+            if (exists(result)) return result.string();
             result = fs::current_path() / path;
-            if (fs::exists(result)) return result.string();
+            if (exists(result)) return result.string();
         }
-        if (!fs::exists(result)) {
-            throw IllegalAccessError(format("path not found: %s", pathStr.c_str()));
-        }
+        if (!exists(result)) { throw IllegalAccessError(std::format("path not found: {}", pathStr)); }
         return result.string();
     }
 
-
     fs::path Loader::getLoadPath() {
-        if (getCurrentModule() != null) {
-            return getCurrentModule()->getPath().parent_path();
-        }
+        if (getCurrentModule() != null) { return getCurrentModule()->getPath().parent_path(); }
         return fs::current_path();
     }
 
     ObjModule *Loader::readModule(const string &path) {
         auto absolutePath = getAbsolutePath(path);
         // If the module is already read, return it
-        if (auto it = modules.find(absolutePath); it != modules.end()) {
-            return it->second;
-        }
+        if (auto it = modules.find(absolutePath); it != modules.end()) { return it->second; }
         // Or else, start reading a new module
         ElpReader reader{resolvePath(path)};
         auto elp = reader.read();
@@ -123,9 +117,7 @@ namespace spade {
         auto depObjs = cast<ObjArray *>(constPool[elp.imports]);
         vector<string> deps;
         deps.reserve(depObjs->count());
-        depObjs->foreach([&deps](auto depObj) {
-            deps.push_back(depObj->toString());
-        });
+        depObjs->foreach ([&deps](auto depObj) { deps.push_back(depObj->toString()); });
         vm->setMetadata(sign.toString(), readMeta(elp.meta));
 
         auto module = halloc<ObjModule>(manager, sign, path, constPool, deps, elp);
@@ -183,7 +175,7 @@ namespace spade {
         }
     }
 
-    Obj *Loader::readClass(ClassInfo klass) {
+    Obj *Loader::readClass(ClassInfo& klass) {
         auto constPool = getConstantPool();
         Type::Kind kind;
         switch (klass.type) {
@@ -207,16 +199,14 @@ namespace spade {
         Table<NamedRef *> typeParams;
         for (int i = 0; i < klass.typeParamCount; ++i) {
             auto paramName = constPool[klass.typeParams[i].name]->toString();
-            auto typeParam = halloc<NamedRef>(manager,
-                                              paramName,
-                                              halloc<TypeParam>(manager, Sign{paramName}, getCurrentModule()),
-                                              Table<string>{});
+            auto typeParam = halloc<NamedRef>(manager, paramName,
+                                              halloc<TypeParam>(manager, Sign{paramName}, getCurrentModule()), Table<string>{});
             typeParams[paramName] = typeParam;
             referencePool[paramName] = cast<Type *>(typeParam->getValue());
         }
 
         Table<Type *> supers;
-        cast<ObjArray *>(constPool[klass.supers])->foreach([this, &supers](auto super) {
+        cast<ObjArray *>(constPool[klass.supers])->foreach ([this, &supers](auto super) {
             auto str = super->toString();
             Type *type = findType(str);
             supers[type->getSign().toString()] = type;
@@ -240,7 +230,7 @@ namespace spade {
         vm->setMetadata(sign.toString(), meta);
 
         // Resolve the type params
-        for (auto [name, _]: typeParams) {
+        for (const auto &[name, _]: typeParams) {
             // Remove the unresolved types from ref pool
             referencePool.erase(name);
         }
@@ -289,21 +279,15 @@ namespace spade {
         Table<NamedRef *> typeParams;
         for (int i = 0; i < method.typeParamCount; ++i) {
             auto paramName = constPool[method.typeParams[i].name]->toString();
-            auto typeParam = halloc<NamedRef>(manager,
-                                              paramName,
-                                              halloc<TypeParam>(manager, Sign{paramName}, getCurrentModule()),
-                                              Table<string>{});
+            auto typeParam = halloc<NamedRef>(manager, paramName,
+                                              halloc<TypeParam>(manager, Sign{paramName}, getCurrentModule()), Table<string>{});
             typeParams[paramName] = typeParam;
             referencePool[paramName] = cast<Type *>(typeParam->getValue());
         }
         ArgsTable args{};
-        for (int i = 0; i < method.argsCount; ++i) {
-            args.addArg(readArg(method.args[i]));
-        }
+        for (int i = 0; i < method.argsCount; ++i) { args.addArg(readArg(method.args[i])); }
         LocalsTable locals{method.closureStart};
-        for (int i = 0; i < method.localsCount; ++i) {
-            locals.addLocal(readLocal(method.locals[i]));
-        }
+        for (int i = 0; i < method.localsCount; ++i) { locals.addLocal(readLocal(method.locals[i])); }
         ExceptionTable exceptions{};
         for (int i = 0; i < method.exceptionTableCount; ++i) {
             exceptions.addException(readException(method.exceptionTable[i]));
@@ -315,31 +299,23 @@ namespace spade {
         }
         vector<ObjMethod *> lambdas;
         lambdas.reserve(method.lambdaCount);
-        for (int i = 0; i < method.lambdaCount; ++i) {
-            lambdas.push_back(cast<ObjMethod *>(readMethod(method.lambdas[i])));
-        }
+        for (int i = 0; i < method.lambdaCount; ++i) { lambdas.push_back(cast<ObjMethod *>(readMethod(method.lambdas[i]))); }
         vector<MatchTable> matches;
         matches.reserve(method.matchCount);
-        for (int i = 0; i < method.matchCount; ++i) {
-            matches.push_back(readMatch(method.matches[i]));
-        }
+        for (int i = 0; i < method.matchCount; ++i) { matches.push_back(readMatch(method.matches[i])); }
 
         auto meta = readMeta(method.meta);
         vm->setMetadata(sign.toString(), meta);
 
         // Resolve the type params
-        for (auto [name, _]: typeParams) {
+        for (const auto &[name, _]: typeParams) {
             // Remove the unresolved types from ref pool
             referencePool.erase(name);
         }
         // Create the frame template
-        auto frameTemplate = new FrameTemplate{
-                method.codeCount, method.code, method.maxStack,
-                args, locals, exceptions,
-                lines, lambdas, matches
-        };
-        auto methodObj = halloc<ObjMethod>(
-                manager, sign, kind, frameTemplate, null, typeParams, getCurrentModule());
+        auto frameTemplate = new FrameTemplate{method.codeCount, method.code, method.maxStack, args,   locals,
+                                               exceptions,       lines,       lambdas,         matches};
+        auto methodObj = halloc<ObjMethod>(manager, sign, kind, frameTemplate, null, typeParams, getCurrentModule());
         return methodObj;
     }
 
@@ -349,7 +325,7 @@ namespace spade {
         cases.reserve(match.caseCount);
         for (int i = 0; i < match.caseCount; ++i) {
             auto kase = match.cases[i];
-            cases.push_back({Obj::createCopy(constPool[kase.value]), kase.location});
+            cases.emplace_back(Obj::createCopy(constPool[kase.value]), kase.location);
         }
         return {cases, match.defaultLocation};
     }
@@ -357,13 +333,7 @@ namespace spade {
     Exception Loader::readException(MethodInfo::ExceptionTableInfo &exception) {
         auto constPool = getConstantPool();
         auto type = findType(constPool[exception.exception]->toString());
-        return {
-                exception.startPc,
-                exception.endPc,
-                exception.targetPc,
-                type,
-                readMeta(exception.meta)
-        };
+        return {exception.startPc, exception.endPc, exception.targetPc, type, readMeta(exception.meta)};
     }
 
     NamedRef *Loader::readLocal(MethodInfo::LocalInfo &local) {
@@ -384,16 +354,14 @@ namespace spade {
         return halloc<NamedRef>(manager, name, obj, meta);
     }
 
-    vector<Obj *> Loader::readConstPool(CpInfo *constantPool, uint16 count) {
+    const vector<Obj *> &Loader::readConstPool(const CpInfo *constantPool, uint16 count) {
         vector<Obj *> list;
-        for (int i = 0; i < count; ++i) {
-            list.push_back(readCp(constantPool[i]));
-        }
-        list.shrink_to_fit();
+        list.reserve(count);
+        for (int i = 0; i < count; ++i) { list.push_back(readCp(constantPool[i])); }
         return list;
     }
 
-    Obj *Loader::readCp(CpInfo &cpInfo) {
+    Obj *Loader::readCp(const CpInfo &cpInfo) {
         switch (cpInfo.tag) {
             case 0x00:
                 return halloc<ObjNull>(manager, getCurrentModule());
@@ -402,7 +370,7 @@ namespace spade {
             case 0x02:
                 return halloc<ObjBool>(manager, false, getCurrentModule());
             case 0x03:
-                return halloc<ObjChar>(manager, (char) cpInfo._char, getCurrentModule());
+                return halloc<ObjChar>(manager, static_cast<char>(cpInfo._char), getCurrentModule());
             case 0x04:
                 return halloc<ObjInt>(manager, unsignedToSigned(cpInfo._int), getCurrentModule());
             case 0x05:
@@ -412,9 +380,7 @@ namespace spade {
             case 0x07: {
                 auto con = cpInfo._array;
                 auto array = halloc<ObjArray>(manager, con.len, getCurrentModule());
-                for (int i = 0; i < con.len; ++i) {
-                    array->set(i, readCp(con.items[i]));
-                }
+                for (int i = 0; i < con.len; ++i) { array->set(i, readCp(con.items[i])); }
                 return array;
             }
             default:
@@ -422,11 +388,9 @@ namespace spade {
         }
     }
 
-    string Loader::readUTF8(__UTF8 &value) {
-        return string(reinterpret_cast<const char *>(value.bytes), value.len);
-    }
+    string Loader::readUTF8(const __UTF8 &value) { return string(reinterpret_cast<const char *>(value.bytes), value.len); }
 
-    Table<string> Loader::readMeta(MetaInfo &meta) {
+    Table<string> Loader::readMeta(const MetaInfo &meta) {
         Table<string> table;
         for (int i = 0; i < meta.len; ++i) {
             auto entry = meta.table[i];
@@ -436,7 +400,7 @@ namespace spade {
     }
 
     Type *Loader::findType(const string &sign) {
-        if (vm->getSettings().inbuiltTypes.contains(sign))return null;
+        if (vm->getSettings().inbuiltTypes.contains(sign)) return null;
 
         Type *type;
 
@@ -444,7 +408,7 @@ namespace spade {
             // Get it
             type = cast<Type *>(find1);
         } else if (auto find2 = referencePool.find(sign);
-                find2 != referencePool.end()) { // Try to find the type if it is already present in the ref pool
+                   find2 != referencePool.end()) { // Try to find the type if it is already present in the ref pool
             type = find2->second;
         } else { // Build an unresolved type in the ref pool and return it
             // Get a sentinel with the name attached to it
@@ -455,7 +419,7 @@ namespace spade {
         return type;
     }
 
-    Type *Loader::resolveType(const string &sign, Type type) {
+    Type *Loader::resolveType(const string &sign, const Type &type) {
         // Get the object
         auto find = referencePool.find(sign);
         // If it was referred earlier, then resolve it
@@ -465,56 +429,35 @@ namespace spade {
             // Change it
             *unresolved = type;
             return unresolved;
-        } else {
-            return halloc<Type>(manager, type);
         }
+        return halloc<Type>(manager, type);
     }
 
-    Obj *Loader::makeObj(string typeSign, Sign objSign, Type *type) {
-        static map<string, function<Obj *()>> objMap = {
-                {"array",  [&] { return halloc<ObjArray>(manager, 0, getCurrentModule()); }},
+    Obj *Loader::makeObj(const string &typeSign, const Sign &objSign, Type *type) const {
+        static std::unordered_map<string, function<Obj *()>> objMap = {
+                {"array",  [&] { return halloc<ObjArray>(manager, 0, getCurrentModule()); }   },
                 {"bool",   [&] { return halloc<ObjBool>(manager, false, getCurrentModule()); }},
-                {"char",   [&] { return halloc<ObjChar>(manager, '\0', getCurrentModule()); }},
-                {"float",  [&] { return halloc<ObjFloat>(manager, 0, getCurrentModule()); }},
-                {"int",    [&] { return halloc<ObjInt>(manager, 0, getCurrentModule()); }},
-                {"string", [&] { return halloc<ObjString>(manager, "", getCurrentModule()); }}
+                {"char",   [&] { return halloc<ObjChar>(manager, '\0', getCurrentModule()); } },
+                {"float",  [&] { return halloc<ObjFloat>(manager, 0, getCurrentModule()); }   },
+                {"int",    [&] { return halloc<ObjInt>(manager, 0, getCurrentModule()); }     },
+                {"string", [&] { return halloc<ObjString>(manager, "", getCurrentModule()); } }
         };
         try {
             return objMap.at(typeSign)();
-        } catch (std::out_of_range &) {
-            return halloc<Obj>(manager, objSign, type, getCurrentModule());
-        }
+        } catch (const std::out_of_range &) { return halloc<Obj>(manager, objSign, type, getCurrentModule()); }
     }
 
-    Obj *Loader::makeObj(string typeSign, Type *type) {
+    Obj *Loader::makeObj(const string &typeSign, Type *type) const {
         static map<string, function<Obj *()>> objMap = {
-                {".array",  [&] { return halloc<ObjArray>(manager, 0, getCurrentModule()); }},
+                {".array",  [&] { return halloc<ObjArray>(manager, 0, getCurrentModule()); }   },
                 {".bool",   [&] { return halloc<ObjBool>(manager, false, getCurrentModule()); }},
-                {".char",   [&] { return halloc<ObjChar>(manager, '\0', getCurrentModule()); }},
-                {".float",  [&] { return halloc<ObjFloat>(manager, 0, getCurrentModule()); }},
-                {".int",    [&] { return halloc<ObjInt>(manager, 0, getCurrentModule()); }},
-                {".string", [&] { return halloc<ObjString>(manager, "", getCurrentModule()); }}
+                {".char",   [&] { return halloc<ObjChar>(manager, '\0', getCurrentModule()); } },
+                {".float",  [&] { return halloc<ObjFloat>(manager, 0, getCurrentModule()); }   },
+                {".int",    [&] { return halloc<ObjInt>(manager, 0, getCurrentModule()); }     },
+                {".string", [&] { return halloc<ObjString>(manager, "", getCurrentModule()); } }
         };
         try {
             return objMap.at(typeSign)();
-        } catch (const std::out_of_range &) {
-            return halloc<Obj>(manager, Sign(""), type, getCurrentModule());
-        }
+        } catch (const std::out_of_range &) { return halloc<Obj>(manager, Sign(""), type, getCurrentModule()); }
     }
-
-    Sign Loader::getSign(cpidx index) {
-        return Sign{getConstantPool()[index]->toString()};
-    }
-
-    const vector<Obj *> &Loader::getConstantPool() {
-        auto module = getCurrentModule();
-        return module->getConstantPool();
-    }
-
-    ObjModule *Loader::getCurrentModule() {
-        return current;
-    }
-
-    CorruptFileError Loader::corrupt() { return CorruptFileError(getCurrentModule()->getAbsolutePath()); }
-}
-
+} // namespace spade

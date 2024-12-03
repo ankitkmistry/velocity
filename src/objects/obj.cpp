@@ -1,14 +1,15 @@
 #include "obj.hpp"
+#include "../ee/vm.hpp"
+#include "inbuilt_types.hpp"
 #include "module.hpp"
 #include "type.hpp"
 #include "typeparam.hpp"
-#include "inbuilt_types.hpp"
-#include "../ee/vm.hpp"
 
-namespace spade {
+namespace spade
+{
     static Table<MemberSlot> Type_getAllNonStaticMembers(Type *type, Table<ObjMethod *> &superMethods) {
         Table<MemberSlot> result;
-        for (auto [_, super]: type->getSupers()) {
+        for (auto super: type->getSupers() | std::views::values) {
             for (auto [name, member]: Type_getAllNonStaticMembers(super, superMethods)) {
                 if (!member.getFlags().isStatic()) {
                     result[name] = MemberSlot{Obj::createCopy(member.getValue()), member.getFlags()};
@@ -18,8 +19,7 @@ namespace spade {
         for (auto [name, member]: type->getMemberSlots()) {
             if (!member.getFlags().isStatic()) {
                 // Save methods that are being overrode
-                if (is<ObjMethod *>(member.getValue())
-                    && result.find(name) != result.end()) {
+                if (is<ObjMethod *>(member.getValue()) && result.contains(name)) {
                     auto method = cast<ObjMethod *>(member.getValue());
                     superMethods[method->getSign().toString()] = method;
                 }
@@ -29,23 +29,18 @@ namespace spade {
         return result;
     }
 
-    Obj::Obj(Sign sign, Type *type, ObjModule *module) :
-            sign(sign), type(type), module(module) {
-        if (this->module == null) {
-            this->module = ObjModule::current();
-        }
+    Obj::Obj(const Sign &sign, Type *type, ObjModule *module) : module(module), sign(sign), type(type) {
+        if (this->module == null) { this->module = ObjModule::current(); }
         if (type != null) {
             memberSlots = Type_getAllNonStaticMembers(type, superClassMethods);
-            for (auto [name, slot]: memberSlots) {
+            for (auto slot: memberSlots | std::views::values) {
                 Obj *value = slot.getValue();
-                if (is<ObjCallable *>(value)) {
-                    cast<ObjCallable *>(value->copy())->setSelf(this);
-                }
+                if (is<ObjCallable *>(value)) { cast<ObjCallable *>(value->copy())->setSelf(this); }
             }
         }
     }
 
-    void Obj::reify(Obj **pObj, Table<NamedRef *> old_, Table<NamedRef *> new_) {
+    void Obj::reify(Obj **pObj, const Table<NamedRef *> &old_, const Table<NamedRef *> &new_) {
 #define REIFY(pObj) reify(pObj, old_, new_)
         if (*pObj == null) return;
         if (old_.empty() || new_.empty()) return;
@@ -73,16 +68,16 @@ namespace spade {
             }
             // Reify lambdas
             auto &lambdas = frameTemplate->getLambdas();
-            for (int i = 0; i < lambdas.size(); ++i) {
-                auto lambda = cast<Obj *>(lambdas[i]);
-                REIFY(&lambda);
+            for (auto lambda: lambdas) {
+                auto lambdaObj = cast<Obj *>(lambda);
+                REIFY(&lambdaObj);
             }
             // Reify matches
             auto &matches = frameTemplate->getMatches();
-            for (auto match: matches) {
+            for (const auto &match: matches) {
                 auto cases = match.getCases();
-                for (int i = 0; i < cases.size(); ++i) {
-                    auto caseValue = cases[i].getValue();
+                for (const auto &kase: cases) {
+                    auto caseValue = kase.getValue();
                     REIFY(&caseValue);
                 }
             }
@@ -94,9 +89,9 @@ namespace spade {
             }
         } else if (auto tp = dynamic_cast<TypeParam *>(*pObj); tp != null) {
             // Change type params accordingly
-            for (auto [name, param]: old_) {
+            for (const auto &[name, param]: old_) {
                 if (*pObj == param->getValue()) {
-                    *pObj = new_[name]->getValue();
+                    *pObj = new_.at(name)->getValue();
                     break;
                 }
             }
@@ -111,34 +106,31 @@ namespace spade {
             object->type = cast<Type *>(type);
         }
         // Reify members
-        for (auto [_, member]: object->getMemberSlots()) {
-            REIFY(&member.getValue());
-        }
+        for (auto member: object->getMemberSlots() | std::views::values) { REIFY(&member.getValue()); }
 #undef REIFY
     }
 
     Obj *Obj::createCopy(Obj *obj) {
-        return is<Type *>(obj) || is<ObjCallable *>(obj) || is<ObjModule *>(obj)
-               ? obj : obj->copy();
+        return is<Type *>(obj) || is<ObjCallable *>(obj) || is<ObjModule *>(obj) ? obj : obj->copy();
     }
 
-    Obj *Obj::getMember(string name) const {
+    Obj *Obj::getMember(const string &name) const {
         try {
             return getMemberSlots().at(name).getValue();
         } catch (std::out_of_range &) {
             if (type == null) {
-                throw IllegalAccessError(format("cannot find member: %s in %s", name.c_str(), toString().c_str()));
+                throw IllegalAccessError(std::format("cannot find member: {} in {}", name, toString()));
             } else {
                 try {
                     return type->getStaticMember(name);
                 } catch (const IllegalAccessError &) {
-                    throw IllegalAccessError(format("cannot find member: %s in %s", name.c_str(), toString().c_str()));
+                    throw IllegalAccessError(std::format("cannot find member: {} in {}", name, toString()));
                 }
             }
         }
     }
 
-    void Obj::setMember(string name, Obj *value) {
+    void Obj::setMember(const string& name, Obj *value) {
         try {
             getMemberSlots().at(name).setValue(value);
         } catch (std::out_of_range &) {
@@ -147,16 +139,12 @@ namespace spade {
             } else {
                 try {
                     type->setStaticMember(name, value);
-                } catch (const IllegalAccessError &) {
-                    getMemberSlots()[name] = MemberSlot{value, 0b0001000000000000};
-                }
+                } catch (const IllegalAccessError &) { getMemberSlots()[name] = MemberSlot{value, 0b0001000000000000}; }
             }
         }
         if (is<ObjCallable *>(value)) {
             cast<ObjCallable *>(value)->setSelf(this);
-            if (is<ObjMethod *>(value)) {
-                cast<ObjMethod *>(value)->setType(type);
-            }
+            if (is<ObjMethod *>(value)) { cast<ObjMethod *>(value)->setType(type); }
         }
     }
 
@@ -165,53 +153,34 @@ namespace spade {
         if (sign.empty()) return noMeta;
         try {
             return info.manager->getVM()->getMetadata(sign.toString());
-        } catch (const IllegalAccessError &) {
-            return noMeta;
-        }
+        } catch (const IllegalAccessError &) { return noMeta; }
     }
 
-    Obj *Obj::copy() const {
+    Obj *Obj::copy() {
         auto copyObj = halloc<Obj>(info.manager, sign, type, module);
-        for (auto [name, slot]: memberSlots) {
-            copyObj->setMember(name, Obj::createCopy(slot.getValue()));
-        }
+        for (auto [name, slot]: memberSlots) { copyObj->setMember(name, createCopy(slot.getValue())); }
         return copyObj;
     }
 
-    string Obj::toString() const {
-        return format("<object %s : '%s'>", type->getSign().toString().c_str(), sign.toString().c_str());
-    }
+    string Obj::toString() const { return std::format("<object {} : '{}'>", type->getSign().toString(), sign.toString()); }
 
-    ObjMethod *Obj::getSuperClassMethod(string mSign) {
+    ObjMethod *Obj::getSuperClassMethod(const string& mSign) {
         try {
             return superClassMethods[mSign];
         } catch (const std::out_of_range &) {
-            throw IllegalAccessError(format("cannot find superclass method: %s in %s",
-                                            mSign.c_str(), toString().c_str()));
+            throw IllegalAccessError(std::format("cannot find superclass method: {} in {}", mSign, toString()));
         }
     }
 
-    ObjBool *ComparableObj::operator<(const Obj *rhs) const {
-        return halloc<ObjBool>(info.manager, compare(rhs) < 0);
-    }
+    ObjBool *ComparableObj::operator<(const Obj *rhs) const { return halloc<ObjBool>(info.manager, compare(rhs) < 0); }
 
-    ObjBool *ComparableObj::operator>(const Obj *rhs) const {
-        return halloc<ObjBool>(info.manager, compare(rhs) > 0);
-    }
+    ObjBool *ComparableObj::operator>(const Obj *rhs) const { return halloc<ObjBool>(info.manager, compare(rhs) > 0); }
 
-    ObjBool *ComparableObj::operator<=(const Obj *rhs) const {
-        return halloc<ObjBool>(info.manager, compare(rhs) <= 0);
-    }
+    ObjBool *ComparableObj::operator<=(const Obj *rhs) const { return halloc<ObjBool>(info.manager, compare(rhs) <= 0); }
 
-    ObjBool *ComparableObj::operator>=(const Obj *rhs) const {
-        return halloc<ObjBool>(info.manager, compare(rhs) >= 0);
-    }
+    ObjBool *ComparableObj::operator>=(const Obj *rhs) const { return halloc<ObjBool>(info.manager, compare(rhs) >= 0); }
 
-    ObjBool *ComparableObj::operator==(const Obj *rhs) const {
-        return halloc<ObjBool>(info.manager, compare(rhs) == 0);
-    }
+    ObjBool *ComparableObj::operator==(const Obj *rhs) const { return halloc<ObjBool>(info.manager, compare(rhs) == 0); }
 
-    ObjBool *ComparableObj::operator!=(const Obj *rhs) const {
-        return halloc<ObjBool>(info.manager, compare(rhs) != 0);
-    }
-}
+    ObjBool *ComparableObj::operator!=(const Obj *rhs) const { return halloc<ObjBool>(info.manager, compare(rhs) != 0); }
+} // namespace spade

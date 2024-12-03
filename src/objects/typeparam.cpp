@@ -56,7 +56,7 @@ namespace spade {
         return placeholder->getType();
     }
 
-    Obj *TypeParam::copy() const {
+    Obj *TypeParam::copy() {
         auto newTypeParam = halloc<TypeParam>(info.manager, sign, module);
         newTypeParam->setPlaceholder(placeholder);
         return newTypeParam;
@@ -66,40 +66,40 @@ namespace spade {
         if (placeholder == null) throw IllegalTypeParamAccessError(sign.toString());
     }
 
-    Obj *TypeParam::getMember(string name) const {
+    Obj *TypeParam::getMember(const string& name) const {
         checkPlaceholder();
         return placeholder->getMember(name);
     }
 
-    void TypeParam::setMember(string name, Obj *value) {
+    void TypeParam::setMember(const string& name, Obj *value) {
         checkPlaceholder();
         placeholder->setMember(name, value);
     }
 
-    ObjMethod *TypeParam::getSuperClassMethod(string sign) {
+    ObjMethod *TypeParam::getSuperClassMethod(const string& sign) {
         checkPlaceholder();
         return placeholder->getSuperClassMethod(sign);
     }
 
-    Obj *TypeParam::getStaticMember(string name) const {
+    Obj *TypeParam::getStaticMember(const string& name) const {
         checkPlaceholder();
         return placeholder->getStaticMember(name);
     }
 
-    void TypeParam::setStaticMember(string name, Obj *value) {
+    void TypeParam::setStaticMember(const string& name, Obj *value) {
         checkPlaceholder();
         placeholder->setStaticMember(name, value);
     }
 
-    Type *TypeParam::getReified(Obj **args, uint8 count) const {
+    Type *TypeParam::getReified(Obj **args, uint8 count) {
         checkPlaceholder();
         return placeholder->getReified(args, count);
     }
-    TypeParam *TypeParam::getTypeParam(string name) const {
+    TypeParam *TypeParam::getTypeParam(const string& name) const {
         checkPlaceholder();
         return placeholder->getTypeParam(name);
     }
-    NamedRef *TypeParam::captureTypeParam(string name) {
+    NamedRef *TypeParam::captureTypeParam(const string& name) {
         checkPlaceholder();
         return placeholder->captureTypeParam(name);
     }

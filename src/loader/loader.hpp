@@ -1,20 +1,21 @@
 #ifndef VELOCITY_LOADER_HPP
 #define VELOCITY_LOADER_HPP
 
-#include "../utils/common.hpp"
-#include "../objects/obj.hpp"
 #include "../callable/method.hpp"
 #include "../callable/table.hpp"
 #include "../objects/module.hpp"
+#include "../objects/obj.hpp"
+#include "../utils/common.hpp"
 
-namespace spade {
+namespace spade
+{
     class SpadeVM;
 
     /**
      * Represents the loader of the vm
      */
     class Loader {
-    private:
+      private:
         /// Reference to the vm
         SpadeVM *vm;
         /// The memory manager
@@ -24,7 +25,8 @@ namespace spade {
         /// Pool of unresolved references
         Table<Type *> referencePool = {};
         ObjModule *current = null;
-    public:
+
+      public:
         explicit Loader(SpadeVM *vm);
 
         /**
@@ -33,10 +35,10 @@ namespace spade {
          * @param path the path to the file
          * @return the entry point if present, null otherwise
          */
-        ObjMethod *load(string path);
+        ObjMethod *load(const string &path);
 
 
-    private:
+      private:
         /**
          * Loads a module into the vm
          * @param module the module
@@ -49,25 +51,15 @@ namespace spade {
          * @return the module as an ObjModule
          */
         ObjModule *readModule(const string &path);
-
         Obj *readGlobal(GlobalInfo &global);
-
         Obj *readObj(ObjInfo &obj);
-
-        Obj *readClass(ClassInfo klass);
-
+        Obj *readClass(ClassInfo &klass);
         Obj *readField(FieldInfo &field);
-
         Obj *readMethod(const string &klassSign, MethodInfo &method);
-
         Obj *readMethod(MethodInfo &method);
-
         Exception readException(MethodInfo::ExceptionTableInfo &exception);
-
         MatchTable readMatch(MethodInfo::MatchInfo match);
-
         NamedRef *readLocal(MethodInfo::LocalInfo &local);
-
         NamedRef *readArg(MethodInfo::ArgInfo &arg);
 
         /**
@@ -76,7 +68,7 @@ namespace spade {
          * @param count the size of the constant pool
          * @return the constant pool as a vector
          */
-        vector<Obj *> readConstPool(CpInfo *constantPool, uint16 count);
+        const vector<Obj *> &readConstPool(const CpInfo *constantPool, uint16 count);
 
 
         /**
@@ -84,23 +76,23 @@ namespace spade {
          * @param cpInfo the info of the constant
          * @return the constant as an Obj
          */
-        Obj *readCp(CpInfo &cpInfo);
+        Obj *readCp(const CpInfo &cpInfo);
 
-        static string readUTF8(__UTF8 &value);
+        static string readUTF8(const __UTF8 &value);
 
         /**
          * Reads the meta info of the object
          * @param meta the meta info
          * @return the meta info as a table of strings
          */
-        static Table<string> readMeta(MetaInfo &meta);
+        static Table<string> readMeta(const MetaInfo &meta);
 
         /**
          * @param index index of the signature
          * @return the signature specified by the \p index from the constant pool
          *         of the current module
          */
-        Sign getSign(cpidx index);
+        Sign getSign(cpidx index) const { return {getConstantPool()[index]->toString()}; }
 
         /**
          * Searches the type specified by \p param in the globals table.
@@ -116,28 +108,28 @@ namespace spade {
          * Resolves the type associated with \p param .
          * Searches for the type in the reference pool.
          * If found then it copies the info from \p type to the unresolved type
-         * and returns the unresolved type as resolved. Otherwise it returns a
+         * and returns the unresolved type as resolved. Otherwise, it returns a
          * new Kind with its contents copied from \p type .
          * @param sign the signature of the type
          * @param type type info
          * @return the associated type
          */
-        Type *resolveType(const string &sign, Type type);
+        Type *resolveType(const string &sign, const Type &type);
 
-        ObjModule *getCurrentModule();
+        ObjModule *getCurrentModule() const { return current; }
 
-        const vector<Obj *> &getConstantPool();
+        const vector<Obj *> &getConstantPool() const { return getCurrentModule()->getConstantPool(); }
 
-        CorruptFileError corrupt();
+        CorruptFileError corrupt() const { return CorruptFileError(getCurrentModule()->getAbsolutePath()); }
 
-        Obj *makeObj(string typeSign, Sign objSign, Type *type);
+        Obj *makeObj(const string &typeSign, const Sign &objSign, Type *type) const;
 
-        Obj *makeObj(string typeSign, Type *type);
+        Obj *makeObj(const string &typeSign, Type *type) const;
 
         string resolvePath(const string &pathStr);
 
         fs::path getLoadPath();
     };
-}
+} // namespace spade
 
-#endif //VELOCITY_LOADER_HPP
+#endif // VELOCITY_LOADER_HPP

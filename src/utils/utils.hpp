@@ -4,12 +4,13 @@
 #include "common.hpp"
 #include "exceptions.hpp"
 
-namespace spade {
+namespace spade
+{
     /**
      * @param str mangled name
      * @return the undecorated name of \p str
      */
-    string cpp_demangle(string str);
+    string cpp_demangle(const string &str);
 
     /**
      * Casts a value of type From to a value of type To.
@@ -20,10 +21,9 @@ namespace spade {
      * @return the casted value
      */
     template<class To, class From>
-    To cast(From val) {
-        auto castVal = dynamic_cast<To>(val);
-        if (castVal == null)
-            throw CastError(cpp_demangle(typeid(From).name()), cpp_demangle(typeid(To).name()));
+    To cast(From *val) {
+        auto castVal = dynamic_cast<To *>(val);
+        if (castVal == null) throw CastError(cpp_demangle(typeid(From).name()), cpp_demangle(typeid(To).name()));
         return castVal;
     }
 
@@ -35,8 +35,8 @@ namespace spade {
      * @return true if the type of a value is a superclass of type V, false otherwise
      */
     template<class T, class V>
-    bool is(V obj) {
-        return dynamic_cast<T>(obj) != null;
+    bool is(V *obj) {
+        return dynamic_cast<T *>(obj) != null;
     }
 
     /**
@@ -46,12 +46,11 @@ namespace spade {
      * @param data
      * @return the comma separated list as a string
      */
-    template<class T>
-    string listToString(vector<T> data) {
+    template<StringConvertible T>
+    string listToString(const vector<T> &data) {
         string str;
         const int length = data.size();
-        for (uint16 i = 0; i < length; ++i)
-            str += data[i].toString() + (i < length - 1 ? ", " : "");
+        for (uint16 i = 0; i < length; ++i) str += data[i].toString() + (i < length - 1 ? ", " : "");
         return str;
     }
 
@@ -62,12 +61,11 @@ namespace spade {
      * @param data
      * @return the comma separated list as a string
      */
-    template<class T>
-    string listToString(vector<T *> data) {
+    template<StringConvertible T>
+    string listToString(const vector<T *> &data) {
         string str;
         const int length = data.size();
-        for (uint16 i = 0; i < length; ++i)
-            str += data[i]->toString() + (i < length - 1 ? ", " : "");
+        for (uint16 i = 0; i < length; ++i) str += data[i]->toString() + (i < length - 1 ? ", " : "");
         return str;
     }
 
@@ -95,7 +93,7 @@ namespace spade {
      * @param end ending index of the string
      * @return the index of the first occurrence if found, else returns text.length()
      */
-    int find(string text, char c, int start, int end);
+    int find(const string &text, char c, int start, int end);
 
     /**
      * Finds a the first occurrence of a character in a string in the range [0, text.length()).
@@ -103,14 +101,14 @@ namespace spade {
      * @param c the character to find
      * @return the index of the first occurrence if found, else returns text.length()
      */
-    int find(string text, char c);
+    int find(const string &text, char c);
 
     /**
      * Checks if the string is a number
      * @param s the string
      * @return true if s represents a number, false otherwise
      */
-    bool isNumber(const std::string &s);
+    bool isNumber(const string &s);
 
     /**
      * Converts raw IEEE floating point 64 bit representation to a double
@@ -146,7 +144,7 @@ namespace spade {
 
     int32 longToInt(int64 num);
 
-    string getAbsolutePath(string path);
-}
+    string getAbsolutePath(const string &path);
+} // namespace spade
 
 #endif /* UTILS_UTILS_HPP_ */
